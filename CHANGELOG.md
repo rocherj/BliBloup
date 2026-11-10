@@ -14,11 +14,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Per-clip hotkeys, configurable play/pause, stop, pause and emergency stop combinations
 - Tray indicator showing the sound currently playing, with stop and enable/disable hotkeys actions
 - Hotkey conflict detection (duplicate combinations, combinations owned by another app, Windows reserved shortcuts)
+- Non-destructive trim per clip with waveform preview, audible preview and save as copy / overwrite
+- Simultaneous playback of several sounds (real mixing instead of stop-and-play)
+- Peak limiter on both the speaker mix and the virtual microphone mix to prevent clipping
 
 ### Fixed
 - Performance and UI optimizations
 - Fix sound Icon bug
 - Global hotkey hook is now detached and disposed on close instead of leaking
+- Application startup is silent: the splash screen no longer plays the bundled Vine Boom sound
 
 ---
 
