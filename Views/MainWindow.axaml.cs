@@ -495,6 +495,8 @@ namespace BoomBx.Views
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is MMDevice device)
             {
                 _audioService?.HandlePlaybackDeviceChanged(device);
+                // The routing mixer was rebuilt: re-attach the sounds still playing.
+                _playbackEngine?.ReattachVirtualInputs();
             }
         }
 
@@ -503,12 +505,14 @@ namespace BoomBx.Views
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is MMDevice device)
             {
                 _audioService?.HandleCaptureDeviceChanged(device);
+                _playbackEngine?.ReattachVirtualInputs();
             }
         }
 
         protected override void OnClosed(EventArgs e)
         {
             DisposeHotkeys();
+            DisposeAudioEngine();
             _audioService?.Dispose();
             base.OnClosed(e);
         }

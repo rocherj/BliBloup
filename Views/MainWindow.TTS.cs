@@ -136,51 +136,26 @@ namespace BoomBx.Views
 
             try
             {
-
                 var audioStream = service.GetAudioStream();
                 if (audioStream == null) return;
 
-                StopAudioProcessing(updateStatus: false);
-                var ttsReader = new WaveFileReader(audioStream);
-                var loopStream = new LoopStream(ttsReader) { Loop = ((MainWindowViewModel)DataContext).IsLoopingEnabled };
+                audioStream.Position = 0;
+                var wavData = audioStream.ToArray();
 
-                var targetFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
-                float initialVolume = (float)(((MainWindowViewModel)DataContext).TtsVolume / 100.0);
-
-                var soundParams = new SoundItem
+                var parameters = new SoundItem
                 {
-                    Volume = ((MainWindowViewModel)DataContext).TtsVolume,
-                    Pitch = ((MainWindowViewModel)DataContext).TtsPitch,
+                    Volume = viewModel.TtsVolume,
+                    Pitch = viewModel.TtsPitch,
                     Bass = 0,
                     Treble = 0
                 };
 
-                var virtualChain = CreateProcessingChain(loopStream, targetFormat, soundParams, initialVolume);
-                var speakerChain = CreateProcessingChain(loopStream, targetFormat, soundParams, initialVolume);
-
-                if (virtualChain?.Volume == null || speakerChain?.Volume == null) return;
-
-                _equalizerVirtual = virtualChain.Value.Eq;
-                _pitchShifterVirtual = virtualChain.Value.Pitch;
-                _volumeProviderVirtual = virtualChain.Value.Volume;
-
-                _equalizerSpeaker = speakerChain.Value.Eq;
-                _pitchShifterSpeaker = speakerChain.Value.Pitch;
-                _volumeProviderSpeaker = speakerChain.Value.Volume;
-
-                InitializeVirtualOutput();
-                InitializeSpeakerOutput();
-
-                _currentPlaybackState = PlaybackState.Playing;
-                UpdateStatus($"🗣️ Playing TTS: {((MainWindowViewModel)DataContext).TtsText.TrimTo(20)}");
+                var label = $"TTS: {viewModel.TtsText?.TrimTo(20) ?? "speech"}";
+                StartTtsVoice(wavData, parameters, (float)(viewModel.TtsVolume / 100.0), label);
             }
             catch (Exception ex)
             {
                 UpdateStatus($"TTS Playback Error: {ex.Message}");
-            }
-            finally
-            {
-                UpdatePlayPauseButtonState();
             }
         }
 

@@ -25,6 +25,12 @@ namespace BoomBx.Services
         public bool IsUsingVirtualOutput =>
             _selectedPlaybackDevice?.FriendlyName?.Contains("CABLE Input") == true;
 
+        /// <summary>
+        /// Raised when the virtual microphone mixer drops a finished input. The playback engine
+        /// uses it to release a clip once both of its output paths are done.
+        /// </summary>
+        public event EventHandler<ISampleProvider>? MixerInputEnded;
+
         public MMDevice? SelectedPlaybackDevice => _selectedPlaybackDevice;
         public MMDevice? SelectedCaptureDevice => _selectedCaptureDevice;
 
@@ -41,8 +47,21 @@ namespace BoomBx.Services
         
         public void SetPersistentMixer(MixingSampleProvider? mixer)
         {
+            if (_persistentMixer != null)
+            {
+                _persistentMixer.MixerInputEnded -= OnPersistentMixerInputEnded;
+            }
+
             _persistentMixer = mixer;
+
+            if (_persistentMixer != null)
+            {
+                _persistentMixer.MixerInputEnded += OnPersistentMixerInputEnded;
+            }
         }
+
+        private void OnPersistentMixerInputEnded(object? sender, SampleProviderEventArgs e) =>
+            MixerInputEnded?.Invoke(this, e.SampleProvider);
 
         public async Task InitializeAsync()
         {
@@ -137,6 +156,60 @@ namespace BoomBx.Services
             {
                 _persistentMixer?.AddMixerInput(input);
             });
+        }
+
+        /// <summary>
+        /// Thread-safe (synchronous) variant used by the playback engine, which needs to know
+        /// whether the virtual microphone feed was actually attached.
+        /// </summary>
+        public bool TryAddMixerInput(ISampleProvider input)
+        {
+            if (input is null)
+            {
+                return false;
+            }
+
+            var mixer = _persistentMixer;
+            if (mixer is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                mixer.AddMixerInput(input);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to add virtual mixer input: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool TryRemoveMixerInput(ISampleProvider input)
+        {
+            if (input is null)
+            {
+                return false;
+            }
+
+            var mixer = _persistentMixer;
+            if (mixer is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                mixer.RemoveMixerInput(input);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to remove virtual mixer input: {ex.Message}");
+                return false;
+            }
         }
 
         public void RemoveMixerInput(ISampleProvider input)
