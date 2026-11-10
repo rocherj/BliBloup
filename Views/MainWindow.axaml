@@ -156,6 +156,8 @@
                                         Width="120" Background="#007ACC"/>
                                 <Button Content="Remove Selected" Click="RemoveFromLibrary" 
                                         Width="120" Background="#c20000"/>
+                                <Button Content="⏹ Stop All" Click="StopHandler"
+                                        Width="120" Background="#404040"/>
                             </StackPanel>
 
                             <Border Background="#333333" CornerRadius="4">
@@ -554,6 +556,54 @@
                             <TextBlock Text="{Binding SelectedSound.Pitch, StringFormat='{}Pitch: {0:F1}x'}"
                                     Foreground="#A0A0A0"
                                     FontSize="12"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
+                                <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#606060" FontSize="11"/>
+                            </Grid>
+
+                            <views:WaveformView Height="54"
+                                                Peaks="{Binding ClipPeaks}"
+                                                Duration="{Binding ClipDurationSeconds}"
+                                                SelectionStart="{Binding TrimStartSeconds}"
+                                                SelectionEnd="{Binding TrimEndSeconds}"/>
+
+                            <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                <TextBlock Text="Start" Foreground="#A0A0A0" FontSize="11" Width="36"/>
+                                <Slider Grid.Column="1" Name="TrimStartSlider"
+                                        Minimum="0" Maximum="{Binding ClipDurationSeconds}"
+                                        Value="{Binding TrimStartSeconds}"
+                                        ValueChanged="TrimStartSlider_ValueChanged"/>
+                                <TextBlock Grid.Column="2" Text="{Binding TrimStartText}" Foreground="#E0E0E0"
+                                           FontSize="11" Width="48" TextAlignment="Right"/>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                <TextBlock Text="End" Foreground="#A0A0A0" FontSize="11" Width="36"/>
+                                <Slider Grid.Column="1" Name="TrimEndSlider"
+                                        Minimum="0" Maximum="{Binding ClipDurationSeconds}"
+                                        Value="{Binding TrimEndSeconds}"
+                                        ValueChanged="TrimEndSlider_ValueChanged"/>
+                                <TextBlock Grid.Column="2" Text="{Binding TrimEndText}" Foreground="#E0E0E0"
+                                           FontSize="11" Width="48" TextAlignment="Right"/>
+                            </Grid>
+
+                            <TextBlock Text="{Binding TrimSelectionText}" Foreground="#606060"
+                                       FontSize="10" TextWrapping="Wrap"/>
+
+                            <Grid ColumnDefinitions="*,*,*">
+                                <Button Grid.Column="0" Content="▶ Preview" FontSize="12"
+                                        Click="PreviewTrim_Click" Margin="0,0,3,0"/>
+                                <Button Grid.Column="1" Content="Save copy" FontSize="12"
+                                        Click="SaveTrimCopy_Click" Margin="3,0"/>
+                                <Button Grid.Column="2" Content="Overwrite" FontSize="12"
+                                        Click="SaveTrimOverwrite_Click" Background="#8B2E2E" Margin="3,0,0,0"/>
+                            </Grid>
+
+                            <Button Content="Reset trim" FontSize="11" Background="Transparent"
+                                    HorizontalAlignment="Left" Padding="0" Click="ResetTrim_Click"/>
                         </StackPanel>
 
                         <StackPanel Spacing="5">
