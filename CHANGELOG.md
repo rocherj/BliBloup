@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Keyboard focus rings and higher contrast for the dark theme; smaller minimum window size
 - Discreet background playback toast (no focus steal) and a single click on the tray icon reopens the window
 - Actionable audio error messages (missing file, no output device, unavailable routing)
+- Sound thumbnails: bundled default thumbnail (soundboard.png), click the thumbnail in the sound panel to pick a custom image, and a missing custom image falls back to the default
 
 ### Removed
 - Redundant Rename button (the inline Title field is the rename control)
