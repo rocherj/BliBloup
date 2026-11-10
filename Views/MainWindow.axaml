@@ -1,17 +1,17 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:BoomBx.ViewModels"
-        xmlns:views="using:BoomBx.Views"
+        xmlns:vm="using:BliBloup.ViewModels"
+        xmlns:views="using:BliBloup.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:conv="using:BoomBx.Converters"
+        xmlns:conv="using:BliBloup.Converters"
         mc:Ignorable="d" 
-        x:Class="BoomBx.Views.MainWindow"
+        x:Class="BliBloup.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        xmlns:model="using:BoomBx.Models"
+        xmlns:model="using:BliBloup.Models"
         xmlns:g="using:"
         Icon="/Assets/logo.png"
-        Title="BoomBx"
+        Title="BliBloup"
         Background="#1A1A1A"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
@@ -61,7 +61,7 @@
                 <Border Padding="15" Background="#2D2D2D">
                     <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Image Source="/Assets/logo.png" Width="50" Height="50"/>
-                        <TextBlock Text="BOOMBX" 
+                        <TextBlock Text="BLIBLOUP" 
                                    FontSize="16" 
                                    FontWeight="Bold" 
                                    Foreground="#E0E0E0"
@@ -480,7 +480,7 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <TextBlock Text="Assign a clip hotkey from the sound panel on the right: it then plays from anywhere without bringing BoomBx to the front."
+                                <TextBlock Text="Assign a clip hotkey from the sound panel on the right: it then plays from anywhere without bringing BliBloup to the front."
                                         Foreground="#8A8A8A" FontSize="11" TextWrapping="Wrap"/>
 
                                 </StackPanel>
@@ -601,7 +601,7 @@
                                         ToolTip.Tip="Import an image (resized to 256px and compressed)"/>
                                 <Button Grid.Column="1" Content="Reset thumbnail" Padding="6,6"
                                         Click="ResetThumbnail_Click" Margin="3,0,0,0"
-                                        ToolTip.Tip="Use the default soundboard.png thumbnail"/>
+                                        ToolTip.Tip="Use the default BliBloup thumbnail"/>
                             </Grid>
 
                             <Button Content="Save Changes" Padding="6,6" HorizontalAlignment="Stretch"

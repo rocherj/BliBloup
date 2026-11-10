@@ -2,7 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using Avalonia.Input;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public enum HotkeyAvailability
     {
@@ -22,7 +22,7 @@ namespace BoomBx.Services
     /// <summary>
     /// Detects hotkey combinations that are already owned by another application.
     ///
-    /// BoomBx listens through a passive low-level hook, so it would still receive the keys;
+    /// BliBloup listens through a passive low-level hook, so it would still receive the keys;
     /// the other application would also react. Probing with RegisterHotKey/UnregisterHotKey
     /// reveals that conflict (error 1409) without keeping any registration.
     /// </summary>

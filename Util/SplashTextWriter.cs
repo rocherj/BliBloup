@@ -2,8 +2,8 @@ using System.IO;
 using System.Text;
 using Avalonia;
 using Avalonia.Threading;
-using BoomBx;
-using BoomBx.Views;
+using BliBloup;
+using BliBloup.Views;
 
 public class SplashTextWriter : TextWriter
 {

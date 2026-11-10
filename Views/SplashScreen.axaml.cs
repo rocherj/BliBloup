@@ -3,7 +3,7 @@ using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public partial class SplashScreen : Window
     {

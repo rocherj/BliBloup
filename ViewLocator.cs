@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using BoomBx.ViewModels;
+using BliBloup.ViewModels;
 
-namespace BoomBx;
+namespace BliBloup;
 
 public class ViewLocator : IDataTemplate
 {

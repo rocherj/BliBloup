@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - VB Cable driver configuration with app
 - Sound Library System
 - Microphone and playback devices config
-- Global hotkeys: play the soundboard while BoomBx is in the background, without stealing focus
+- Global hotkeys: play the soundboard while BliBloup is in the background, without stealing focus
 - Per-clip hotkeys, configurable play/pause, stop, pause and emergency stop combinations
 - Tray indicator showing the sound currently playing, with stop and enable/disable hotkeys actions
 - Hotkey conflict detection (duplicate combinations, combinations owned by another app, Windows reserved shortcuts)
@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Peak limiter on both the speaker mix and the virtual microphone mix to prevent clipping
 - Readable library format (v2) with atomic saves, previous-version backup and rotating timestamped backups
 - Automatic migration of legacy libraries, recovery from a corrupt library file and a documented data-directory override
-- Single instance: a second launch focuses the running BoomBx instead of starting another one
+- Single instance: a second launch focuses the running BliBloup instead of starting another one
 - The first soundboard is selected automatically at startup
 - Drag and drop reordering of the sounds in a soundboard
 - Duplicate, rename and delete (with confirmation) actions, plus quick hotkey editing and deletion directly on each sound tile

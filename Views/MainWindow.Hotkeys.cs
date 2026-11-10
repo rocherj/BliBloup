@@ -6,10 +6,10 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using BoomBx.Models;
-using BoomBx.Services;
+using BliBloup.Models;
+using BliBloup.Services;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     /// <summary>
     /// Global hotkeys: registration of transport actions and per-clip playback, key capture,

@@ -6,7 +6,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace BoomBx.Converters
+namespace BliBloup.Converters
 {
     public class UriToImageSourceConverter : IValueConverter
     {
@@ -30,7 +30,7 @@ namespace BoomBx.Converters
 
                 var appDataPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "BoomBx",
+                    "BliBloup",
                     "icons",
                     path);
 
@@ -45,7 +45,7 @@ namespace BoomBx.Converters
 
         private static Bitmap GetDefaultIcon()
         {
-            var uri = new Uri("avares://BoomBx/soundboard.png");
+            var uri = new Uri("avares://BliBloup/soundboard2.png");
             using var stream = AssetLoader.Open(uri);
             return new Bitmap(stream);
         }

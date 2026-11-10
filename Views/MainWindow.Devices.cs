@@ -1,7 +1,7 @@
 using Avalonia.Controls;
-using BoomBx.Services;
+using BliBloup.Services;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public partial class MainWindow : Window
     {

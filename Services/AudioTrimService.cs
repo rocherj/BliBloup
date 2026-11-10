@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public sealed record AudioClipInfo(double DurationSeconds, float[] Peaks);
 

@@ -1,7 +1,7 @@
 using System;
 using NAudio.Wave;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     /// <summary>
     /// Simple peak limiter used on the master outputs (speaker mix and the virtual microphone

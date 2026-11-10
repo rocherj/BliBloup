@@ -16,19 +16,19 @@ using Avalonia.Platform.Storage;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.ComponentModel;
-using BoomBx.ViewModels;
-using BoomBx.Models;
+using BliBloup.ViewModels;
+using BliBloup.Models;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using System.Reflection;
 using Avalonia.Media;
 using System.Text.Json.Serialization;
 using Avalonia.Input;
-using BoomBx.Services;
+using BliBloup.Services;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public partial class MainWindow : Window
     {
@@ -204,7 +204,7 @@ namespace BoomBx.Views
             {
                 await Task.Run(() =>
                 {
-                    var uri = new Uri("avares://BoomBx/soundboard.png");
+                    var uri = new Uri("avares://BliBloup/soundboard2.png");
                     using var stream = AssetLoader.Open(uri);
                     var testImage = new Bitmap(stream);
                     Console.WriteLine("Default icon loaded successfully");
@@ -250,7 +250,7 @@ namespace BoomBx.Views
 
                 if (ViewModel.PlaybackDevices.Count == 0)
                 {
-                    UpdateStatus("No audio output device detected. BoomBx will stay silent until a playback device is available.", true);
+                    UpdateStatus("No audio output device detected. BliBloup will stay silent until a playback device is available.", true);
                 }
                 else if (ViewModel.CaptureDevices.Count == 0)
                 {
@@ -410,7 +410,7 @@ namespace BoomBx.Views
                 if (File.Exists(logPath)) File.Delete(logPath);
 
                 var assembly = Assembly.GetExecutingAssembly();
-                const string resourceName = "BoomBx.InstallScripts.InstallVBCable.bat";
+                const string resourceName = "BliBloup.InstallScripts.InstallVBCable.bat";
 
                 using var stream = assembly.GetManifestResourceStream(resourceName);
                 if (stream == null)
@@ -677,7 +677,7 @@ namespace BoomBx.Views
                 // Downscale to at most 256x256 and re-encode, so huge pictures cannot slow the UI.
                 var result = ThumbnailService.CreateThumbnail(
                     localPath,
-                    BoomBxPaths.IconsDirectory,
+                    BliBloupPaths.IconsDirectory,
                     Guid.NewGuid().ToString("N"));
 
                 // Store the full path: thumbnails survive a changed data directory.
@@ -694,7 +694,7 @@ namespace BoomBx.Views
             }
         }
 
-        /// <summary>Returns the sound thumbnail to the bundled default (soundboard.png).</summary>
+        /// <summary>Returns the sound thumbnail to the bundled default.</summary>
         private void ResetThumbnail_Click(object? sender, RoutedEventArgs e)
         {
             if (ViewModel.SelectedSound is not { } sound)
@@ -702,7 +702,7 @@ namespace BoomBx.Views
                 return;
             }
 
-            sound.IconPath = "avares://BoomBx/soundboard.png";
+            sound.IconPath = "avares://BliBloup/soundboard2.png";
             SaveSoundLibrary();
             UpdateStatus($"Thumbnail reset to default for \"{sound.Name}\".");
         }
@@ -874,7 +874,7 @@ namespace BoomBx.Views
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "https://trello.com/b/74PesGFa/boombx",
+                FileName = "https://trello.com/b/74PesGFa/blibloup",
                 UseShellExecute = true
             });
         }

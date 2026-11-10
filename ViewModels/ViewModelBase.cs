@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace BoomBx.ViewModels;
+namespace BliBloup.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

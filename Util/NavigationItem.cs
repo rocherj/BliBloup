@@ -1,4 +1,4 @@
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public enum NavigationItem
     {

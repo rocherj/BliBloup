@@ -1,31 +1,38 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/9e5ca822-ec6d-47b5-8ef6-70cfbce3b7db" width="250" alt="BoomBx Logo">
+  <img src="Assets/logo.png" width="220" alt="BliBloup logo">
 </p>
 
-<h1 align="center">BoomBx</h1>
+<h1 align="center">BliBloup</h1>
 
 <p align="center">
   Free soundboard for playing audio through a virtual microphone (or anything if you want).
 </p>
 
-<h1 align="center">Download</h1>
+<h1 align="center">Build &amp; Run</h1>
 
+Requires the .NET 8 SDK on Windows.
 
-<div align="center">
+```powershell
+dotnet build -c Release
+.\bin\Release\net8.0\win-x64\BliBloup.exe
+```
 
-[![Download](https://img.shields.io/badge/Download-v0.1.6-%23007ACC?style=for-the-badge&logo=github)](https://github.com/sardeq/BoomBx/releases/latest)
-  
-</div>
+Single-file self-contained build:
+
+```powershell
+dotnet publish -c Release -r win-x64 --self-contained true -o publish
+.\publish\BliBloup.exe
+```
 
 <div>
 
-## 🎯 What is BoomBx?
+## 🎯 What is BliBloup?
 
-BoomBx is a cross-platform audio routing tool designed for content creators, streamers, and having fun with your friends. Easily play sounds through a virtual microphones with one-click simplicity.
+BliBloup is a cross-platform audio routing tool designed for content creators, streamers, and having fun with your friends. Easily play sounds through a virtual microphones with one-click simplicity.
 
 ## ❓How to use
 If you want to play audio through your microphone to your friends in a game or discord do the following:
-- Make sure you have VB-Cable installed (BoomBx will prompt to install it for you).
+- Make sure you have VB-Cable installed (BliBloup will prompt to install it for you).
 - After you have restarted your device, Go to settings make sure CABLE Input is set to playback device and your microphone as microphone input
 - Set your input in your game/discord to Cable OUTPUT
 - Add your own audios and Play them!
@@ -70,7 +77,11 @@ If you want to play audio through your microphone to your friends in a game or d
   Screen reader support and high-contrast themes
 
 > **Note**: Requires VB-Cable Virtual Audio Device for full functionality  
-> (Automatically installed through BoomBx)
+> (Automatically installed through BliBloup)
 > Will be making my own drivers eventually so this is temporary
 
 </div>
+
+## Credits
+
+BliBloup is a rebranded fork of the open-source [BoomBx](https://github.com/sardeq/BoomBx) project by sardeq. Many thanks to the original author for the audio engine, soundboard and virtual microphone routing foundations.

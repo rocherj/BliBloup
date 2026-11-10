@@ -1,8 +1,8 @@
 using System;
 using System.Collections.ObjectModel;
-using BoomBx.Models;
+using BliBloup.Models;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     /// <summary>
     /// Pure list operations for the soundboard, kept separate from the window so they can be

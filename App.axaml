@@ -1,7 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="BoomBx.App"
-             xmlns:local="using:BoomBx"
+             x:Class="BliBloup.App"
+             xmlns:local="using:BliBloup"
              RequestedThemeVariant="Dark">
 
     <Application.DataTemplates>

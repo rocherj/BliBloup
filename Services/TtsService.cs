@@ -1,12 +1,12 @@
-using BoomBx.Models;
-using BoomBx.ViewModels;
+using BliBloup.Models;
+using BliBloup.ViewModels;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using VoiceInfo = BoomBx.Models.VoiceInfo;
+using VoiceInfo = BliBloup.Models.VoiceInfo;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public class TtsService
     {

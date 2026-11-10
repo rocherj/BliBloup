@@ -5,10 +5,10 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using BoomBx.Models;
-using BoomBx.Services;
+using BliBloup.Models;
+using BliBloup.Services;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     /// <summary>
     /// Soundboard management: drag and drop reordering, and the quick actions available directly
@@ -16,7 +16,7 @@ namespace BoomBx.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string SoundDragFormat = "application/x-boombx-sound";
+        private const string SoundDragFormat = "application/x-blibloup-sound";
 
         private Soundboard? _trackedBoard;
 

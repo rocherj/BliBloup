@@ -1,11 +1,11 @@
-using BoomBx.Models;
+using BliBloup.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NAudio.CoreAudioApi;
 using System.Collections.ObjectModel;
 using System.Speech.Synthesis;
-using VoiceInfo = BoomBx.Models.VoiceInfo;
+using VoiceInfo = BliBloup.Models.VoiceInfo;
 
-namespace BoomBx.ViewModels
+namespace BliBloup.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {

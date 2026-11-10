@@ -3,10 +3,10 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     /// <summary>
-    /// Lightweight, dependency-free toast shown when a sound starts while BoomBx is in the
+    /// Lightweight, dependency-free toast shown when a sound starts while BliBloup is in the
     /// background. It never takes focus (ShowActivated=false) and closes itself.
     /// </summary>
     public partial class ToastWindow : Window

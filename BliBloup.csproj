@@ -5,11 +5,11 @@
     <FileVersion>0.1.6.0</FileVersion>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <RootNamespace>BoomBx</RootNamespace>
+    <RootNamespace>BliBloup</RootNamespace>
     
     <OutputType>WinExe</OutputType>
-    <AssemblyName>BoomBx</AssemblyName>
-    <OutputName>BoomBx</OutputName>
+    <AssemblyName>BliBloup</AssemblyName>
+    <OutputName>BliBloup</OutputName>
     <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
     
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -46,8 +46,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </AvaloniaResource>
 
-    <!-- Default sound thumbnail (avares://BoomBx/soundboard.png) -->
-    <AvaloniaResource Include="soundboard.png" />
+    <!-- Default sound thumbnail (avares://BliBloup/soundboard2.png) -->
+    <AvaloniaResource Include="soundboard2.png" />
 
     <PackageReference Include="Avalonia" Version="11.1.3" />
     <PackageReference Include="Avalonia.Desktop" Version="11.1.3" />

@@ -1,4 +1,4 @@
-namespace BoomBx.Models
+namespace BliBloup.Models
 {
     public class VoiceInfo
     {

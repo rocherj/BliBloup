@@ -5,8 +5,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using BoomBx.ViewModels;
-using BoomBx.Views;
+using BliBloup.ViewModels;
+using BliBloup.Views;
 using System.Runtime.InteropServices;
 using Avalonia.Logging;
 using Avalonia.Controls;
@@ -14,7 +14,7 @@ using Avalonia.Platform;
 using Avalonia.Threading;
 
 
-namespace BoomBx;
+namespace BliBloup;
 
 public partial class App : Application
 {
@@ -116,13 +116,13 @@ public partial class App : Application
         {
             // Kept open for the lifetime of the process: the tray icon reads the stream lazily
             // through the platform implementation.
-            var iconStream = AssetLoader.Open(new Uri("avares://BoomBx/Assets/logo.ico"));
+            var iconStream = AssetLoader.Open(new Uri("avares://BliBloup/Assets/logo.ico"));
 
             var menu = new NativeMenu();
 
             _trayNowPlayingItem = new NativeMenuItem("Now playing: —") { IsEnabled = false };
 
-            var showItem = new NativeMenuItem("Show BoomBx");
+            var showItem = new NativeMenuItem("Show BliBloup");
             showItem.Click += (_, _) => ShowMainWindow();
 
             var stopItem = new NativeMenuItem("Stop all sounds");
@@ -145,7 +145,7 @@ public partial class App : Application
             _trayIcon = new TrayIcon
             {
                 Icon = new WindowIcon(iconStream),
-                ToolTipText = "BoomBx — idle",
+                ToolTipText = "BliBloup — idle",
                 Menu = menu
             };
 
@@ -171,7 +171,7 @@ public partial class App : Application
         {
             if (_trayIcon != null)
             {
-                _trayIcon.ToolTipText = idle ? "BoomBx — idle" : $"BoomBx — ▶ {soundName}";
+                _trayIcon.ToolTipText = idle ? "BliBloup — idle" : $"BliBloup — ▶ {soundName}";
             }
 
             if (_trayNowPlayingItem != null)
@@ -187,7 +187,7 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Shows the discreet background-playback toast, but only when BoomBx itself does not have
+    /// Shows the discreet background-playback toast, but only when BliBloup itself does not have
     /// the focus (the user already sees the window otherwise).
     /// </summary>
     private void ShowPlaybackToast(string soundName)

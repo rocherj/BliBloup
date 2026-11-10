@@ -1,6 +1,6 @@
 using Avalonia.Threading;
-using BoomBx.Models;
-using BoomBx.ViewModels;
+using BliBloup.Models;
+using BliBloup.ViewModels;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public class AudioService : IDisposable
     {

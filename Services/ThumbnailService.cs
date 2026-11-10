@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using SkiaSharp;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public sealed record ThumbnailResult(string Path, int Width, int Height, long Bytes, bool Resized);
 

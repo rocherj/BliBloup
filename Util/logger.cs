@@ -5,7 +5,7 @@ public static class Logger
 {
     private static readonly string LogPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-        "BoomBx.log");
+        "BliBloup.log");
 
     public static void Log(string message)
     {

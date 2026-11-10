@@ -6,17 +6,17 @@ using SharpHook;
 using SharpHook.Data;
 using SharpHook.Native;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     /// <summary>
-    /// System-wide keyboard hook (SharpHook) used to trigger BoomBx soundboard actions
+    /// System-wide keyboard hook (SharpHook) used to trigger BliBloup soundboard actions
     /// while another application owns the focus.
     ///
-    /// The hook never activates or raises the BoomBx window: it only observes the
+    /// The hook never activates or raises the BliBloup window: it only observes the
     /// keyboard, so playback can start in the background.
     ///
     /// Hotkey actions are raised on the SharpHook worker thread. Callers must marshal
-    /// to the UI thread themselves (BoomBx posts through Avalonia's Dispatcher).
+    /// to the UI thread themselves (BliBloup posts through Avalonia's Dispatcher).
     /// </summary>
     public sealed class GlobalHotkeyManager : IDisposable
     {

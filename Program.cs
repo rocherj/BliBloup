@@ -3,11 +3,11 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace BoomBx;
+namespace BliBloup;
 
 sealed class Program
 {
-    private const string InstanceMutexName = "BoomBx.SingleInstance";
+    private const string InstanceMutexName = "BliBloup.SingleInstance";
     private const int SwRestore = 9;
     private const int SwShow = 5;
 
@@ -34,15 +34,15 @@ sealed class Program
     }
 
     /// <summary>
-    /// One BoomBx per user session: two instances would install two global keyboard hooks and
+    /// One BliBloup per user session: two instances would install two global keyboard hooks and
     /// fight over the same hotkeys and tray icon.
     /// </summary>
     private static bool TryAcquireSingleInstance()
     {
         try
         {
-            // The BOOMBX_INSTANCE_NAME override lets automated tests run an isolated instance.
-            var instanceName = Environment.GetEnvironmentVariable("BOOMBX_INSTANCE_NAME");
+            // The BLIBLOUP_INSTANCE_NAME override lets automated tests run an isolated instance.
+            var instanceName = Environment.GetEnvironmentVariable("BLIBLOUP_INSTANCE_NAME");
 
             _instanceMutex = new Mutex(
                 initiallyOwned: true,
@@ -75,7 +75,7 @@ sealed class Program
 
         try
         {
-            var handle = FindWindow(null, "BoomBx");
+            var handle = FindWindow(null, "BliBloup");
 
             if (handle == IntPtr.Zero)
             {

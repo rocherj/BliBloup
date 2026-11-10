@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using BoomBx.Models;
+using BliBloup.Models;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public static class SettingsManager
     {
@@ -13,7 +13,7 @@ namespace BoomBx.Services
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        private static string AppDataDir => BoomBxPaths.AppDataDirectory;
+        private static string AppDataDir => BliBloupPaths.AppDataDirectory;
 
         public static AppSettings LoadSettings()
         {

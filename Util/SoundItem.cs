@@ -2,14 +2,14 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace BoomBx.Models
+namespace BliBloup.Models
 {
     public class SoundItem : INotifyPropertyChanged
     {
         public string Path { get; set; } = string.Empty;
         private string _name = string.Empty;
         private double _volume = 100;
-        private string _iconPath = "avares://BoomBx/soundboard.png";
+        private string _iconPath = "avares://BliBloup/soundboard2.png";
 
         public string IconPath
         {
@@ -83,7 +83,7 @@ namespace BoomBx.Models
         private string _hotkey = string.Empty;
 
         /// <summary>
-        /// Global keyboard combination that plays this sound while BoomBx is in the background.
+        /// Global keyboard combination that plays this sound while BliBloup is in the background.
         /// Stored in canonical text form (see <c>HotkeyText.Format</c>); empty means unassigned.
         /// </summary>
         public string Hotkey

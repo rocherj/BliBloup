@@ -4,12 +4,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
-using BoomBx.Models;
+using BliBloup.Models;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public sealed class VoiceEventArgs : EventArgs
     {

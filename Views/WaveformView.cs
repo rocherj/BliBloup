@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     /// <summary>
     /// Compact waveform preview for the trim editor: pre-computed peaks with the selected

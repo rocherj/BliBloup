@@ -3,11 +3,11 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using BoomBx.Models;
-using BoomBx.Services;
-using BoomBx.ViewModels;
+using BliBloup.Models;
+using BliBloup.Services;
+using BliBloup.ViewModels;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public partial class MainWindow : Window
     {

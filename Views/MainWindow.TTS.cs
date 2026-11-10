@@ -2,9 +2,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using BoomBx.Models;
-using BoomBx.Services;
-using BoomBx.ViewModels;
+using BliBloup.Models;
+using BliBloup.Services;
+using BliBloup.ViewModels;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using NAudio.Wave;
@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     public partial class MainWindow : Window
     {

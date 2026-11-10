@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BoomBx.Models;
+using BliBloup.Models;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     public enum LibraryLoadNote
     {
@@ -37,8 +37,19 @@ namespace BoomBx.Services
     {
         public const int CurrentVersion = 2;
         public const string LibraryFileName = "soundboards.json";
-        private const string DefaultIcon = "avares://BoomBx/soundboard.png";
-        private const string LegacyDefaultIcon = "avares://BoomBx/Assets/bocchi.jpg";
+        private const string DefaultIcon = "avares://BliBloup/soundboard2.png";
+        /// <summary>
+        /// Placeholder thumbnails shipped by previous versions (both the old brand and the
+        /// intermediate soundboard.png) are upgraded to the bundled default automatically.
+        /// </summary>
+        private static readonly System.Collections.Generic.HashSet<string> LegacyDefaultIcons =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "avares://BliBloup/Assets/bocchi.jpg",
+                "avares://BliBloup/soundboard.png",
+                "avares://BoomBx/Assets/bocchi.jpg",
+                "avares://BoomBx/soundboard.png"
+            };
         private const int MaxTimestampedBackups = 5;
 
         private static readonly JsonSerializerOptions ReadOptions = new()
@@ -65,7 +76,7 @@ namespace BoomBx.Services
 
         public SoundboardStore(string? directory = null)
         {
-            _directory = directory ?? BoomBxPaths.AppDataDirectory;
+            _directory = directory ?? BliBloupPaths.AppDataDirectory;
         }
 
         public string DirectoryPath => _directory;
@@ -360,9 +371,27 @@ namespace BoomBx.Services
                 return DefaultIcon;
             }
 
-            if (string.Equals(iconPath, LegacyDefaultIcon, StringComparison.OrdinalIgnoreCase))
+            if (LegacyDefaultIcons.Contains(iconPath))
             {
                 return DefaultIcon;
+            }
+
+            // Custom thumbnails imported before the rebranding live under the old folder: map them
+            // to the migrated copy when it exists.
+            var legacyIcons = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "BoomBx",
+                "icons");
+
+            if (Path.IsPathRooted(iconPath) &&
+                iconPath.StartsWith(legacyIcons, StringComparison.OrdinalIgnoreCase))
+            {
+                var mapped = Path.Combine(BliBloupPaths.IconsDirectory, Path.GetFileName(iconPath));
+
+                if (File.Exists(mapped))
+                {
+                    return mapped;
+                }
             }
 
             // A custom file that was deleted or moved falls back to the default thumbnail.
@@ -370,6 +399,18 @@ namespace BoomBx.Services
             {
                 Logger.Log($"Thumbnail file is missing, using the default: {iconPath}");
                 return DefaultIcon;
+            }
+
+            // Very old libraries stored only the file name relative to the icons folder.
+            if (!Path.IsPathRooted(iconPath) &&
+                !iconPath.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
+            {
+                var candidate = Path.Combine(BliBloupPaths.IconsDirectory, iconPath);
+
+                if (!File.Exists(candidate))
+                {
+                    return DefaultIcon;
+                }
             }
 
             return iconPath;

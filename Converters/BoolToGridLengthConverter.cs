@@ -4,7 +4,7 @@ using System;
 using System.Globalization;
 using Avalonia.Controls;
 
-namespace BoomBx.Converters
+namespace BliBloup.Converters
 {
     public class BoolToGridLengthConverter : IValueConverter
     {

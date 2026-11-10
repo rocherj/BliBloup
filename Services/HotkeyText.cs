@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Input;
 
-namespace BoomBx.Services
+namespace BliBloup.Services
 {
     /// <summary>
     /// Converts keyboard combinations between <see cref="KeyGesture"/>, user facing text and

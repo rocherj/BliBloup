@@ -4,12 +4,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using BoomBx.Models;
-using BoomBx.Services;
+using BliBloup.Models;
+using BliBloup.Services;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 
-namespace BoomBx.Views
+namespace BliBloup.Views
 {
     /// <summary>
     /// Trim editor: waveform preview, start/end selection, audible preview and baking the

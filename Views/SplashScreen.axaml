@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="BoomBx.Views.SplashScreen"
+        x:Class="BliBloup.Views.SplashScreen"
         Title="SplashScreen"
         WindowStartupLocation="CenterScreen"
         SystemDecorations="None"

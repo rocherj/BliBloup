@@ -1,4 +1,4 @@
-# Contributing to BoomBx
+# Contributing to BliBloup
 
 Thanks for your interest in contributing! Here's how to get started.
 
