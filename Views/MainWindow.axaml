@@ -9,6 +9,7 @@
         x:Class="BoomBx.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         xmlns:model="using:BoomBx.Models"
+        xmlns:g="using:"
         Icon="/Assets/logo.png"
         Title="BoomBx"
         Background="#1A1A1A"
@@ -199,23 +200,38 @@
                                                         </Setter>
                                                     </Style>
                                                 </Border.Styles>
-                                                <StackPanel Spacing="8" HorizontalAlignment="Center">
-                                                    <Border Width="80" 
-                                                            Height="80" 
-                                                            Background="#404040" 
-                                                            CornerRadius="4">
-                                                        <Image Source="{Binding IconPath, Converter={StaticResource UriConverter}}"
-                                                            Width="40" 
-                                                            Height="40"/>
+                                                <Grid>
+                                                    <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                                        <Border Width="80" 
+                                                                Height="80" 
+                                                                Background="#404040" 
+                                                                CornerRadius="4">
+                                                            <Image Source="{Binding IconPath, Converter={StaticResource UriConverter}}"
+                                                                Width="40" 
+                                                                Height="40"/>
+                                                        </Border>
+                                                        <TextBlock Text="{Binding Name}" 
+                                                                Foreground="#E0E0E0"
+                                                                FontSize="13"
+                                                                TextWrapping="Wrap"
+                                                                HorizontalAlignment="Center"
+                                                                MaxWidth="100"
+                                                                TextAlignment="Center"/>
+                                                    </StackPanel>
+                                                    <Border IsVisible="{Binding HasHotkey}"
+                                                            Background="#007ACC"
+                                                            CornerRadius="3"
+                                                            Padding="5,1"
+                                                            Margin="6"
+                                                            HorizontalAlignment="Right"
+                                                            VerticalAlignment="Top"
+                                                            IsHitTestVisible="False">
+                                                        <TextBlock Text="{Binding Hotkey}"
+                                                                Foreground="White"
+                                                                FontSize="9"
+                                                                FontWeight="SemiBold"/>
                                                     </Border>
-                                                    <TextBlock Text="{Binding Name}" 
-                                                            Foreground="#E0E0E0"
-                                                            FontSize="13"
-                                                            TextWrapping="Wrap"
-                                                            HorizontalAlignment="Center"
-                                                            MaxWidth="100"
-                                                            TextAlignment="Center"/>
-                                                </StackPanel>
+                                                </Grid>
                                             </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -350,35 +366,99 @@
                             </StackPanel>
 
                             <StackPanel Spacing="15">
-                                <TextBlock Text="Hotkeys" FontSize="18" FontWeight="SemiBold"
-                                        Foreground="#E0E0E0" HorizontalAlignment="Left" Margin="0,20,0,0"/>
+                                <Grid ColumnDefinitions="*,Auto" Margin="0,20,0,0">
+                                    <TextBlock Grid.Column="0" Text="Hotkeys" FontSize="18" FontWeight="SemiBold"
+                                            Foreground="#E0E0E0" VerticalAlignment="Center"/>
+                                    <CheckBox Grid.Column="1" Name="HotkeysEnabledBox" Content="Enable global hotkeys"
+                                            IsChecked="{Binding HotkeysEnabled, Mode=TwoWay}"
+                                            Click="HotkeysEnabledBox_Click"
+                                            Foreground="#E0E0E0" VerticalAlignment="Center"/>
+                                </Grid>
+                                <TextBlock Text="Global combinations work while another application has the focus; playback stays in the background."
+                                        Foreground="#606060" FontSize="11" TextWrapping="Wrap"/>
 
-                                <Grid ColumnDefinitions="*,Auto,Auto" VerticalAlignment="Center">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Grid.Column="0" Text="Play / Pause Sound" VerticalAlignment="Center" Foreground="#E0E0E0"/>
-                                    <TextBox Grid.Column="1" Name="PlayPauseHotkeyTextBox" MinWidth="150"
+                                    <TextBox Grid.Column="1" Name="PlayPauseHotkeyTextBox" MinWidth="140"
                                             Text="{Binding PlayPauseHotkey, Mode=OneWay}" IsReadOnly="True"
                                             VerticalContentAlignment="Center"/>
                                     <Button Grid.Column="2" Content="Set" Margin="5,0,0,0"
                                             Click="SetHotkey_Click" Tag="{Binding #PlayPauseHotkeyTextBox}"/>
+                                    <Button Grid.Column="3" Content="Test" Width="62" Margin="5,0,0,0"
+                                            Click="TestHotkey_Click" Tag="PlayPause"/>
                                 </Grid>
 
-                                <Grid ColumnDefinitions="*,Auto,Auto" VerticalAlignment="Center">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Grid.Column="0" Text="Stop Sound" VerticalAlignment="Center" Foreground="#E0E0E0"/>
-                                    <TextBox Grid.Column="1" Name="StopHotkeyTextBox" MinWidth="150"
+                                    <TextBox Grid.Column="1" Name="StopHotkeyTextBox" MinWidth="140"
                                             Text="{Binding StopHotkey, Mode=OneWay}" IsReadOnly="True"
                                             VerticalContentAlignment="Center"/>
                                     <Button Grid.Column="2" Content="Set" Margin="5,0,0,0"
                                             Click="SetHotkey_Click" Tag="{Binding #StopHotkeyTextBox}"/>
+                                    <Button Grid.Column="3" Content="Test" Width="62" Margin="5,0,0,0"
+                                            Click="TestHotkey_Click" Tag="Stop"/>
                                 </Grid>
                                 
-                                <Grid ColumnDefinitions="*,Auto,Auto" VerticalAlignment="Center">
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Grid.Column="0" Text="Pause Sound" VerticalAlignment="Center" Foreground="#E0E0E0"/>
-                                    <TextBox Grid.Column="1" Name="PauseHotkeyTextBox" MinWidth="150"
+                                    <TextBox Grid.Column="1" Name="PauseHotkeyTextBox" MinWidth="140"
                                             Text="{Binding PauseHotkey, Mode=OneWay}" IsReadOnly="True"
                                             VerticalContentAlignment="Center"/>
                                     <Button Grid.Column="2" Content="Set" Margin="5,0,0,0"
                                             Click="SetHotkey_Click" Tag="{Binding #PauseHotkeyTextBox}"/>
+                                    <Button Grid.Column="3" Content="Test" Width="62" Margin="5,0,0,0"
+                                            Click="TestHotkey_Click" Tag="Pause"/>
                                 </Grid>
+
+                                <Grid ColumnDefinitions="*,Auto,Auto,Auto" VerticalAlignment="Center">
+                                    <TextBlock Grid.Column="0" Text="Emergency stop (panic)" VerticalAlignment="Center" Foreground="#E0E0E0"/>
+                                    <TextBox Grid.Column="1" Name="PanicHotkeyTextBox" MinWidth="140"
+                                            Text="{Binding PanicHotkey, Mode=OneWay}" IsReadOnly="True"
+                                            VerticalContentAlignment="Center"/>
+                                    <Button Grid.Column="2" Content="Set" Margin="5,0,0,0"
+                                            Click="SetHotkey_Click" Tag="{Binding #PanicHotkeyTextBox}"/>
+                                    <Button Grid.Column="3" Content="Test" Width="62" Margin="5,0,0,0"
+                                            Click="TestHotkey_Click" Tag="Panic"/>
+                                </Grid>
+
+                                <TextBlock Text="{Binding LastHotkeyDisplay, StringFormat='Last triggered: {0}'}"
+                                        Foreground="#A0A0A0" FontSize="12"/>
+
+                                <TextBlock Text="{Binding HotkeyWarnings}"
+                                        IsVisible="{Binding HasHotkeyWarnings}"
+                                        Foreground="#FF6B6B" FontSize="11" TextWrapping="Wrap"/>
+
+                                <TextBlock Text="Per-clip hotkeys" FontWeight="SemiBold" Foreground="#A0A0A0"
+                                        FontSize="12" Margin="0,10,0,0"/>
+
+                                <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding Soundboards}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="g:Soundboard">
+                                                <StackPanel Spacing="3" Margin="0,0,0,8">
+                                                    <TextBlock Text="{Binding Name}" Foreground="#606060"
+                                                            FontSize="11" FontWeight="Bold"/>
+                                                    <ItemsControl ItemsSource="{Binding Sounds}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate DataType="model:SoundItem">
+                                                                <Grid ColumnDefinitions="*,Auto" Margin="0,1">
+                                                                    <TextBlock Text="{Binding Name}" Foreground="#E0E0E0"
+                                                                            FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding Hotkey}"
+                                                                            Foreground="#4FC1FF" FontSize="12"
+                                                                            FontFamily="Cascadia Mono, Consolas"/>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+
+                                <TextBlock Text="Assign a clip hotkey from the sound panel on the right: it then plays from anywhere without bringing BoomBx to the front."
+                                        Foreground="#606060" FontSize="11" TextWrapping="Wrap"/>
 
                                 </StackPanel>
                                 
@@ -474,6 +554,22 @@
                             <TextBlock Text="{Binding SelectedSound.Pitch, StringFormat='{}Pitch: {0:F1}x'}"
                                     Foreground="#A0A0A0"
                                     FontSize="12"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="PLAYBACK HOTKEY" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <TextBox Name="ClipHotkeyTextBox"
+                                         Text="{Binding SelectedSound.Hotkey, Mode=OneWay}"
+                                         IsReadOnly="True"
+                                         Watermark="Not assigned"
+                                         VerticalContentAlignment="Center"/>
+                                <Button Grid.Column="1" Content="Set" Margin="5,0,0,0"
+                                        Click="SetClipHotkey_Click"/>
+                                <Button Grid.Column="2" Content="✕" Width="36" Margin="5,0,0,0"
+                                        Click="ClearClipHotkey_Click"
+                                        ToolTip.Tip="Remove this hotkey"/>
+                            </Grid>
                         </StackPanel>
 
                         <Button Content="Change Icon" 

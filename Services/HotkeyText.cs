@@ -252,9 +252,9 @@ namespace BoomBx.Services
                 }
             }
 
-            if (value.Length >= 2 && value.Length <= 3)
+            if (value.Length >= 2)
             {
-                if ((value[0] == 'F' || value[0] == 'f') &&
+                if ((value[0] == 'F' || value[0] == 'f') && value.Length <= 3 &&
                     int.TryParse(value.AsSpan(1), out var functionKey) &&
                     functionKey >= 1 && functionKey <= 24)
                 {

@@ -60,7 +60,11 @@ namespace BoomBx.Services
             {
                 if (RegisterHotKey(windowHandle, ProbeHotkeyId, Win32Modifiers(gesture.KeyModifiers), virtualKey))
                 {
-                    UnregisterHotKey(windowHandle, ProbeHotkeyId);
+                    if (!UnregisterHotKey(windowHandle, ProbeHotkeyId))
+                    {
+                        Logger.Log($"Hotkey probe for {HotkeyText.Format(gesture)} could not be released.");
+                    }
+
                     return HotkeyAvailability.Available;
                 }
 

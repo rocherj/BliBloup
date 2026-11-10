@@ -164,26 +164,33 @@ namespace BoomBx.Views
             }
         }
 
-        private void StartAudioProcessing()
+        /// <summary>
+        /// Starts playback of <paramref name="sound"/>, or of the selected sound when omitted.
+        /// Hotkeys pass their clip explicitly so background playback never has to move the
+        /// selection (and never has to raise the window).
+        /// </summary>
+        private void StartAudioProcessing(SoundItem? sound = null)
         {
+            var target = sound ?? ViewModel.SelectedSound;
+
             try
             {
                 StopAudioProcessing(updateStatus: false);
 
-                if (ViewModel.SelectedSound == null)
+                if (target == null)
                 {
                     UpdateStatus("🔇 No sound selected");
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(ViewModel.SelectedSound.Path) || !File.Exists(ViewModel.SelectedSound.Path))
+                if (string.IsNullOrWhiteSpace(target.Path) || !File.Exists(target.Path))
                 {
                     UpdateStatus("❌ Invalid audio file path");
                     return;
                 }
 
-                var tempVirtualStream = CreateAudioStream(ViewModel.SelectedSound.Path);
-                var tempSpeakerStream = CreateAudioStream(ViewModel.SelectedSound.Path);
+                var tempVirtualStream = CreateAudioStream(target.Path);
+                var tempSpeakerStream = CreateAudioStream(target.Path);
 
                 if (tempVirtualStream == null || tempSpeakerStream == null)
                 {
@@ -207,10 +214,10 @@ namespace BoomBx.Views
                 _speakerLoopStream.Loop = ViewModel.IsLoopingEnabled;
 
                 var targetFormat = WaveFormat.CreateIeeeFloatWaveFormat(44100, 2);
-                float initialVolume = (float)(ViewModel.SelectedSound.Volume / 100.0);
+                float initialVolume = (float)(target.Volume / 100.0);
 
-                var virtualChain = CreateProcessingChain(_virtualLoopStream, targetFormat, ViewModel.SelectedSound, initialVolume);
-                var speakerChain = CreateProcessingChain(_speakerLoopStream, targetFormat, ViewModel.SelectedSound, initialVolume);
+                var virtualChain = CreateProcessingChain(_virtualLoopStream, targetFormat, target, initialVolume);
+                var speakerChain = CreateProcessingChain(_speakerLoopStream, targetFormat, target, initialVolume);
 
                 if (virtualChain?.Volume == null || speakerChain?.Volume == null)
                 {
@@ -237,7 +244,9 @@ namespace BoomBx.Views
                 InitializeSpeakerOutput();
 
                 _currentPlaybackState = PlaybackState.Playing;
-                UpdateStatus($"🎵 Playing {Path.GetFileName(ViewModel.SelectedSound.Path)}");
+                UpdateStatus($"🎵 Playing {target.Name}");
+                UpdateTrayNowPlaying(target.Name);
+                Logger.Log($"Playback started: {target.Name}");
             }
             catch (Exception ex)
             {
@@ -324,6 +333,7 @@ namespace BoomBx.Views
             try
             {
                 _currentPlaybackState = PlaybackState.Stopped;
+                UpdateTrayNowPlaying(null);
 
                 _audioWaveOutSpeaker?.Stop();
                 _audioWaveOutSpeaker?.Dispose();

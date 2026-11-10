@@ -35,8 +35,6 @@ namespace BoomBx.Views
         private readonly AppSettings _settings = new();
 
         private bool _installationDismissed;
-        private GlobalHotkeyManager? _hotkeyManager;
-        private TextBox? _currentlySettingHotkey;
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
         private Func<Task>? _closeSplashAction;
 
@@ -197,124 +195,6 @@ namespace BoomBx.Views
                 throw;
             }
         }
-
-        private void InitializeHotkeys()
-        {
-            _hotkeyManager = new GlobalHotkeyManager();
-            LoadAndRegisterHotkeys();
-        }
-
-        private void LoadAndRegisterHotkeys()
-        {
-            _hotkeyManager?.UnregisterAll();
-
-            try
-            {
-                // Register Play/Pause Hotkey
-                var playPauseGesture = KeyGesture.Parse(_settings.PlayPauseHotkey);
-                _hotkeyManager?.RegisterHotkey(playPauseGesture, OnPlayPauseHotkey);
-                ViewModel.PlayPauseHotkey = playPauseGesture.ToString();
-
-                // Register Stop Hotkey
-                var stopGesture = KeyGesture.Parse(_settings.StopHotkey);
-                _hotkeyManager?.RegisterHotkey(stopGesture, OnStopHotkey);
-                ViewModel.StopHotkey = stopGesture.ToString();
-
-                // Register Pause Hotkey
-                var pauseGesture = KeyGesture.Parse(_settings.PauseHotkey);
-                _hotkeyManager?.RegisterHotkey(pauseGesture, OnPauseHotkey);
-                ViewModel.PauseHotkey = pauseGesture.ToString();
-
-                UpdateStatus("Hotkeys loaded successfully.", false);
-            }
-            catch (Exception ex)
-            {
-                UpdateStatus($"Failed to register hotkeys: {ex.Message}", true);
-            }
-        }
-
-        
-        #region Hotkey Actions
-
-        /// <summary>
-        /// Action for the Play/Pause hotkey. It checks the current state
-        /// and plays the selected sound or pauses/resumes the current one.
-        /// </summary>
-        private void OnPlayPauseHotkey()
-        {
-            Dispatcher.UIThread.Post(() => PlayPauseHandler(null, null!));
-        }
-
-        private void OnStopHotkey()
-        {
-            Dispatcher.UIThread.Post(() => StopHandler(null, null!));
-        }
-
-        private void OnPauseHotkey()
-        {
-            Dispatcher.UIThread.Post(() => PauseAudioProcessing());
-        }
-
-
-
-        #endregion
-
-        private void SetHotkey_Click(object? sender, RoutedEventArgs e)
-        {
-            if (sender is not Button button || button.Tag is not TextBox textBox) return;
-
-            _currentlySettingHotkey = textBox;
-            UpdateStatus($"Press any key combination to set the hotkey for {textBox.Name}...");
-
-            // Temporarily disable hotkeys while setting
-            _hotkeyManager?.UnregisterAll();
-
-            // Capture next key press
-            this.KeyDown += Hotkey_KeyDown;
-        }
-
-
-        private void Hotkey_KeyDown(object? sender, KeyEventArgs e)
-        {
-            if (_currentlySettingHotkey == null)
-            {
-                this.KeyDown -= Hotkey_KeyDown;
-                return;
-            }
-
-            e.Handled = true;
-            this.KeyDown -= Hotkey_KeyDown;
-
-            // Prevent setting a modifier-only hotkey (e.g., just "Ctrl")
-            if (e.Key is Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin)
-            {
-                UpdateStatus("Cannot assign a modifier key as a hotkey.", true);
-                _currentlySettingHotkey = null;
-                return;
-            }
-
-            var gesture = new KeyGesture(e.Key, e.KeyModifiers);
-            _currentlySettingHotkey.Text = gesture.ToString();
-
-            switch (_currentlySettingHotkey.Name)
-            {
-                case "PlayPauseHotkeyTextBox":
-                    _settings.PlayPauseHotkey = gesture.ToString();
-                    break;
-                case "StopHotkeyTextBox":
-                    _settings.StopHotkey = gesture.ToString();
-                    break;
-                case "PauseHotkeyTextBox":
-                    _settings.PauseHotkey = gesture.ToString();
-                    break;
-            }
-            
-            SettingsManager.SaveSettings(_settings);
-            LoadAndRegisterHotkeys(); 
-            UpdateStatus($"Hotkey set to {gesture}", false);
-            _currentlySettingHotkey = null;
-        }
-
 
         private async Task LoadIconAsync()
         {
@@ -628,7 +508,7 @@ namespace BoomBx.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            _hotkeyManager?.Dispose();
+            DisposeHotkeys();
             _audioService?.Dispose();
             base.OnClosed(e);
         }
@@ -698,6 +578,7 @@ namespace BoomBx.Views
                 }
             }
             SaveSoundLibrary();
+            LoadAndRegisterHotkeys(announce: false);
         }
 
         public void RemoveFromLibrary(object? sender, RoutedEventArgs e)
@@ -707,6 +588,7 @@ namespace BoomBx.Views
             {
                 ViewModel.SelectedSoundboard.Sounds.Remove(ViewModel.SelectedSound);
                 SaveSoundLibrary();
+                LoadAndRegisterHotkeys(announce: false);
             }
         }
 
@@ -815,6 +697,9 @@ namespace BoomBx.Views
                     var defaultBoard = new Soundboard { Name = "Default" };
                     ViewModel.Soundboards.Add(defaultBoard);
                 }
+
+                // Clip hotkeys are stored with the library, so re-register them after a reload.
+                LoadAndRegisterHotkeys(announce: false);
             }
             catch (Exception ex)
             {
