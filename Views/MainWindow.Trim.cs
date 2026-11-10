@@ -303,6 +303,7 @@ namespace BoomBx.Views
                     IconPath = sound.IconPath
                 };
                 copy.PropertyChanged += SoundItem_VolumeChanged;
+                AttachSoundItem(copy);
 
                 ViewModel.SelectedSoundboard?.Sounds.Add(copy);
                 SaveSoundLibrary();

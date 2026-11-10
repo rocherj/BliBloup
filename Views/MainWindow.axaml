@@ -161,7 +161,8 @@
                             </StackPanel>
 
                             <Border Background="#333333" CornerRadius="4">
-                                <ListBox SelectionMode="Single" ItemsSource="{Binding SelectedSoundboard.Sounds}"
+                                <ListBox x:Name="SoundsListBox"
+                                        SelectionMode="Single" ItemsSource="{Binding SelectedSoundboard.Sounds}"
                                         SelectedItem="{Binding SelectedSound, Mode=TwoWay}"
                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                         Background="Transparent"
@@ -184,7 +185,7 @@
                                                     Background="#333333" 
                                                     CornerRadius="8"
                                                     Margin="5"
-                                                    Padding="10"
+                                                    Padding="6"
                                                     Cursor="Hand">
                                                 <Border.Styles>
                                                     <Style Selector="Border.listbox-item:focus">
@@ -202,18 +203,18 @@
                                                         </Setter>
                                                     </Style>
                                                 </Border.Styles>
-                                                <StackPanel Spacing="6" HorizontalAlignment="Center">
-                                                    <Border Width="80" 
-                                                            Height="80" 
+                                                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                                    <Border Width="70" 
+                                                            Height="70" 
                                                             Background="#404040" 
                                                             CornerRadius="4">
                                                         <Image Source="{Binding IconPath, Converter={StaticResource UriConverter}}"
-                                                            Width="40" 
-                                                            Height="40"/>
+                                                            Width="36" 
+                                                            Height="36"/>
                                                     </Border>
                                                     <TextBlock Text="{Binding Name}" 
                                                             Foreground="#E0E0E0"
-                                                            FontSize="13"
+                                                            FontSize="11"
                                                             TextWrapping="Wrap"
                                                             HorizontalAlignment="Center"
                                                             MaxWidth="100"
@@ -221,16 +222,24 @@
                                                     <Border IsVisible="{Binding HasHotkey}"
                                                             Background="#007ACC"
                                                             CornerRadius="3"
-                                                            Padding="5,1"
+                                                            Padding="4,0"
                                                             HorizontalAlignment="Center"
-                                                            MaxWidth="104">
+                                                            MaxWidth="100">
                                                         <TextBlock Text="{Binding Hotkey}"
                                                                 Foreground="White"
-                                                                FontSize="9"
+                                                                FontSize="8"
                                                                 FontWeight="SemiBold"
                                                                 TextTrimming="CharacterEllipsis"
                                                                 ToolTip.Tip="{Binding Hotkey}"/>
                                                     </Border>
+                                                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                                                        <Button Content="✎" Width="26" Height="18" Padding="0" FontSize="9"
+                                                                Background="#3D3D3D" ToolTip.Tip="Edit hotkey"
+                                                                Click="EditHotkeyFromList_Click" Tag="{Binding}"/>
+                                                        <Button Content="✕" Width="26" Height="18" Padding="0" FontSize="9"
+                                                                Background="#6B2E2E" ToolTip.Tip="Delete sound"
+                                                                Click="DeleteSoundFromList_Click" Tag="{Binding}"/>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </Border>
                                         </DataTemplate>
@@ -632,6 +641,16 @@
                                 Click="SaveChangesClicked" 
                                 Width="120" 
                                 Background="#007ACC"/>
+
+                        <Grid ColumnDefinitions="*,*,*">
+                            <Button Grid.Column="0" Content="Rename" FontSize="11" Padding="4,6"
+                                    Click="RenameSound_Click" Tag="{Binding SelectedSound}" Margin="0,0,3,0"/>
+                            <Button Grid.Column="1" Content="Duplicate" FontSize="11" Padding="4,6"
+                                    Click="DuplicateSound_Click" Tag="{Binding SelectedSound}" Margin="3,0"/>
+                            <Button Grid.Column="2" Content="Delete" FontSize="11" Padding="4,6"
+                                    Click="DeleteSoundFromList_Click" Tag="{Binding SelectedSound}"
+                                    Background="#8B2E2E" Margin="3,0,0,0"/>
+                        </Grid>
                     </StackPanel>
 
                     <CheckBox Content="Loop Audio" 

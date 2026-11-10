@@ -237,7 +237,11 @@ namespace BoomBx.Views
             UpdateStatus($"Hotkey cleared for \"{clip.Name}\".");
         }
 
-        private void BeginHotkeyCapture(TextBox textBox, SoundItem? clip)
+        /// <summary>
+        /// Starts capturing a combination. <paramref name="textBox"/> can be null when the
+        /// capture is started from the sound list (there is no field to update in that case).
+        /// </summary>
+        private void BeginHotkeyCapture(TextBox? textBox, SoundItem? clip)
         {
             EndHotkeyCapture();
 
@@ -254,8 +258,11 @@ namespace BoomBx.Views
             KeyDown += Hotkey_KeyDown;
             Deactivated += MainWindow_Deactivated;
 
-            textBox.Text = "Press a combination…";
-            textBox.Focus();
+            if (textBox != null)
+            {
+                textBox.Text = "Press a combination…";
+                textBox.Focus();
+            }
 
             UpdateStatus(clip is null
                 ? "Press a key combination (Esc cancels)."
@@ -305,7 +312,9 @@ namespace BoomBx.Views
 
         private void Hotkey_KeyDown(object? sender, KeyEventArgs e)
         {
-            if (!_hotkeyCaptureActive || _currentlySettingHotkey is null)
+            // A capture can be started from the sound list, where there is no text box: only the
+            // clip is known. Everything below must therefore handle a null _currentlySettingHotkey.
+            if (!_hotkeyCaptureActive)
             {
                 return;
             }
@@ -356,6 +365,12 @@ namespace BoomBx.Views
                 EndHotkeyCapture();
                 LoadAndRegisterHotkeys(announce: false);
                 UpdateStatus($"Hotkey {canonical} assigned to \"{clip.Name}\".");
+                return;
+            }
+
+            if (textBox is null)
+            {
+                EndHotkeyCapture();
                 return;
             }
 

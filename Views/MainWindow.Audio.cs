@@ -13,7 +13,6 @@ namespace BoomBx.Views
     {
         private AudioService? _audioService;
         private ClipPlaybackEngine? _playbackEngine;
-        private SoundItem? _currentSoundSubscription;
         private string? _lastStartedVoiceName;
 
         private enum PlaybackState { Stopped, Playing, Paused }
@@ -67,17 +66,8 @@ namespace BoomBx.Views
         {
             if (e.PropertyName == nameof(MainWindowViewModel.SelectedSound))
             {
-                if (_currentSoundSubscription != null)
-                {
-                    _currentSoundSubscription.PropertyChanged -= SoundItem_VolumeChanged;
-                }
-
-                _currentSoundSubscription = ViewModel.SelectedSound;
-
-                if (_currentSoundSubscription != null)
-                {
-                    _currentSoundSubscription.PropertyChanged += SoundItem_VolumeChanged;
-                }
+                // Sound items are subscribed when they are created or loaded, so live volume/EQ
+                // updates work for any playing voice, selected or not.
 
                 // Refresh the trim editor (waveform + selection) for the new sound.
                 _ = LoadTrimInfoAsync(ViewModel.SelectedSound);

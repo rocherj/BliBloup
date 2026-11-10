@@ -33,6 +33,7 @@ namespace BoomBx.Views
     public partial class MainWindow : Window
     {
         private readonly AppSettings _settings = new();
+        private readonly SoundboardStore _soundboardStore = new();
 
         private bool _installationDismissed;
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext!;
@@ -79,6 +80,7 @@ namespace BoomBx.Views
             InitializeComponent();
 
             DataContext = new MainWindowViewModel();
+            InitializeSoundboardEditing();
 
             _deviceManager = new DeviceManager(
                 (MainWindowViewModel)DataContext!,
@@ -555,7 +557,11 @@ namespace BoomBx.Views
 
         public async void AddToLibrary(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedSoundboard == null) return;
+            if (ViewModel.SelectedSoundboard == null)
+            {
+                UpdateStatus("Select a soundboard first.", true);
+                return;
+            }
 
             var files = await this.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
@@ -567,33 +573,73 @@ namespace BoomBx.Views
                 }
             });
 
+            var added = 0;
+
             foreach (var file in files)
             {
                 var path = file.Path.LocalPath;
-                if (!ViewModel.SelectedSoundboard.Sounds.Any(s => s.Path == path))
-                {
-                    var newItem = new SoundItem
-                    {
-                        Path = path,
-                        Name = System.IO.Path.GetFileNameWithoutExtension(path)
-                    };
-                    newItem.PropertyChanged += SoundItem_PropertyChanged;
-                    ViewModel.SelectedSoundboard.Sounds.Add(newItem);
-                }
-            }
-            SaveSoundLibrary();
-            LoadAndRegisterHotkeys(announce: false);
-        }
 
-        public void RemoveFromLibrary(object? sender, RoutedEventArgs e)
-        {
-            if (ViewModel.SelectedSoundboard != null &&
-                ViewModel.SelectedSound != null)
+                if (ViewModel.SelectedSoundboard.Sounds
+                    .Any(existing => string.Equals(existing.Path, path, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                var newItem = new SoundItem
+                {
+                    Path = path,
+                    Name = System.IO.Path.GetFileNameWithoutExtension(path)
+                };
+
+                AttachSoundItem(newItem);
+                ViewModel.SelectedSoundboard.Sounds.Add(newItem);
+                added++;
+            }
+
+            if (added > 0)
             {
-                ViewModel.SelectedSoundboard.Sounds.Remove(ViewModel.SelectedSound);
                 SaveSoundLibrary();
                 LoadAndRegisterHotkeys(announce: false);
+                UpdateStatus(added == 1 ? "Added 1 sound." : $"Added {added} sounds.");
             }
+        }
+
+        public async void RemoveFromLibrary(object? sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedSoundboard is not { } board || ViewModel.SelectedSound is not { } sound)
+            {
+                return;
+            }
+
+            var confirmed = await ConfirmAsync(
+                "Remove sound",
+                $"Remove \"{sound.Name}\" from the soundboard?\n\nThe audio file itself is kept on disk.",
+                "Remove");
+
+            if (!confirmed)
+            {
+                return;
+            }
+
+            board.Sounds.Remove(sound);
+            SaveSoundLibrary();
+            LoadAndRegisterHotkeys(announce: false);
+            UpdateStatus($"Removed \"{sound.Name}\".");
+        }
+
+        private void AttachSoundItem(SoundItem sound)
+        {
+            sound.PropertyChanged -= SoundItem_VolumeChanged;
+            sound.PropertyChanged += SoundItem_VolumeChanged;
+            sound.PropertyChanged -= SoundItem_PropertyChanged;
+            sound.PropertyChanged += SoundItem_PropertyChanged;
+        }
+
+        private static async Task<bool> ConfirmAsync(string title, string message, string confirmLabel)
+        {
+            var box = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.YesNo);
+            var answer = await box.ShowAsync();
+            return answer == ButtonResult.Yes;
         }
 
         private async void ChangeIconClicked(object? sender, RoutedEventArgs e)
@@ -614,20 +660,16 @@ namespace BoomBx.Views
             {
                 try
                 {
-                    var appDataDir = Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                        "BoomBx",
-                        "icons");
-
-                    var iconDir = Path.Combine(appDataDir, "icons");
+                    var iconDir = BoomBxPaths.IconsDirectory;
                     Directory.CreateDirectory(iconDir);
 
                     var fileName = $"{Guid.NewGuid()}{Path.GetExtension(localPath)}";
-                    var destPath = Path.Combine(appDataDir, fileName);
+                    var destPath = Path.Combine(iconDir, fileName);
 
                     File.Copy(localPath, destPath, overwrite: true);
 
-                    ViewModel.SelectedSound.IconPath = fileName;
+                    // Store the full path: icons survive a changed data directory.
+                    ViewModel.SelectedSound.IconPath = destPath;
                     SaveSoundLibrary();
                 }
                 catch (Exception ex)
@@ -640,74 +682,80 @@ namespace BoomBx.Views
 
         private void SaveChangesClicked(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedSound != null)
-            {
-                SaveSoundLibrary();
-                LoadSoundLibrary();
-                UpdateStatus("Changes saved successfully!");
-            }
+            SaveSoundLibrary();
+            UpdateStatus("Changes saved successfully!");
         }
 
         private void SaveSoundLibrary()
         {
-            var appDataDir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "BoomBx");
-
-            Directory.CreateDirectory(appDataDir);
-            var path = Path.Combine(appDataDir, "soundboards.json");
-
-            var options = new JsonSerializerOptions
+            try
             {
-                WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.Preserve
-            };
-
-            File.WriteAllText(path, JsonSerializer.Serialize(ViewModel.Soundboards, options));
+                // Atomic write + previous version kept as soundboards.json.bak.
+                _soundboardStore.Save(ViewModel.Soundboards);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Error saving sound library: {ex}");
+                UpdateStatus($"Could not save the sound library: {ex.Message}", true);
+            }
         }
-
 
         private void LoadSoundLibrary()
         {
             try
             {
-                var appDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "BoomBx");
-                Directory.CreateDirectory(appDataDir);
-                var path = Path.Combine(appDataDir, "soundboards.json");
+                var result = _soundboardStore.Load();
 
-                if (File.Exists(path))
+                ViewModel.Soundboards.Clear();
+
+                foreach (var board in result.Soundboards)
                 {
-                    var json = File.ReadAllText(path);
-                    var options = new JsonSerializerOptions
+                    foreach (var sound in board.Sounds)
                     {
-                        ReferenceHandler = ReferenceHandler.Preserve,
-                        PropertyNameCaseInsensitive = true
-                    };
-
-                    var soundboards = JsonSerializer.Deserialize<ObservableCollection<Soundboard>>(json, options);
-
-                    ViewModel.Soundboards.Clear();
-                    if (soundboards != null)
-                    {
-                        foreach (var board in soundboards)
-                        {
-                            ViewModel.Soundboards.Add(board);
-                        }
+                        AttachSoundItem(sound);
                     }
+
+                    ViewModel.Soundboards.Add(board);
                 }
 
                 if (!ViewModel.Soundboards.Any())
                 {
-                    var defaultBoard = new Soundboard { Name = "Default" };
-                    ViewModel.Soundboards.Add(defaultBoard);
+                    ViewModel.Soundboards.Add(new Soundboard { Name = "Default" });
+                }
+
+                // Always keep a board selected so the library does not look empty at startup.
+                if (ViewModel.SelectedSoundboard is null)
+                {
+                    ViewModel.SelectedSoundboard = ViewModel.Soundboards[0];
                 }
 
                 // Clip hotkeys are stored with the library, so re-register them after a reload.
                 LoadAndRegisterHotkeys(announce: false);
+
+                switch (result.Note)
+                {
+                    case LibraryLoadNote.MigratedFromLegacy:
+                        // Persist straight away so the readable format replaces the old file.
+                        SaveSoundLibrary();
+                        UpdateStatus("Library migrated to the new format.");
+                        break;
+
+                    case LibraryLoadNote.RestoredFromBackup:
+                        UpdateStatus("The library file was unreadable: previous backup restored.", true);
+                        break;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading sound library: {ex}");
+                Logger.Log($"Error loading sound library: {ex}");
+                UpdateStatus($"Could not load the sound library: {ex.Message}", true);
+
+                if (!ViewModel.Soundboards.Any())
+                {
+                    ViewModel.Soundboards.Add(new Soundboard { Name = "Default" });
+                    ViewModel.SelectedSoundboard = ViewModel.Soundboards[0];
+                }
             }
         }
 

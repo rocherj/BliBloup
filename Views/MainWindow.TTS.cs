@@ -113,6 +113,7 @@ namespace BoomBx.Views
                             Pitch = vm.TtsPitch
                         };
 
+                        AttachSoundItem(newItem);
                         vm.SelectedSoundboard?.Sounds.Add(newItem);
                         SaveSoundLibrary();
                         UpdateStatus("💾 TTS audio saved to soundboard!");
