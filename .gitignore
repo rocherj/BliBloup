@@ -2,6 +2,7 @@
 bin/
 obj/
 publish/
+BliBloup-v*.zip
 
 # IDE / editor tooling
 .vscode/
