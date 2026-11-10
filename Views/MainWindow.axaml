@@ -156,7 +156,7 @@
                                         Width="120" Background="#007ACC"/>
                                 <Button Content="Remove Selected" Click="RemoveFromLibrary" 
                                         Width="120" Background="#c20000"/>
-                                <Button Content="⏹ Stop All" Click="StopHandler"
+                                <Button Content="■ Stop All" Click="StopHandler"
                                         Width="120" Background="#404040"/>
                             </StackPanel>
 
@@ -202,38 +202,36 @@
                                                         </Setter>
                                                     </Style>
                                                 </Border.Styles>
-                                                <Grid>
-                                                    <StackPanel Spacing="8" HorizontalAlignment="Center">
-                                                        <Border Width="80" 
-                                                                Height="80" 
-                                                                Background="#404040" 
-                                                                CornerRadius="4">
-                                                            <Image Source="{Binding IconPath, Converter={StaticResource UriConverter}}"
-                                                                Width="40" 
-                                                                Height="40"/>
-                                                        </Border>
-                                                        <TextBlock Text="{Binding Name}" 
-                                                                Foreground="#E0E0E0"
-                                                                FontSize="13"
-                                                                TextWrapping="Wrap"
-                                                                HorizontalAlignment="Center"
-                                                                MaxWidth="100"
-                                                                TextAlignment="Center"/>
-                                                    </StackPanel>
+                                                <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                                    <Border Width="80" 
+                                                            Height="80" 
+                                                            Background="#404040" 
+                                                            CornerRadius="4">
+                                                        <Image Source="{Binding IconPath, Converter={StaticResource UriConverter}}"
+                                                            Width="40" 
+                                                            Height="40"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Name}" 
+                                                            Foreground="#E0E0E0"
+                                                            FontSize="13"
+                                                            TextWrapping="Wrap"
+                                                            HorizontalAlignment="Center"
+                                                            MaxWidth="100"
+                                                            TextAlignment="Center"/>
                                                     <Border IsVisible="{Binding HasHotkey}"
                                                             Background="#007ACC"
                                                             CornerRadius="3"
                                                             Padding="5,1"
-                                                            Margin="6"
-                                                            HorizontalAlignment="Right"
-                                                            VerticalAlignment="Top"
-                                                            IsHitTestVisible="False">
+                                                            HorizontalAlignment="Center"
+                                                            MaxWidth="104">
                                                         <TextBlock Text="{Binding Hotkey}"
                                                                 Foreground="White"
                                                                 FontSize="9"
-                                                                FontWeight="SemiBold"/>
+                                                                FontWeight="SemiBold"
+                                                                TextTrimming="CharacterEllipsis"
+                                                                ToolTip.Tip="{Binding Hotkey}"/>
                                                     </Border>
-                                                </Grid>
+                                                </StackPanel>
                                             </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -558,11 +556,14 @@
                                     FontSize="12"/>
                         </StackPanel>
 
-                        <StackPanel Spacing="6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
-                                <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#606060" FontSize="11"/>
-                            </Grid>
+                        <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander.Header>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#606060" FontSize="11"/>
+                                </Grid>
+                            </Expander.Header>
+                            <StackPanel Spacing="6" Margin="0,6,0,0">
 
                             <views:WaveformView Height="54"
                                                 Peaks="{Binding ClipPeaks}"
@@ -604,7 +605,8 @@
 
                             <Button Content="Reset trim" FontSize="11" Background="Transparent"
                                     HorizontalAlignment="Left" Padding="0" Click="ResetTrim_Click"/>
-                        </StackPanel>
+                            </StackPanel>
+                        </Expander>
 
                         <StackPanel Spacing="5">
                             <TextBlock Text="PLAYBACK HOTKEY" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
