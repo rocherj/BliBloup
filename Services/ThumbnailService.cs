@@ -7,15 +7,19 @@ namespace BliBloup.Services
     public sealed record ThumbnailResult(string Path, int Width, int Height, long Bytes, bool Resized);
 
     /// <summary>
-    /// Produces the small, compressed copies used as sound thumbnails.
+    /// Produces the square, compressed copies used as sound thumbnails.
     ///
-    /// Images are scaled down to fit a 256x256 box (aspect ratio preserved, never upscaled) and
-    /// re-encoded: JPEG 85 for opaque images (photos) and PNG for images with transparency.
-    /// That keeps the soundboard UI responsive even when the user imports multi-megabyte pictures.
+    /// Every image is center-cropped to its smallest side (so the result contains the middle of
+    /// the picture without distortion) and resized to exactly 256x256 through SKCanvas.DrawBitmap.
+    /// The copy is then encoded: JPEG 85 for opaque images (photos) and PNG for images that use
+    /// transparency, preserving the alpha channel. That keeps the soundboard UI responsive even
+    /// when the user imports multi-megabyte pictures.
     /// </summary>
     public static class ThumbnailService
     {
-        public const int MaxDimension = 256;
+        /// <summary>Thumbnails are strictly square: this is both width and height.</summary>
+        public const int Size = 256;
+
         public const int JpegQuality = 85;
 
         public static ThumbnailResult CreateThumbnail(string sourcePath, string destinationDirectory, string baseName)
@@ -28,27 +32,51 @@ namespace BliBloup.Services
             using var input = SKBitmap.Decode(sourcePath)
                 ?? throw new InvalidOperationException("The selected file is not a supported image (PNG or JPEG).");
 
-            int width = input.Width;
-            int height = input.Height;
-
-            if (width <= 0 || height <= 0)
+            if (input.Width <= 0 || input.Height <= 0)
             {
                 throw new InvalidOperationException("The selected image has invalid dimensions.");
             }
 
-            double scale = Math.Min(1.0, (double)MaxDimension / Math.Max(width, height));
-            int targetWidth = Math.Max(1, (int)Math.Round(width * scale));
-            int targetHeight = Math.Max(1, (int)Math.Round(height * scale));
-
-            using var resized = input.Resize(new SKImageInfo(targetWidth, targetHeight), SKFilterQuality.High)
-                ?? throw new InvalidOperationException("The image could not be resized.");
-
             bool keepAlpha = input.AlphaType != SKAlphaType.Opaque;
+
+            // Center crop: take the largest centered square of the source.
+            int side = Math.Min(input.Width, input.Height);
+            int left = (input.Width - side) / 2;
+            int top = (input.Height - side) / 2;
+
+            // BGRA keeps a real alpha channel for PNG and is also accepted by the JPEG encoder.
+            var alphaType = keepAlpha ? SKAlphaType.Premul : SKAlphaType.Opaque;
+            var imageInfo = new SKImageInfo(Size, Size, SKColorType.Bgra8888, alphaType);
+
+            using var surface = SKSurface.Create(imageInfo)
+                ?? throw new InvalidOperationException("The thumbnail surface could not be created.");
+
+            var canvas = surface.Canvas;
+
+            if (keepAlpha)
+            {
+                // Transparent padding/fill so the destination keeps a real alpha channel.
+                canvas.Clear(SKColors.Transparent);
+            }
+
+            using (var paint = new SKPaint
+                   {
+                       FilterQuality = SKFilterQuality.High,
+                       IsAntialias = true
+                   })
+            {
+                var sourceRect = new SKRect(left, top, left + side, top + side);
+                var destinationRect = new SKRect(0, 0, Size, Size);
+                canvas.DrawBitmap(input, sourceRect, destinationRect, paint);
+            }
+
+            canvas.Flush();
+
+            using var cropped = surface.Snapshot();
             var format = keepAlpha ? SKEncodedImageFormat.Png : SKEncodedImageFormat.Jpeg;
             var extension = keepAlpha ? ".png" : ".jpg";
 
-            using var image = SKImage.FromBitmap(resized);
-            using var encoded = image.Encode(format, keepAlpha ? 100 : JpegQuality);
+            using var encoded = cropped.Encode(format, keepAlpha ? 100 : JpegQuality);
 
             if (encoded is null || encoded.Size == 0)
             {
@@ -65,10 +93,10 @@ namespace BliBloup.Services
 
             return new ThumbnailResult(
                 destination,
-                targetWidth,
-                targetHeight,
+                Size,
+                Size,
                 new FileInfo(destination).Length,
-                scale < 1.0 || encoded.Size < new FileInfo(sourcePath).Length);
+                input.Width != Size || input.Height != Size);
         }
     }
 }

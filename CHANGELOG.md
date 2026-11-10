@@ -28,7 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Keyboard focus rings and higher contrast for the dark theme; smaller minimum window size
 - Discreet background playback toast (no focus steal) and a single click on the tray icon reopens the window
 - Actionable audio error messages (missing file, no output device, unavailable routing)
-- Sound thumbnails: bundled default thumbnail (soundboard.png), click the thumbnail in the sound panel to pick a custom image; imports are automatically resized to at most 256 px and compressed (JPEG 85 for photos, PNG when transparency is needed), a missing custom image falls back to the default, and a Reset thumbnail button restores soundboard.png
+- Sound thumbnails: bundled default thumbnail (soundboard.png), click the thumbnail in the sound panel to pick a custom image; imports are center-cropped to a square, resized to exactly 256×256 and compressed (JPEG 85 for photos, PNG when transparency is needed), a missing custom image falls back to the default, and a Reset thumbnail button restores soundboard.png
 
 ### Removed
 - Redundant Rename button (the inline Title field is the rename control)
