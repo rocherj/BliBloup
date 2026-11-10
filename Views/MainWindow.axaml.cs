@@ -248,6 +248,15 @@ namespace BoomBx.Views
                 await _deviceManager.InitializeAsync();
                 _audioService?.InitializeDevices();
 
+                if (ViewModel.PlaybackDevices.Count == 0)
+                {
+                    UpdateStatus("No audio output device detected. BoomBx will stay silent until a playback device is available.", true);
+                }
+                else if (ViewModel.CaptureDevices.Count == 0)
+                {
+                    UpdateStatus("No microphone detected. Virtual microphone routing needs an input device.", true);
+                }
+
                 Console.WriteLine("[11] Initialization complete");
             }
             catch (Exception ex)
@@ -728,6 +737,8 @@ namespace BoomBx.Views
                 {
                     ViewModel.SelectedSoundboard = ViewModel.Soundboards[0];
                 }
+
+                RefreshSelectedBoardState();
 
                 // Clip hotkeys are stored with the library, so re-register them after a reload.
                 LoadAndRegisterHotkeys(announce: false);

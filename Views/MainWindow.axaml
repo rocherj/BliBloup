@@ -18,12 +18,11 @@
         CanResize="True"
         Width="1200"
         Height="800"
-        MinWidth="1200"
-        MinHeight="800">
+        MinWidth="980"
+        MinHeight="620">
     
     <Window.Resources>
         <conv:UriToImageSourceConverter x:Key="UriConverter"/>
-        <conv:NavigationEqualityConverter x:Key="NavigationEqualityConverter"/>
         <conv:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter"/>
 
         <ControlTheme x:Key="CustomListBoxItemTheme" TargetType="ListBoxItem">
@@ -104,7 +103,7 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <Border Background="#333333" CornerRadius="4" Padding="5" Margin="10">
                     <StackPanel Spacing="5">
-                        <TextBlock Text="SOUNDBOARDS" Foreground="#A0A0A0" FontSize="12"/>
+                        <TextBlock Text="SOUNDBOARDS" Foreground="#B8B8B8" FontSize="12"/>
                         <ListBox ItemsSource="{Binding Soundboards}"
                                  SelectionChanged="SoundboardList_SelectionChanged"
                                  SelectedItem="{Binding SelectedSoundboard, Mode=TwoWay}"
@@ -160,8 +159,9 @@
                                         Width="120" Background="#404040"/>
                             </StackPanel>
 
-                            <Border Background="#333333" CornerRadius="4">
-                                <ListBox x:Name="SoundsListBox"
+                            <Grid MinHeight="200">
+                                <Border Background="#333333" CornerRadius="4">
+                                    <ListBox x:Name="SoundsListBox"
                                         SelectionMode="Single" ItemsSource="{Binding SelectedSoundboard.Sounds}"
                                         SelectedItem="{Binding SelectedSound, Mode=TwoWay}"
                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -244,8 +244,22 @@
                                             </Border>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
-                                </ListBox>
-                            </Border>
+                                    </ListBox>
+                                </Border>
+                                <Border IsVisible="{Binding !HasSoundsInSelectedBoard}"
+                                        Background="#2E2E2E" CornerRadius="6" Margin="6" Padding="20">
+                                    <StackPanel VerticalAlignment="Center" Spacing="8">
+                                        <TextBlock Text="This soundboard is empty"
+                                                   Foreground="#E8E8E8" FontSize="15" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Click “Add Sound” to import MP3 or WAV files."
+                                                   Foreground="#A8A8A8" FontSize="12" TextWrapping="Wrap"
+                                                   TextAlignment="Center" HorizontalAlignment="Center"/>
+                                        <Button Content="Add Sound" Click="AddToLibrary"
+                                                HorizontalAlignment="Center" Background="#007ACC"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -293,7 +307,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Speed:" Foreground="#E0E0E0"/>
                                             <TextBlock Text="{Binding TtsSpeed, StringFormat=' {0:F1}x'}" 
-                                                    Foreground="#A0A0A0" 
+                                                    Foreground="#B8B8B8" 
                                                     Margin="5,0,0,0"/>
                                         </StackPanel>
                                         <Slider Minimum="0.1" Maximum="2.0" 
@@ -303,7 +317,7 @@
                                                 Foreground="#007ACC"/>
                                         <TextBlock Text="Tip: Use 0.5-0.8 for slower, clearer speech" 
                                                 FontSize="11" 
-                                                Foreground="#606060" 
+                                                Foreground="#8A8A8A" 
                                                 Margin="0,-5,0,5"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -326,7 +340,7 @@
                     <Border Background="#2D2D2D" CornerRadius="8" Padding="25"
                             IsVisible="{Binding #VoiceChangerNav.IsChecked}">
                         <TextBlock Text="AI Voice Changer (Coming Soon)" 
-                                Foreground="#A0A0A0" FontSize="16"
+                                Foreground="#B8B8B8" FontSize="16"
                                 HorizontalAlignment="Center"/>
                     </Border>
 
@@ -339,7 +353,7 @@
                             <StackPanel Spacing="10">
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="PLAYBACK DEVICE" 
-                                            Foreground="#A0A0A0"
+                                            Foreground="#B8B8B8"
                                             FontSize="12"
                                             FontWeight="Bold"/>
                                     <ComboBox x:Name="PlaybackComboBox" 
@@ -357,7 +371,7 @@
 
                                 <StackPanel Spacing="5">
                                     <TextBlock Text="MICROPHONE INPUT" 
-                                            Foreground="#A0A0A0"
+                                            Foreground="#B8B8B8"
                                             FontSize="12"
                                             FontWeight="Bold"/>
                                             <ComboBox x:Name="CaptureComboBox" 
@@ -384,7 +398,7 @@
                                             Foreground="#E0E0E0" VerticalAlignment="Center"/>
                                 </Grid>
                                 <TextBlock Text="Global combinations work while another application has the focus; playback stays in the background."
-                                        Foreground="#606060" FontSize="11" TextWrapping="Wrap"/>
+                                        Foreground="#8A8A8A" FontSize="11" TextWrapping="Wrap"/>
 
                                 <Grid ColumnDefinitions="*,Auto,Auto,Auto" VerticalAlignment="Center">
                                     <TextBlock Grid.Column="0" Text="Play / Pause Sound" VerticalAlignment="Center" Foreground="#E0E0E0"/>
@@ -431,13 +445,13 @@
                                 </Grid>
 
                                 <TextBlock Text="{Binding LastHotkeyDisplay, StringFormat='Last triggered: {0}'}"
-                                        Foreground="#A0A0A0" FontSize="12"/>
+                                        Foreground="#B8B8B8" FontSize="12"/>
 
                                 <TextBlock Text="{Binding HotkeyWarnings}"
                                         IsVisible="{Binding HasHotkeyWarnings}"
                                         Foreground="#FF6B6B" FontSize="11" TextWrapping="Wrap"/>
 
-                                <TextBlock Text="Per-clip hotkeys" FontWeight="SemiBold" Foreground="#A0A0A0"
+                                <TextBlock Text="Per-clip hotkeys" FontWeight="SemiBold" Foreground="#B8B8B8"
                                         FontSize="12" Margin="0,10,0,0"/>
 
                                 <ScrollViewer MaxHeight="150" VerticalScrollBarVisibility="Auto">
@@ -445,7 +459,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate DataType="g:Soundboard">
                                                 <StackPanel Spacing="3" Margin="0,0,0,8">
-                                                    <TextBlock Text="{Binding Name}" Foreground="#606060"
+                                                    <TextBlock Text="{Binding Name}" Foreground="#8A8A8A"
                                                             FontSize="11" FontWeight="Bold"/>
                                                     <ItemsControl ItemsSource="{Binding Sounds}">
                                                         <ItemsControl.ItemTemplate>
@@ -467,7 +481,7 @@
                                 </ScrollViewer>
 
                                 <TextBlock Text="Assign a clip hotkey from the sound panel on the right: it then plays from anywhere without bringing BoomBx to the front."
-                                        Foreground="#606060" FontSize="11" TextWrapping="Wrap"/>
+                                        Foreground="#8A8A8A" FontSize="11" TextWrapping="Wrap"/>
 
                                 </StackPanel>
                                 
@@ -482,7 +496,7 @@
                             </StackPanel>
 
                             <TextBlock Text="{Binding AppVersion}" 
-                                    Foreground="#606060"
+                                    Foreground="#8A8A8A"
                                     FontSize="12"
                                     HorizontalAlignment="Center"
                                     Margin="0,20,0,0"/>
@@ -492,199 +506,177 @@
             </ScrollViewer>
         </Border>
 
-        <Border Grid.Column="3"
-                Background="#252525"
-                Margin="20"
-                CornerRadius="8"
-                IsVisible="{Binding SelectedSound, Converter={x:Static views:ObjectNotNullToVisibilityConverter.Instance}}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="20" Margin="15">
-                    <Border Background="#333333" CornerRadius="8" Padding="15">
-                        <StackPanel HorizontalAlignment="Center" Spacing="10">
-                            <Image Source="{Binding SelectedSound.IconPath, Converter={StaticResource UriConverter}}"
-                                   Width="60" Height="60"/>
-                            <TextBlock Text="SELECTED AUDIO" 
-                                       Foreground="#A0A0A0"
-                                       FontSize="12"
-                                       FontWeight="Bold"/>
-                        </StackPanel>
+        <Grid Grid.Column="3" Margin="20">
+            <!-- Placeholder shown when nothing is selected -->
+            <Border IsVisible="{Binding !HasSelectedSound}"
+                    Background="#252525" CornerRadius="8" Padding="24">
+                <StackPanel VerticalAlignment="Center" Spacing="14">
+                    <TextBlock Text="🎧" FontSize="38" HorizontalAlignment="Center"/>
+                    <TextBlock Text="No sound selected" Foreground="#E8E8E8" FontSize="18"
+                               FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Select a sound in the library to edit its title, volume, hotkey and trim."
+                               Foreground="#A8A8A8" FontSize="12" TextWrapping="Wrap" TextAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <Border IsVisible="{Binding HasSelectedSound}" Background="#252525" CornerRadius="8">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Fixed header: icon and an obviously editable title -->
+                    <Border Grid.Row="0" Background="#2D2D2D" CornerRadius="8,8,0,0" Padding="12">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Border Width="52" Height="52" Background="#404040" CornerRadius="6">
+                                <Image Source="{Binding SelectedSound.IconPath, Converter={StaticResource UriConverter}}"
+                                       Width="52" Height="52"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Spacing="3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="TITLE — click to rename" Foreground="#A8A8A8" FontSize="10" FontWeight="Bold"/>
+                                <TextBox Classes="EditableTitle"
+                                         Text="{Binding SelectedSound.Name, Mode=TwoWay}"
+                                         FontSize="14"
+                                         Padding="8,4"
+                                         ToolTip.Tip="Click to rename this sound"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
-                    <StackPanel Spacing="15">
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="Title" Foreground="#A0A0A0" FontSize="12"/>
-                            <TextBox Text="{Binding SelectedSound.Name, Mode=TwoWay}"
-                                     FontSize="14"
-                                     Background="#333333"
-                                     Foreground="White"
-                                     BorderThickness="0"
-                                     Padding="10"/>
-                        </StackPanel>
+                    <!-- Scrollable settings -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,10">
+                        <StackPanel Spacing="10">
+                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                <TextBlock Text="Volume" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                        Value="{Binding SelectedSound.Volume, Mode=TwoWay}" Foreground="#007ACC"/>
+                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Volume, StringFormat='{}{0:F0}%'}"
+                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
 
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="Volume" Foreground="#A0A0A0" FontSize="12"/>
-                            <Slider Minimum="0" Maximum="100" 
-                                    Value="{Binding SelectedSound.Volume, Mode=TwoWay}"
-                                    Background="Transparent"
-                                    Foreground="#007ACC"/>
-                            <TextBlock Text="{Binding SelectedSound.Volume, StringFormat='{}Volume: {0:F0}%'}"
-                                       Foreground="#A0A0A0"
-                                       FontSize="12"/>
-                        </StackPanel>
+                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                        Value="{Binding SelectedSound.Bass, Mode=TwoWay}" Foreground="#007ACC"/>
+                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Bass, StringFormat='{}{0:F0} dB'}"
+                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
 
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="Bass (dB)" Foreground="#A0A0A0" FontSize="12"/>
-                            <Slider Minimum="-20" Maximum="20" 
-                                    Value="{Binding SelectedSound.Bass, Mode=TwoWay}"
-                                    Background="Transparent"
-                                    Foreground="#007ACC"/>
-                            <TextBlock Text="{Binding SelectedSound.Bass, StringFormat='{}Bass: {0:F0} dB'}"
-                                    Foreground="#A0A0A0"
-                                    FontSize="12"/>
-                        </StackPanel>
+                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                <TextBlock Text="Treble" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                        Value="{Binding SelectedSound.Treble, Mode=TwoWay}" Foreground="#007ACC"/>
+                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Treble, StringFormat='{}{0:F0} dB'}"
+                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
 
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="Treble (dB)" Foreground="#A0A0A0" FontSize="12"/>
-                            <Slider Minimum="-20" Maximum="20" 
-                                    Value="{Binding SelectedSound.Treble, Mode=TwoWay}"
-                                    Background="Transparent"
-                                    Foreground="#007ACC"/>
-                            <TextBlock Text="{Binding SelectedSound.Treble, StringFormat='{}Treble: {0:F0} dB'}"
-                                    Foreground="#A0A0A0"
-                                    FontSize="12"/>
-                        </StackPanel>
+                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                <Slider Grid.Column="1" Minimum="0.5" Maximum="2.0"
+                                        Value="{Binding SelectedSound.Pitch, Mode=TwoWay}" Foreground="#007ACC"/>
+                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Pitch, StringFormat='{}{0:F1}x'}"
+                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                            </Grid>
 
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="Pitch" Foreground="#A0A0A0" FontSize="12"/>
-                            <Slider Minimum="0.5" Maximum="2.0" 
-                                    Value="{Binding SelectedSound.Pitch, Mode=TwoWay}"
-                                    Background="Transparent"
-                                    Foreground="#007ACC"/>
-                            <TextBlock Text="{Binding SelectedSound.Pitch, StringFormat='{}Pitch: {0:F1}x'}"
-                                    Foreground="#A0A0A0"
-                                    FontSize="12"/>
-                        </StackPanel>
-
-                        <Expander IsExpanded="False" HorizontalAlignment="Stretch">
-                            <Expander.Header>
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#606060" FontSize="11"/>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="PLAYBACK HOTKEY" Foreground="#A8A8A8" FontSize="10" FontWeight="Bold"/>
+                                <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <TextBox Name="ClipHotkeyTextBox"
+                                             Text="{Binding SelectedSound.Hotkey, Mode=OneWay}"
+                                             IsReadOnly="True"
+                                             Watermark="Not assigned"
+                                             VerticalContentAlignment="Center"/>
+                                    <Button Grid.Column="1" Content="Set" Margin="5,0,0,0" Padding="10,6"
+                                            Click="SetClipHotkey_Click"/>
+                                    <Button Grid.Column="2" Content="✕" Width="34" Margin="5,0,0,0" Padding="0,6"
+                                            Click="ClearClipHotkey_Click" ToolTip.Tip="Remove this hotkey"/>
                                 </Grid>
-                            </Expander.Header>
-                            <StackPanel Spacing="6" Margin="0,6,0,0">
-
-                            <views:WaveformView Height="54"
-                                                Peaks="{Binding ClipPeaks}"
-                                                Duration="{Binding ClipDurationSeconds}"
-                                                SelectionStart="{Binding TrimStartSeconds}"
-                                                SelectionEnd="{Binding TrimEndSeconds}"/>
-
-                            <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
-                                <TextBlock Text="Start" Foreground="#A0A0A0" FontSize="11" Width="36"/>
-                                <Slider Grid.Column="1" Name="TrimStartSlider"
-                                        Minimum="0" Maximum="1"
-                                        Value="{Binding TrimStartSeconds}"
-                                        ValueChanged="TrimStartSlider_ValueChanged"/>
-                                <TextBlock Grid.Column="2" Text="{Binding TrimStartText}" Foreground="#E0E0E0"
-                                           FontSize="11" Width="48" TextAlignment="Right"/>
-                            </Grid>
-
-                            <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
-                                <TextBlock Text="End" Foreground="#A0A0A0" FontSize="11" Width="36"/>
-                                <Slider Grid.Column="1" Name="TrimEndSlider"
-                                        Minimum="0" Maximum="1"
-                                        Value="{Binding TrimEndSeconds}"
-                                        ValueChanged="TrimEndSlider_ValueChanged"/>
-                                <TextBlock Grid.Column="2" Text="{Binding TrimEndText}" Foreground="#E0E0E0"
-                                           FontSize="11" Width="48" TextAlignment="Right"/>
-                            </Grid>
-
-                            <TextBlock Text="{Binding TrimSelectionText}" Foreground="#606060"
-                                       FontSize="10" TextWrapping="Wrap"/>
-
-                            <Button Content="▶ Preview selection" FontSize="12" Padding="8,6"
-                                    HorizontalAlignment="Stretch" Click="PreviewTrim_Click"/>
-                            <Grid ColumnDefinitions="*,*">
-                                <Button Grid.Column="0" Content="Save copy" FontSize="11" Padding="6,6"
-                                        Click="SaveTrimCopy_Click" Margin="0,0,3,0"/>
-                                <Button Grid.Column="1" Content="Overwrite" FontSize="11" Padding="6,6"
-                                        Click="SaveTrimOverwrite_Click" Background="#8B2E2E" Margin="3,0,0,0"/>
-                            </Grid>
-
-                            <Button Content="Reset trim" FontSize="11" Background="Transparent"
-                                    HorizontalAlignment="Left" Padding="0" Click="ResetTrim_Click"/>
                             </StackPanel>
-                        </Expander>
 
-                        <StackPanel Spacing="5">
-                            <TextBlock Text="PLAYBACK HOTKEY" Foreground="#A0A0A0" FontSize="12" FontWeight="Bold"/>
-                            <Grid ColumnDefinitions="*,Auto,Auto">
-                                <TextBox Name="ClipHotkeyTextBox"
-                                         Text="{Binding SelectedSound.Hotkey, Mode=OneWay}"
-                                         IsReadOnly="True"
-                                         Watermark="Not assigned"
-                                         VerticalContentAlignment="Center"/>
-                                <Button Grid.Column="1" Content="Set" Margin="5,0,0,0"
-                                        Click="SetClipHotkey_Click"/>
-                                <Button Grid.Column="2" Content="✕" Width="36" Margin="5,0,0,0"
-                                        Click="ClearClipHotkey_Click"
-                                        ToolTip.Tip="Remove this hotkey"/>
+                            <CheckBox Content="Loop audio" IsChecked="{Binding IsLoopingEnabled}" Foreground="#E0E0E0"/>
+
+                            <Grid ColumnDefinitions="*,*">
+                                <Button Grid.Column="0" Content="Change Icon" Padding="6,6"
+                                        Click="ChangeIconClicked" Margin="0,0,3,0"/>
+                                <Button Grid.Column="1" Content="Save Changes" Padding="6,6"
+                                        Click="SaveChangesClicked" Background="#007ACC" Margin="3,0,0,0"/>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*">
+                                <Button Grid.Column="0" Content="Duplicate" Padding="6,6"
+                                        Click="DuplicateSound_Click" Tag="{Binding SelectedSound}" Margin="0,0,3,0"/>
+                                <Button Grid.Column="1" Content="Delete" Padding="6,6"
+                                        Click="DeleteSoundFromList_Click" Tag="{Binding SelectedSound}"
+                                        Background="#8B2E2E" Margin="3,0,0,0"/>
                             </Grid>
                         </StackPanel>
+                    </ScrollViewer>
 
-                        <Button Content="Change Icon" 
-                                Click="ChangeIconClicked" 
-                                Width="120" 
-                                Background="#007ACC"/>
-                        <Button Content="Save Changes" 
-                                Click="SaveChangesClicked" 
-                                Width="120" 
-                                Background="#007ACC"/>
+                    <!-- Fixed footer: trim editor and transport are always visible -->
+                    <Border Grid.Row="2" Background="#2D2D2D" CornerRadius="0,0,8,8" Padding="12">
+                        <StackPanel Spacing="8">
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A8A8A8" FontSize="11" FontWeight="Bold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#8A8A8A" FontSize="10"/>
+                                    </Grid>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                    <views:WaveformView Height="54"
+                                                        Peaks="{Binding ClipPeaks}"
+                                                        Duration="{Binding ClipDurationSeconds}"
+                                                        SelectionStart="{Binding TrimStartSeconds}"
+                                                        SelectionEnd="{Binding TrimEndSeconds}"/>
 
-                        <Grid ColumnDefinitions="*,*,*">
-                            <Button Grid.Column="0" Content="Rename" FontSize="11" Padding="4,6"
-                                    Click="RenameSound_Click" Tag="{Binding SelectedSound}" Margin="0,0,3,0"/>
-                            <Button Grid.Column="1" Content="Duplicate" FontSize="11" Padding="4,6"
-                                    Click="DuplicateSound_Click" Tag="{Binding SelectedSound}" Margin="3,0"/>
-                            <Button Grid.Column="2" Content="Delete" FontSize="11" Padding="4,6"
-                                    Click="DeleteSoundFromList_Click" Tag="{Binding SelectedSound}"
-                                    Background="#8B2E2E" Margin="3,0,0,0"/>
-                        </Grid>
-                    </StackPanel>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                        <TextBlock Text="Start" Foreground="#B8B8B8" FontSize="11" Width="36"/>
+                                        <Slider Grid.Column="1" Name="TrimStartSlider"
+                                                Minimum="0" Maximum="1"
+                                                Value="{Binding TrimStartSeconds}"
+                                                ValueChanged="TrimStartSlider_ValueChanged"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding TrimStartText}" Foreground="#E0E0E0"
+                                                   FontSize="11" Width="48" TextAlignment="Right"/>
+                                    </Grid>
 
-                    <CheckBox Content="Loop Audio" 
-                              IsChecked="{Binding IsLoopingEnabled}"
-                              Margin="0,0,0,10"
-                              Foreground="#E0E0E0"/>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                        <TextBlock Text="End" Foreground="#B8B8B8" FontSize="11" Width="36"/>
+                                        <Slider Grid.Column="1" Name="TrimEndSlider"
+                                                Minimum="0" Maximum="1"
+                                                Value="{Binding TrimEndSeconds}"
+                                                ValueChanged="TrimEndSlider_ValueChanged"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding TrimEndText}" Foreground="#E0E0E0"
+                                                   FontSize="11" Width="48" TextAlignment="Right"/>
+                                    </Grid>
 
-                    <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button x:Name="PlayPauseButton" 
-                                Content="▶ Play" 
-                                FontSize="16" 
-                                Height="50"
-                                HorizontalAlignment="Stretch"
-                                Background="#007ACC"
-                                Foreground="White"
-                                Click="PlayPauseHandler"/>
-                        <Button x:Name="StopButton" 
-                                Content="⏹ Stop" 
-                                FontSize="16" 
-                                Height="50"
-                                HorizontalAlignment="Stretch"
-                                Background="#404040"
-                                Foreground="White"
-                                Click="StopHandler"/>
-                    </StackPanel>
+                                    <TextBlock Text="{Binding TrimSelectionText}" Foreground="#8A8A8A"
+                                               FontSize="10" TextWrapping="Wrap"/>
 
-                    <TextBlock x:Name="StatMessage" 
-                               VerticalAlignment="Center"
-                               Foreground="#E0E0E0"
-                               FontSize="13"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
+                                    <Button Content="▶ Preview selection" FontSize="12" Padding="8,6"
+                                            HorizontalAlignment="Stretch" Click="PreviewTrim_Click"/>
+                                    <Grid ColumnDefinitions="*,*">
+                                        <Button Grid.Column="0" Content="Save copy" FontSize="11" Padding="6,6"
+                                                Click="SaveTrimCopy_Click" Margin="0,0,3,0"/>
+                                        <Button Grid.Column="1" Content="Overwrite" FontSize="11" Padding="6,6"
+                                                Click="SaveTrimOverwrite_Click" Background="#8B2E2E" Margin="3,0,0,0"/>
+                                    </Grid>
+                                    <Button Content="Reset trim" FontSize="11" Background="Transparent"
+                                            HorizontalAlignment="Left" Padding="0" Click="ResetTrim_Click"/>
+                                </StackPanel>
+                            </Expander>
 
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Button Grid.Column="0" x:Name="PlayPauseButton" Content="▶ Play"
+                                        FontSize="15" Height="42" Background="#007ACC" Foreground="White"
+                                        Click="PlayPauseHandler" Margin="0,0,6,0"/>
+                                <Button Grid.Column="1" x:Name="StopButton" Content="■ Stop"
+                                        FontSize="15" Width="100" Height="42" Background="#404040" Foreground="White"
+                                        Click="StopHandler"/>
+                            </Grid>
+
+                            <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
+                                       TextWrapping="Wrap" MinHeight="16"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
         <Border x:Name="InstallationPanel" Grid.ColumnSpan="3"
                 Background="#2D2D2D" 
                 Padding="20" 

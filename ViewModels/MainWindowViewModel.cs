@@ -58,6 +58,10 @@ namespace BoomBx.ViewModels
         [ObservableProperty]
         private bool _hasHotkeyWarnings;
 
+        /// <summary>False when the selected soundboard has no sound, to show the empty state.</summary>
+        [ObservableProperty]
+        private bool _hasSoundsInSelectedBoard = true;
+
         // --- Trim editor state (left panel bindings) ---
 
         [ObservableProperty]
@@ -86,9 +90,13 @@ namespace BoomBx.ViewModels
 
         public ObservableCollection<Soundboard> Soundboards { get; } = new();
 
+        /// <summary>True when the right panel has something to show.</summary>
+        public bool HasSelectedSound => SelectedSound is not null;
+
         partial void OnSelectedSoundChanged(SoundItem? value)
         {
             SelectedFilePath = value?.Path ?? string.Empty;
+            OnPropertyChanged(nameof(HasSelectedSound));
         }
 
         [ObservableProperty]

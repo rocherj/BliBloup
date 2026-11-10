@@ -27,6 +27,7 @@ public partial class App : Application
     public SplashScreen _splash;
     private IClassicDesktopStyleApplicationLifetime? _desktop;
 
+    private ToastWindow? _toastWindow;
     private TrayIcon? _trayIcon;
     private NativeMenuItem? _trayNowPlayingItem;
     private NativeMenuItem? _trayHotkeysItem;
@@ -148,6 +149,9 @@ public partial class App : Application
                 Menu = menu
             };
 
+            // Single left click on the tray icon brings the window back.
+            _trayIcon.Clicked += (_, _) => ShowMainWindow();
+
             this.SetValue(TrayIcon.IconsProperty, new TrayIcons { _trayIcon });
         }
         catch (Exception ex)
@@ -174,7 +178,34 @@ public partial class App : Application
             {
                 _trayNowPlayingItem.Header = idle ? "Now playing: —" : $"Now playing: {soundName}";
             }
+
+            if (!idle)
+            {
+                ShowPlaybackToast(soundName!);
+            }
         });
+    }
+
+    /// <summary>
+    /// Shows the discreet background-playback toast, but only when BoomBx itself does not have
+    /// the focus (the user already sees the window otherwise).
+    /// </summary>
+    private void ShowPlaybackToast(string soundName)
+    {
+        try
+        {
+            if (_desktop?.MainWindow is MainWindow { IsActive: true })
+            {
+                return;
+            }
+
+            _toastWindow ??= new ToastWindow();
+            _toastWindow.ShowToast(soundName);
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"Toast unavailable: {ex.Message}");
+        }
     }
 
     /// <summary>Keeps the tray menu label in sync with the "global hotkeys" setting.</summary>
@@ -225,6 +256,16 @@ public partial class App : Application
 
     private void DisposeTrayIcon()
     {
+        try
+        {
+            _toastWindow?.Close();
+            _toastWindow = null;
+        }
+        catch (Exception ex)
+        {
+            Logger.Log($"Failed to close the toast: {ex.Message}");
+        }
+
         try
         {
             _trayIcon?.Dispose();

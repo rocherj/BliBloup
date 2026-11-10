@@ -75,6 +75,10 @@ namespace BoomBx.Views
                 // Starting a clip no longer stops the others, and selecting another sound in the
                 // list must not interrupt what is currently being mixed.
             }
+            else if (e.PropertyName == nameof(MainWindowViewModel.SelectedSoundboard))
+            {
+                RefreshSelectedBoardState();
+            }
             else if (e.PropertyName == nameof(MainWindowViewModel.IsLoopingEnabled))
             {
                 _playbackEngine?.SetLoopAll(ViewModel.IsLoopingEnabled);
@@ -146,7 +150,7 @@ namespace BoomBx.Views
 
                 if (!_playbackEngine.PlaySound(target))
                 {
-                    UpdateStatus($"❌ Invalid audio file path: {target.Name}", true);
+                    UpdateStatus($"❌ {_playbackEngine.LastError ?? $"Could not play \"{target.Name}\"."}", true);
                     return;
                 }
 
@@ -224,7 +228,7 @@ namespace BoomBx.Views
 
                 PlayPauseButton.Content = _currentPlaybackState switch
                 {
-                    PlaybackState.Playing => "⏸ Pause",
+                    PlaybackState.Playing => "Pause",
                     PlaybackState.Paused => "▶ Resume",
                     _ => "▶ Play"
                 };

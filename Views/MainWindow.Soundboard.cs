@@ -18,6 +18,34 @@ namespace BoomBx.Views
     {
         private const string SoundDragFormat = "application/x-boombx-sound";
 
+        private Soundboard? _trackedBoard;
+
+        /// <summary>Keeps the "this soundboard is empty" state in sync with the selected board.</summary>
+        private void RefreshSelectedBoardState()
+        {
+            var board = ViewModel.SelectedSoundboard;
+
+            if (!ReferenceEquals(_trackedBoard, board))
+            {
+                if (_trackedBoard is not null)
+                {
+                    _trackedBoard.Sounds.CollectionChanged -= OnSelectedBoardSoundsChanged;
+                }
+
+                _trackedBoard = board;
+
+                if (_trackedBoard is not null)
+                {
+                    _trackedBoard.Sounds.CollectionChanged += OnSelectedBoardSoundsChanged;
+                }
+            }
+
+            ViewModel.HasSoundsInSelectedBoard = board?.Sounds.Count > 0;
+        }
+
+        private void OnSelectedBoardSoundsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) =>
+            ViewModel.HasSoundsInSelectedBoard = _trackedBoard?.Sounds.Count > 0;
+
         private Point? _soundDragStart;
         private SoundItem? _soundDragCandidate;
         private bool _soundDragInProgress;
@@ -190,37 +218,6 @@ namespace BoomBx.Views
             UpdateStatus($"Duplicated \"{sound.Name}\".");
         }
 
-        private async void RenameSound_Click(object? sender, RoutedEventArgs e)
-        {
-            Logger.Log($"Rename action: tag={((sender as Control)?.Tag as SoundItem)?.Name ?? "null"}, selected={ViewModel.SelectedSound?.Name ?? "null"}");
-            if (GetSoundFromAction(sender) is not { } sound)
-            {
-                return;
-            }
-
-            var dialog = new InputDialog
-            {
-                Title = "Rename sound",
-                Prompt = "Enter a new name:",
-                InputText = sound.Name
-            };
-
-            var result = await dialog.ShowDialog<string>(this);
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                return;
-            }
-
-            sound.Name = result.Trim();
-            SaveSoundLibrary();
-            UpdateStatus($"Renamed sound to \"{sound.Name}\".");
-        }
-
-        /// <summary>
-        /// Resolves the target sound of an action: tile buttons carry the clip in Tag, while the
-        /// buttons of the right panel implicitly act on the selected sound.
-        /// </summary>
         private SoundItem? GetSoundFromAction(object? sender) =>
             (sender as Control)?.Tag as SoundItem ?? ViewModel.SelectedSound;
 

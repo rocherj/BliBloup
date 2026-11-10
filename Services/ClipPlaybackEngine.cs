@@ -73,19 +73,26 @@ namespace BoomBx.Services
 
         public bool HasActiveVoices => ActiveVoiceCount > 0;
 
+        /// <summary>Human readable reason of the last failed playback attempt, for the UI.</summary>
+        public string? LastError { get; private set; }
+
         /// <summary>True when the default-speaker mix could be opened on this machine.</summary>
         public bool IsSpeakerOutputAvailable => _speakerOutput != null;
 
         /// <summary>Starts a clip without stopping anything already playing.</summary>
         public bool PlaySound(SoundItem sound)
         {
+            LastError = null;
+
             if (sound is null || _disposed)
             {
+                LastError = "The audio engine is not available.";
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(sound.Path) || !File.Exists(sound.Path))
             {
+                LastError = $"Audio file not found: {sound.Path}";
                 Logger.Log($"Cannot play missing audio file: {sound.Path}");
                 return false;
             }
@@ -102,6 +109,7 @@ namespace BoomBx.Services
             }
             catch (Exception ex)
             {
+                LastError = ex.Message;
                 Logger.Log($"Failed to start clip '{sound.Name}': {ex}");
                 virtualStream?.Dispose();
                 speakerStream?.Dispose();
@@ -129,6 +137,7 @@ namespace BoomBx.Services
             }
             catch (Exception ex)
             {
+                LastError = ex.Message;
                 Logger.Log($"Failed to start buffer '{label}': {ex}");
                 virtualStream?.Dispose();
                 speakerStream?.Dispose();
@@ -334,6 +343,7 @@ namespace BoomBx.Services
                 if (!voice.SpeakerAttached && !voice.VirtualAttached)
                 {
                     // No output at all: clean up instead of silently "playing" into nowhere.
+                    LastError = "No audio output is available. Check the Windows playback device and the virtual microphone routing, then try again.";
                     Logger.Log($"No audio output available for '{label}'.");
                     CleanupVoiceResources(voice, raiseEnded: false);
                     return false;
@@ -359,6 +369,7 @@ namespace BoomBx.Services
             }
             catch (Exception ex)
             {
+                LastError = $"This sound could not be prepared: {ex.Message}";
                 Logger.Log($"Failed to build voice '{label}': {ex}");
                 CleanupVoiceResources(voice, raiseEnded: false);
                 return false;

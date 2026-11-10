@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="BoomBx.Views.ToastWindow"
+        Title="BoomBx notification"
+        Width="320" Height="84"
+        SystemDecorations="None"
+        CanResize="False"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Topmost="True"
+        Background="Transparent"
+        WindowStartupLocation="Manual">
+    <Border Background="#2B2B2B" BorderBrush="#007ACC" BorderThickness="1" CornerRadius="8" Padding="12">
+        <Grid ColumnDefinitions="Auto,*">
+            <TextBlock x:Name="IconText" Text="🔊" FontSize="22" VerticalAlignment="Center" Foreground="#4FC1FF"/>
+            <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="2" VerticalAlignment="Center">
+                <TextBlock x:Name="TitleText" Foreground="#F0F0F0" FontSize="12" FontWeight="Bold"
+                           TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="Playing in the background" Foreground="#A8A8A8" FontSize="11"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
