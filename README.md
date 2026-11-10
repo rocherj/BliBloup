@@ -5,7 +5,7 @@
 <h1 align="center">BliBloup</h1>
 
 <p align="center">
-  Free soundboard for playing audio through a virtual microphone (or anything if you want).
+  Free soundboard for playing audio through a virtual microphone (or any output you like).
 </p>
 
 <h1 align="center">Build &amp; Run</h1>
@@ -28,57 +28,46 @@ dotnet publish -c Release -r win-x64 --self-contained true -o publish
 
 ## 🎯 What is BliBloup?
 
-BliBloup is a cross-platform audio routing tool designed for content creators, streamers, and having fun with your friends. Easily play sounds through a virtual microphones with one-click simplicity.
+BliBloup is a soundboard for Windows that plays audio clips through a virtual microphone, so your friends in Discord, a game or any voice application hear them as your microphone input. It is built with Avalonia UI and NAudio.
 
-## ❓How to use
-If you want to play audio through your microphone to your friends in a game or discord do the following:
-- Make sure you have VB-Cable installed (BliBloup will prompt to install it for you).
-- After you have restarted your device, Go to settings make sure CABLE Input is set to playback device and your microphone as microphone input
-- Set your input in your game/discord to Cable OUTPUT
-- Add your own audios and Play them!
+## ❓ How to use
+
+1. Make sure VB-Cable is installed (BliBloup detects it and can install it for you).
+2. After restarting your device, open Settings: set the playback device to `CABLE Input` and the microphone to your real microphone.
+3. In your game or Discord, select `Cable Output` as the microphone input.
+4. Import your audio files, assign hotkeys if you want, and play them.
 
 ## ✨ Key Features
 
+### 🎚️ Soundboard
 
-### 🚀 Core Functionality
-- **VB-Cable Integration**  
-  Automatic detection and one-click installation of VB-Cable drivers
-- **Virtual Audio Routing**  
-  Route system audio through virtual microphone inputs
-- **Low-Latency Playback**  
-  Powered by NAudio's WASAPI exclusive mode
+- **Sound library** — import MP3/WAV files (multi-select), organise multiple soundboards, reorder sounds with drag and drop.
+- **Trim editor** — non-destructive waveform selection with audible preview; save as a trimmed copy or overwrite the original.
+- **Custom thumbnails** — every sound can have its own picture; imports are center-cropped, resized to 256×256 and compressed automatically.
+- **Editing tools** — duplicate, rename inline, delete with confirmation, reset a thumbnail to the default.
+- **Simultaneous playback** — several sounds can play at once through a real mix bus with an anti-clipping limiter.
 
-### 🎚️ Audio Control
-- **Per-Sound Audio Control**  
-  Individual sound settings.
-- **Format Conversion**  
-  Automatic sample rate/channel conversion (48kHz stereo output)
+### ⌨️ Background control
 
-### 📚 Sound Management
-- **Custom Sound Library**  
-  Import and organize MP3/WAV files with custom icons
-- **Preset System**  
-  Save favorite audio configurations
+- **Global hotkeys** — assign a combination to each sound plus play/pause, stop, pause and an emergency stop key.
+- **Works without focus** — play a sound while a game or another app is in the foreground; BliBloup never steals focus.
+- **Conflict detection** — duplicate combinations, Windows-reserved shortcuts and combinations already owned by other applications are reported.
+- **Tray and notifications** — the tray shows what is playing, offers Stop all and hotkey toggling, and a discreet toast confirms background playback.
 
-### 🛠️ Advanced Features
-- **Audio Device Hot-Swapping**  
-  Change outputs without restarting
-- **Automatic Driver Verification**  
-  Checks VB-Cable installation status on launch
-- **Silent Installation**  
-  Admin-free VB-Cable setup for organizations
+### 💾 Reliability
 
-## 🖥️ Technical Highlights
-- **Cross-Platform**  
-  Windows, macOS, and Linux support (Avalonia UI)
-- **Modern Architecture**  
-  MVVM pattern with .NET 8
-- **Accessible**  
-  Screen reader support and high-contrast themes
+- **Safe persistence** — readable JSON library, atomic saves, previous-version backup and rotating backups.
+- **Single instance** — a second launch focuses the running window instead of starting another copy.
+- **Easy upgrades** — older data folders are migrated automatically on first run.
 
-> **Note**: Requires VB-Cable Virtual Audio Device for full functionality  
-> (Automatically installed through BliBloup)
-> Will be making my own drivers eventually so this is temporary
+### 🖥️ Technical
+
+- **Stack** — .NET 8, Avalonia UI, NAudio/WASAPI, SharpHook global keyboard hooks.
+- **Windows build** — a self-contained `win-x64` executable is produced by the publish command above; the code is structured with Avalonia to allow future ports.
+
+## 📦 Requirements
+
+VB-Cable Virtual Audio Device is required for virtual microphone routing. BliBloup verifies its presence at startup and offers an installation path.
 
 </div>
 

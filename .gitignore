@@ -1,11 +1,20 @@
+# Build output
 bin/
 obj/
+publish/
 
+# IDE / editor tooling
 .vscode/
+.vs/
+.idea/
+*.user
+*.suo
 
+# Local logs and databases
 *.log
-
-
 *.db
 
-
+# Temporary files
+*.tmp
+.DS_Store
+Thumbs.db
