@@ -865,16 +865,7 @@ namespace BliBloup.Views
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = "https://github.com/sardeq",
-                UseShellExecute = true
-            });
-        }
-
-        private void OpenTrello(object? sender, RoutedEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "https://trello.com/b/74PesGFa/blibloup",
+                FileName = "https://github.com/rocherj",
                 UseShellExecute = true
             });
         }
