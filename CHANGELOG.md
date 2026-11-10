@@ -17,12 +17,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Non-destructive trim per clip with waveform preview, audible preview and save as copy / overwrite
 - Simultaneous playback of several sounds (real mixing instead of stop-and-play)
 - Peak limiter on both the speaker mix and the virtual microphone mix to prevent clipping
+- Readable library format (v2) with atomic saves, previous-version backup and rotating timestamped backups
+- Automatic migration of legacy libraries, recovery from a corrupt library file and a documented data-directory override
+- Single instance: a second launch focuses the running BoomBx instead of starting another one
+- The first soundboard is selected automatically at startup
+- Drag and drop reordering of the sounds in a soundboard
+- Duplicate, rename and delete (with confirmation) actions, plus quick hotkey editing and deletion directly on each sound tile
 
 ### Fixed
 - Performance and UI optimizations
 - Fix sound Icon bug
 - Global hotkey hook is now detached and disposed on close instead of leaking
 - Application startup is silent: the splash screen no longer plays the bundled Vine Boom sound
+- Sound properties now raise change notifications, so hotkey badges, titles and sliders refresh live
+- Custom sound icons are stored once (the old code created a nested "icons/icons" folder)
 
 ---
 
