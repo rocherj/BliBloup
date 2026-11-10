@@ -597,10 +597,15 @@
 
                             <Grid ColumnDefinitions="*,*">
                                 <Button Grid.Column="0" Content="Change Icon" Padding="6,6"
-                                        Click="ChangeIconClicked" Margin="0,0,3,0"/>
-                                <Button Grid.Column="1" Content="Save Changes" Padding="6,6"
-                                        Click="SaveChangesClicked" Background="#007ACC" Margin="3,0,0,0"/>
+                                        Click="ChangeIconClicked" Margin="0,0,3,0"
+                                        ToolTip.Tip="Import an image (resized to 256px and compressed)"/>
+                                <Button Grid.Column="1" Content="Reset thumbnail" Padding="6,6"
+                                        Click="ResetThumbnail_Click" Margin="3,0,0,0"
+                                        ToolTip.Tip="Use the default soundboard.png thumbnail"/>
                             </Grid>
+
+                            <Button Content="Save Changes" Padding="6,6" HorizontalAlignment="Stretch"
+                                    Click="SaveChangesClicked" Background="#007ACC"/>
 
                             <Grid ColumnDefinitions="*,*">
                                 <Button Grid.Column="0" Content="Duplicate" Padding="6,6"

@@ -653,13 +653,13 @@ namespace BoomBx.Views
 
         private async void ChangeIconClicked(object? sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedSound == null) return;
+            if (ViewModel.SelectedSound is not { } sound) return;
 
-            Logger.Log($"Thumbnail picker opened for '{ViewModel.SelectedSound.Name}'.");
+            Logger.Log($"Thumbnail picker opened for '{sound.Name}'.");
 
             var files = await this.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
-                Title = "Select Icon Image",
+                Title = "Select Sound Thumbnail",
                 AllowMultiple = false,
                 FileTypeFilter = new List<FilePickerFileType>
                 {
@@ -667,31 +667,45 @@ namespace BoomBx.Views
                 }
             });
 
-            if (files.Count > 0 && files[0].TryGetLocalPath() is string localPath)
+            if (files.Count == 0 || files[0].TryGetLocalPath() is not string localPath)
             {
-                try
-                {
-                    var iconDir = BoomBxPaths.IconsDirectory;
-                    Directory.CreateDirectory(iconDir);
+                return;
+            }
 
-                    var fileName = $"{Guid.NewGuid()}{Path.GetExtension(localPath)}";
-                    var destPath = Path.Combine(iconDir, fileName);
+            try
+            {
+                // Downscale to at most 256x256 and re-encode, so huge pictures cannot slow the UI.
+                var result = ThumbnailService.CreateThumbnail(
+                    localPath,
+                    BoomBxPaths.IconsDirectory,
+                    Guid.NewGuid().ToString("N"));
 
-                    File.Copy(localPath, destPath, overwrite: true);
+                // Store the full path: thumbnails survive a changed data directory.
+                sound.IconPath = result.Path;
+                SaveSoundLibrary();
 
-                    // Store the full path: icons survive a changed data directory.
-                    ViewModel.SelectedSound.IconPath = destPath;
-                    SaveSoundLibrary();
-                    UpdateStatus($"🖼️ Thumbnail updated for \"{ViewModel.SelectedSound.Name}\".");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error saving icon: {ex}");
-                    UpdateStatus("Failed to save icon");
-                }
+                var sizeKb = Math.Max(1, result.Bytes / 1024);
+                UpdateStatus($"🖼️ Thumbnail updated for \"{sound.Name}\" ({result.Width}×{result.Height}px, {sizeKb} KB).");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Thumbnail import failed: {ex}");
+                UpdateStatus($"Could not use that image: {ex.Message}", true);
             }
         }
 
+        /// <summary>Returns the sound thumbnail to the bundled default (soundboard.png).</summary>
+        private void ResetThumbnail_Click(object? sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedSound is not { } sound)
+            {
+                return;
+            }
+
+            sound.IconPath = "avares://BoomBx/soundboard.png";
+            SaveSoundLibrary();
+            UpdateStatus($"Thumbnail reset to default for \"{sound.Name}\".");
+        }
         private void SaveChangesClicked(object? sender, RoutedEventArgs e)
         {
             SaveSoundLibrary();
