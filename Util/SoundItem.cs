@@ -9,7 +9,7 @@ namespace BoomBx.Models
         public string Path { get; set; } = string.Empty;
         private string _name = string.Empty;
         private double _volume = 100;
-        private string _iconPath = "avares://BoomBx/Assets/bocchi.jpg";
+        private string _iconPath = "avares://BoomBx/soundboard.png";
 
         public string IconPath
         {

@@ -524,10 +524,14 @@
                     <!-- Fixed header: icon and an obviously editable title -->
                     <Border Grid.Row="0" Background="#2D2D2D" CornerRadius="8,8,0,0" Padding="12">
                         <Grid ColumnDefinitions="Auto,*">
-                            <Border Width="52" Height="52" Background="#404040" CornerRadius="6">
-                                <Image Source="{Binding SelectedSound.IconPath, Converter={StaticResource UriConverter}}"
-                                       Width="52" Height="52"/>
-                            </Border>
+                            <Button Classes="ThumbnailButton" Width="56" Height="56"
+                                    Click="ChangeIconClicked"
+                                    ToolTip.Tip="Click to change this sound's thumbnail">
+                                <Border Width="52" Height="52" Background="#404040" CornerRadius="6">
+                                    <Image Source="{Binding SelectedSound.IconPath, Converter={StaticResource UriConverter}}"
+                                           Width="52" Height="52"/>
+                                </Border>
+                            </Button>
                             <StackPanel Grid.Column="1" Spacing="3" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TITLE — click to rename" Foreground="#A8A8A8" FontSize="10" FontWeight="Bold"/>
                                 <TextBox Classes="EditableTitle"

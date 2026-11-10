@@ -204,7 +204,7 @@ namespace BoomBx.Views
             {
                 await Task.Run(() =>
                 {
-                    var uri = new Uri("avares://BoomBx/Assets/bocchi.jpg");
+                    var uri = new Uri("avares://BoomBx/soundboard.png");
                     using var stream = AssetLoader.Open(uri);
                     var testImage = new Bitmap(stream);
                     Console.WriteLine("Default icon loaded successfully");
@@ -655,13 +655,15 @@ namespace BoomBx.Views
         {
             if (ViewModel.SelectedSound == null) return;
 
+            Logger.Log($"Thumbnail picker opened for '{ViewModel.SelectedSound.Name}'.");
+
             var files = await this.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = "Select Icon Image",
                 AllowMultiple = false,
                 FileTypeFilter = new List<FilePickerFileType>
                 {
-                    new("Image Files") { Patterns = new[] { "*.jpg", "*.png", "*.bmp" } }
+                    new("Image Files") { Patterns = new[] { "*.png", "*.jpg", "*.jpeg" } }
                 }
             });
 
@@ -680,6 +682,7 @@ namespace BoomBx.Views
                     // Store the full path: icons survive a changed data directory.
                     ViewModel.SelectedSound.IconPath = destPath;
                     SaveSoundLibrary();
+                    UpdateStatus($"🖼️ Thumbnail updated for \"{ViewModel.SelectedSound.Name}\".");
                 }
                 catch (Exception ex)
                 {

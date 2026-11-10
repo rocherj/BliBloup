@@ -37,7 +37,8 @@ namespace BoomBx.Services
     {
         public const int CurrentVersion = 2;
         public const string LibraryFileName = "soundboards.json";
-        private const string DefaultIcon = "avares://BoomBx/Assets/bocchi.jpg";
+        private const string DefaultIcon = "avares://BoomBx/soundboard.png";
+        private const string LegacyDefaultIcon = "avares://BoomBx/Assets/bocchi.jpg";
         private const int MaxTimestampedBackups = 5;
 
         private static readonly JsonSerializerOptions ReadOptions = new()
@@ -296,7 +297,7 @@ namespace BoomBx.Services
             {
                 Path = path,
                 Name = string.IsNullOrWhiteSpace(dto.Name) ? Path.GetFileNameWithoutExtension(path) : dto.Name,
-                IconPath = string.IsNullOrWhiteSpace(dto.IconPath) ? DefaultIcon : dto.IconPath,
+                IconPath = NormalizeIconPath(dto.IconPath),
                 Volume = Clamp(dto.Volume, 0, 100, 100),
                 Bass = Clamp(dto.Bass, -20, 20, 0),
                 Treble = Clamp(dto.Treble, -20, 20, 0),
@@ -331,10 +332,7 @@ namespace BoomBx.Services
                         sound.Name = Path.GetFileNameWithoutExtension(sound.Path ?? string.Empty);
                     }
 
-                    if (string.IsNullOrWhiteSpace(sound.IconPath))
-                    {
-                        sound.IconPath = DefaultIcon;
-                    }
+                    sound.IconPath = NormalizeIconPath(sound.IconPath);
 
                     sound.Volume = Clamp(sound.Volume, 0, 100, 100);
                     sound.Bass = Clamp(sound.Bass, -20, 20, 0);
@@ -349,6 +347,32 @@ namespace BoomBx.Services
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Empty or legacy default icons (the old bocchi.jpg placeholder) are upgraded to the new
+        /// default thumbnail; custom paths are kept as they are.
+        /// </summary>
+        private static string NormalizeIconPath(string? iconPath)
+        {
+            if (string.IsNullOrWhiteSpace(iconPath))
+            {
+                return DefaultIcon;
+            }
+
+            if (string.Equals(iconPath, LegacyDefaultIcon, StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultIcon;
+            }
+
+            // A custom file that was deleted or moved falls back to the default thumbnail.
+            if (Path.IsPathRooted(iconPath) && !File.Exists(iconPath))
+            {
+                Logger.Log($"Thumbnail file is missing, using the default: {iconPath}");
+                return DefaultIcon;
+            }
+
+            return iconPath;
         }
 
         private static double Clamp(double value, double min, double max, double fallback)

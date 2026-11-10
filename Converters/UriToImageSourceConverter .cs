@@ -45,7 +45,7 @@ namespace BoomBx.Converters
 
         private static Bitmap GetDefaultIcon()
         {
-            var uri = new Uri("avares://BoomBx/Assets/bocchi.jpg");
+            var uri = new Uri("avares://BoomBx/soundboard.png");
             using var stream = AssetLoader.Open(uri);
             return new Bitmap(stream);
         }
