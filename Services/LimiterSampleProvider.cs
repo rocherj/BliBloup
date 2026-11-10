@@ -16,21 +16,18 @@ namespace BoomBx.Services
     {
         private readonly ISampleProvider _source;
         private readonly float _ceiling;
-        private readonly float _attackCoefficient;
         private readonly float _releaseCoefficient;
         private float _gain = 1f;
 
         public LimiterSampleProvider(
             ISampleProvider source,
             float ceiling = 0.98f,
-            double attackMilliseconds = 1.0,
             double releaseMilliseconds = 80.0)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
             _ceiling = Math.Clamp(ceiling, 0.1f, 1f);
 
             var sampleRate = Math.Max(1, source.WaveFormat.SampleRate);
-            _attackCoefficient = Coefficient(attackMilliseconds, sampleRate);
             _releaseCoefficient = Coefficient(releaseMilliseconds, sampleRate);
         }
 
@@ -63,8 +60,17 @@ namespace BoomBx.Services
                 }
 
                 float targetGain = peak > _ceiling ? _ceiling / peak : 1f;
-                float coefficient = targetGain < _gain ? _attackCoefficient : _releaseCoefficient;
-                _gain += (targetGain - _gain) * coefficient;
+
+                // Instant attack guarantees the ceiling is never exceeded; the release smooths
+                // the return to unity so the gain change stays inaudible.
+                if (targetGain < _gain)
+                {
+                    _gain = targetGain;
+                }
+                else
+                {
+                    _gain += (targetGain - _gain) * _releaseCoefficient;
+                }
 
                 for (int channel = 0; channel < channels; channel++)
                 {
