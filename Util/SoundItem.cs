@@ -103,6 +103,49 @@ namespace BoomBx.Models
 
         public bool HasHotkey => !string.IsNullOrWhiteSpace(_hotkey);
 
+        private double _trimStart;
+
+        /// <summary>
+        /// Non destructive trim: playback starts this many seconds into the file.
+        /// Applied live, so the original audio file stays untouched until the user saves.
+        /// </summary>
+        public double TrimStart
+        {
+            get => _trimStart;
+            set
+            {
+                var normalized = Math.Max(0, value);
+                if (Math.Abs(_trimStart - normalized) > 0.0001)
+                {
+                    _trimStart = normalized;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasTrim));
+                }
+            }
+        }
+
+        private double _trimEnd;
+
+        /// <summary>
+        /// End of the trimmed region in seconds. Zero means "until the end of the file".
+        /// </summary>
+        public double TrimEnd
+        {
+            get => _trimEnd;
+            set
+            {
+                var normalized = Math.Max(0, value);
+                if (Math.Abs(_trimEnd - normalized) > 0.0001)
+                {
+                    _trimEnd = normalized;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasTrim));
+                }
+            }
+        }
+
+        public bool HasTrim => _trimStart > 0.001 || _trimEnd > 0.001;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

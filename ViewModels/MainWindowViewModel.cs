@@ -58,6 +58,32 @@ namespace BoomBx.ViewModels
         [ObservableProperty]
         private bool _hasHotkeyWarnings;
 
+        // --- Trim editor state (left panel bindings) ---
+
+        [ObservableProperty]
+        private double _clipDurationSeconds = 1;
+
+        [ObservableProperty]
+        private double _trimStartSeconds;
+
+        [ObservableProperty]
+        private double _trimEndSeconds = 1;
+
+        [ObservableProperty]
+        private float[]? _clipPeaks;
+
+        [ObservableProperty]
+        private string _trimStartText = "0:00.0";
+
+        [ObservableProperty]
+        private string _trimEndText = "0:00.0";
+
+        [ObservableProperty]
+        private string _clipDurationText = "0:00.0";
+
+        [ObservableProperty]
+        private string _trimSelectionText = string.Empty;
+
         public ObservableCollection<Soundboard> Soundboards { get; } = new();
 
         partial void OnSelectedSoundChanged(SoundItem? value)

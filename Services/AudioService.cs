@@ -133,7 +133,9 @@ namespace BoomBx.Services
                 );
                 _persistentOutput.PlaybackStopped += HandleOutputError;
 
-                _persistentOutput.Init(_persistentMixer);
+                // Master limiter for the virtual microphone mix (microphone + clips): several
+                // sounds playing together must not clip before reaching the game/Discord.
+                _persistentOutput.Init(new LimiterSampleProvider(_persistentMixer));
                 _micCapture.StartRecording();
                 _persistentOutput.Play();
             }
