@@ -23,6 +23,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - The first soundboard is selected automatically at startup
 - Drag and drop reordering of the sounds in a soundboard
 - Duplicate, rename and delete (with confirmation) actions, plus quick hotkey editing and deletion directly on each sound tile
+- Redesigned sound panel: the title is an obvious inline edit, settings scroll, and the trim editor plus Play/Stop transport stay pinned at the bottom (visible even in a small window)
+- Clear empty states: "No sound selected" placeholder and a "This soundboard is empty" message with a direct Add Sound action
+- Keyboard focus rings and higher contrast for the dark theme; smaller minimum window size
+- Discreet background playback toast (no focus steal) and a single click on the tray icon reopens the window
+- Actionable audio error messages (missing file, no output device, unavailable routing)
+
+### Removed
+- Redundant Rename button (the inline Title field is the rename control)
+- Dead code: the old WPF `HotkeyManager`, empty partials, unused sample providers/converters and the duplicated data path handling
 
 ### Fixed
 - Performance and UI optimizations
@@ -31,6 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/)
 - Application startup is silent: the splash screen no longer plays the bundled Vine Boom sound
 - Sound properties now raise change notifications, so hotkey badges, titles and sliders refresh live
 - Custom sound icons are stored once (the old code created a nested "icons/icons" folder)
+- Removed the outdated SharpHook package warning (pinned to the resolved 6.0.0)
 
 ---
 
