@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace BoomBx.Models
 {
-    public class SoundItem
+    public class SoundItem : INotifyPropertyChanged
     {
         public string Path { get; set; } = string.Empty;
         private string _name = string.Empty;
