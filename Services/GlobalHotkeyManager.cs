@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using SharpHook;
 using SharpHook.Data;
@@ -8,38 +8,181 @@ using SharpHook.Native;
 
 namespace BoomBx.Services
 {
-    public class GlobalHotkeyManager : IDisposable
+    /// <summary>
+    /// System-wide keyboard hook (SharpHook) used to trigger BoomBx soundboard actions
+    /// while another application owns the focus.
+    ///
+    /// The hook never activates or raises the BoomBx window: it only observes the
+    /// keyboard, so playback can start in the background.
+    ///
+    /// Hotkey actions are raised on the SharpHook worker thread. Callers must marshal
+    /// to the UI thread themselves (BoomBx posts through Avalonia's Dispatcher).
+    /// </summary>
+    public sealed class GlobalHotkeyManager : IDisposable
     {
         private readonly TaskPoolGlobalHook _hook = new();
-        private readonly Dictionary<Hotkey, Action> _actions = new();
-        private bool _disposed;
+        private readonly object _gate = new();
+        private readonly Dictionary<Hotkey, HotkeyBinding> _bindings = new();
         private readonly HashSet<KeyCode> _pressedKeys = new();
 
+        private Task? _hookTask;
+        private volatile bool _enabled = true;
+        private volatile bool _disposed;
+        private bool _started;
 
-        public GlobalHotkeyManager()
+        /// <summary>
+        /// Requests hotkeys to be ignored without tearing the hook down (used while the
+        /// user is capturing a new combination, or when the user disables hotkeys).
+        /// </summary>
+        public bool IsEnabled
         {
-            _hook.KeyPressed += OnKeyPressed;
-            _hook.KeyReleased += OnKeyReleased;
-            _hook.RunAsync();
+            get => _enabled;
+            set => _enabled = value;
         }
 
-        public void RegisterHotkey(KeyGesture gesture, Action action)
+        /// <summary>True when the keyboard hook started successfully.</summary>
+        public bool IsRunning
         {
-            var modifiers = ConvertModifiers(gesture.KeyModifiers);
-            var key = ConvertKey(gesture.Key);
-            var hotkey = new Hotkey(modifiers, key);
-
-            _actions[hotkey] = action;
+            get
+            {
+                lock (_gate)
+                {
+                    return _started && !_disposed;
+                }
+            }
         }
 
+        public event EventHandler<HotkeyTriggeredEventArgs>? HotkeyTriggered;
+
+        /// <summary>
+        /// Starts the low-level hook. Returns false with a human readable reason when the
+        /// platform refuses to install it (for example when the OS denies input taps).
+        /// </summary>
+        public bool TryStart(out string? error)
+        {
+            error = null;
+
+            lock (_gate)
+            {
+                if (_disposed)
+                {
+                    error = "the hotkey manager has been disposed";
+                    return false;
+                }
+
+                if (_started)
+                {
+                    return true;
+                }
+
+                try
+                {
+                    _hook.KeyPressed += OnKeyPressed;
+                    _hook.KeyReleased += OnKeyReleased;
+
+                    _hookTask = _hook.RunAsync();
+                    _ = _hookTask.ContinueWith(
+                        task => Logger.Log($"Global hotkey hook stopped unexpectedly: {task.Exception}"),
+                        TaskContinuationOptions.OnlyOnFaulted);
+
+                    _started = true;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _hook.KeyPressed -= OnKeyPressed;
+                    _hook.KeyReleased -= OnKeyReleased;
+                    error = ex.Message;
+                    Logger.Log($"Global hotkey hook failed to start: {ex}");
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds or replaces a single combination. <see cref="SetBindings"/> is preferred when
+        /// the whole hotkey set is rebuilt at once; this overload keeps incremental callers simple.
+        /// </summary>
+        public void RegisterHotkey(KeyGesture gesture, Action action, string? label = null)
+        {
+            if (gesture is null || action is null)
+            {
+                return;
+            }
+
+            var key = new Hotkey(ConvertModifiers(gesture.KeyModifiers), ConvertKey(gesture.Key));
+            if (key.Key == KeyCode.VcUndefined)
+            {
+                return;
+            }
+
+            lock (_gate)
+            {
+                _bindings[key] = new HotkeyBinding(gesture, label ?? HotkeyText.Format(gesture), action);
+            }
+        }
+
+        /// <summary>
+        /// Replaces every registered combination at once. Safe to call from the UI thread
+        /// while the hook is firing: the hook thread only reads a snapshot under a lock.
+        /// </summary>
+        public void SetBindings(IEnumerable<HotkeyBinding> bindings)
+        {
+            var next = new Dictionary<Hotkey, HotkeyBinding>();
+
+            foreach (var binding in bindings)
+            {
+                if (binding?.Gesture is null || binding.Action is null)
+                {
+                    continue;
+                }
+
+                var key = new Hotkey(ConvertModifiers(binding.Gesture.KeyModifiers), ConvertKey(binding.Gesture.Key));
+
+                // KeyCode.VcUndefined means Avalonia's Key could not be mapped to a
+                // physical key; registering it would never match.
+                if (key.Key == KeyCode.VcUndefined)
+                {
+                    continue;
+                }
+
+                next[key] = binding;
+            }
+
+            lock (_gate)
+            {
+                _bindings.Clear();
+                foreach (var pair in next)
+                {
+                    _bindings[pair.Key] = pair.Value;
+                }
+            }
+        }
+
+        /// <summary>Removes every registered combination (the hook stays alive).</summary>
         public void UnregisterAll()
         {
-            _actions.Clear();
+            lock (_gate)
+            {
+                _bindings.Clear();
+            }
         }
-        
+
         private void OnKeyPressed(object? sender, KeyboardHookEventArgs e)
         {
-            _pressedKeys.Add(e.Data.KeyCode);
+            if (_disposed)
+            {
+                return;
+            }
+
+            // KeyPressed is delivered again while a key is held down: only the first
+            // press may trigger an action, otherwise holding a hotkey would loop the sound.
+            bool firstPress = _pressedKeys.Add(e.Data.KeyCode);
+            if (!firstPress || !_enabled)
+            {
+                return;
+            }
+
             TryTriggerHotkey(e.Data.KeyCode);
         }
 
@@ -50,37 +193,156 @@ namespace BoomBx.Services
 
         private void TryTriggerHotkey(KeyCode key)
         {
-            var modifiers = 0;
+            // A modifier alone can never be a complete hotkey.
+            if (IsModifierKey(key))
+            {
+                return;
+            }
 
-            if (_pressedKeys.Contains(KeyCode.VcLeftControl) || _pressedKeys.Contains(KeyCode.VcRightControl))
-                modifiers |= 0x0004;
-            if (_pressedKeys.Contains(KeyCode.VcLeftShift) || _pressedKeys.Contains(KeyCode.VcRightShift))
-                modifiers |= 0x0002;
-            if (_pressedKeys.Contains(KeyCode.VcLeftAlt) || _pressedKeys.Contains(KeyCode.VcRightAlt))
-                modifiers |= 0x0008;
-            if (_pressedKeys.Contains(KeyCode.VcLeftMeta) || _pressedKeys.Contains(KeyCode.VcRightMeta))
-                modifiers |= 0x0001;
+            var hotkey = new Hotkey(CurrentModifiers(), key);
 
-            var hotkey = new Hotkey((ushort)modifiers, key);
+            HotkeyBinding? binding;
+            lock (_gate)
+            {
+                _bindings.TryGetValue(hotkey, out binding);
+            }
 
-            if (_actions.TryGetValue(hotkey, out var action))
-                action();
+            if (binding is null)
+            {
+                return;
+            }
+
+            try
+            {
+                HotkeyTriggered?.Invoke(
+                    this,
+                    new HotkeyTriggeredEventArgs(binding.Label, HotkeyText.Format(binding.Gesture)));
+            }
+            catch (Exception ex)
+            {
+                // The UI subscriber only posts to the dispatcher, but a listener must never
+                // be able to kill the hook thread.
+                Logger.Log($"Hotkey notification failed: {ex}");
+            }
+
+            try
+            {
+                binding.Action();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Hotkey action '{binding.Label}' failed: {ex}");
+            }
         }
 
-
-
-
-
-        private static ushort ConvertModifiers(KeyModifiers modifiers)
+        private HotkeyModifiers CurrentModifiers()
         {
-            ushort result = 0;
-            if (modifiers.HasFlag(KeyModifiers.Alt)) result |= 0x0008;    //  Alt
-            if (modifiers.HasFlag(KeyModifiers.Control)) result |= 0x0004; // Ctrl
-            if (modifiers.HasFlag(KeyModifiers.Shift)) result |= 0x0002;   // Shift
-            if (modifiers.HasFlag(KeyModifiers.Meta)) result |= 0x0001;    // Meta (Win key)
+            var modifiers = HotkeyModifiers.None;
+
+            if (_pressedKeys.Contains(KeyCode.VcLeftControl) || _pressedKeys.Contains(KeyCode.VcRightControl))
+            {
+                modifiers |= HotkeyModifiers.Control;
+            }
+
+            if (_pressedKeys.Contains(KeyCode.VcLeftShift) || _pressedKeys.Contains(KeyCode.VcRightShift))
+            {
+                modifiers |= HotkeyModifiers.Shift;
+            }
+
+            if (_pressedKeys.Contains(KeyCode.VcLeftAlt) || _pressedKeys.Contains(KeyCode.VcRightAlt))
+            {
+                modifiers |= HotkeyModifiers.Alt;
+            }
+
+            if (_pressedKeys.Contains(KeyCode.VcLeftMeta) || _pressedKeys.Contains(KeyCode.VcRightMeta))
+            {
+                modifiers |= HotkeyModifiers.Meta;
+            }
+
+            return modifiers;
+        }
+
+        public void Dispose()
+        {
+            lock (_gate)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                _enabled = false;
+                _bindings.Clear();
+            }
+
+            // Detach first so a release arriving during teardown cannot touch a half
+            // disposed hook, then stop the native hook and release its resources.
+            try
+            {
+                _hook.KeyPressed -= OnKeyPressed;
+                _hook.KeyReleased -= OnKeyReleased;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to detach hotkey events: {ex}");
+            }
+
+            try
+            {
+                _hook.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to dispose global hotkey hook: {ex}");
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
+        public sealed record HotkeyBinding(KeyGesture Gesture, string Label, Action Action);
+
+        public sealed class HotkeyTriggeredEventArgs : EventArgs
+        {
+            public HotkeyTriggeredEventArgs(string label, string gesture)
+            {
+                Label = label;
+                Gesture = gesture;
+            }
+
+            public string Label { get; }
+
+            public string Gesture { get; }
+        }
+
+        private static HotkeyModifiers ConvertModifiers(KeyModifiers modifiers)
+        {
+            var result = HotkeyModifiers.None;
+            if (modifiers.HasFlag(KeyModifiers.Alt)) result |= HotkeyModifiers.Alt;
+            if (modifiers.HasFlag(KeyModifiers.Control)) result |= HotkeyModifiers.Control;
+            if (modifiers.HasFlag(KeyModifiers.Shift)) result |= HotkeyModifiers.Shift;
+            if (modifiers.HasFlag(KeyModifiers.Meta)) result |= HotkeyModifiers.Meta;
             return result;
         }
 
+        [Flags]
+        private enum HotkeyModifiers : ushort
+        {
+            None = 0,
+            Alt = 1,
+            Control = 2,
+            Shift = 4,
+            Meta = 8
+        }
+
+        private static bool IsModifierKey(KeyCode key) => key is
+            KeyCode.VcLeftControl or KeyCode.VcRightControl or
+            KeyCode.VcLeftShift or KeyCode.VcRightShift or
+            KeyCode.VcLeftAlt or KeyCode.VcRightAlt or
+            KeyCode.VcLeftMeta or KeyCode.VcRightMeta or
+            KeyCode.VcCapsLock or KeyCode.VcNumLock or KeyCode.VcScrollLock;
+
+        private readonly record struct Hotkey(HotkeyModifiers Modifiers, KeyCode Key);
 
         private static KeyCode ConvertKey(Key key)
         {
@@ -190,16 +452,5 @@ namespace BoomBx.Services
                 _ => KeyCode.VcUndefined
             };
         }
-
-        public void Dispose()
-        {
-            if (_disposed) return;
-            
-            _hook.Dispose();
-            _disposed = true;
-            GC.SuppressFinalize(this);
-        }
-
-        private readonly record struct Hotkey(ushort Modifiers, KeyCode Key);
     }
 }

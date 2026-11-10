@@ -1,4 +1,4 @@
-﻿using BoomBx.Models;
+using BoomBx.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using NAudio.CoreAudioApi;
 using System.Collections.ObjectModel;
@@ -40,6 +40,23 @@ namespace BoomBx.ViewModels
         
         [ObservableProperty]
         private string _pauseHotkey = "F11";
+
+        [ObservableProperty]
+        private string _panicHotkey = "Esc";
+
+        [ObservableProperty]
+        private bool _hotkeysEnabled = true;
+
+        /// <summary>Short "Ctrl+Alt+1 → Vine boom" style feedback for the last triggered hotkey.</summary>
+        [ObservableProperty]
+        private string? _lastHotkeyDisplay;
+
+        /// <summary>Multi-line list of duplicate / already-owned combinations, empty when clean.</summary>
+        [ObservableProperty]
+        private string? _hotkeyWarnings;
+
+        [ObservableProperty]
+        private bool _hasHotkeyWarnings;
 
         public ObservableCollection<Soundboard> Soundboards { get; } = new();
 

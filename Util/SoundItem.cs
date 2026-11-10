@@ -80,6 +80,29 @@ namespace BoomBx.Models
             }
         }
 
+        private string _hotkey = string.Empty;
+
+        /// <summary>
+        /// Global keyboard combination that plays this sound while BoomBx is in the background.
+        /// Stored in canonical text form (see <c>HotkeyText.Format</c>); empty means unassigned.
+        /// </summary>
+        public string Hotkey
+        {
+            get => _hotkey;
+            set
+            {
+                var normalized = value ?? string.Empty;
+                if (_hotkey != normalized)
+                {
+                    _hotkey = normalized;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasHotkey));
+                }
+            }
+        }
+
+        public bool HasHotkey => !string.IsNullOrWhiteSpace(_hotkey);
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
