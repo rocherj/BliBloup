@@ -574,7 +574,7 @@
                             <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
                                 <TextBlock Text="Start" Foreground="#A0A0A0" FontSize="11" Width="36"/>
                                 <Slider Grid.Column="1" Name="TrimStartSlider"
-                                        Minimum="0" Maximum="{Binding ClipDurationSeconds}"
+                                        Minimum="0" Maximum="1"
                                         Value="{Binding TrimStartSeconds}"
                                         ValueChanged="TrimStartSlider_ValueChanged"/>
                                 <TextBlock Grid.Column="2" Text="{Binding TrimStartText}" Foreground="#E0E0E0"
@@ -584,7 +584,7 @@
                             <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
                                 <TextBlock Text="End" Foreground="#A0A0A0" FontSize="11" Width="36"/>
                                 <Slider Grid.Column="1" Name="TrimEndSlider"
-                                        Minimum="0" Maximum="{Binding ClipDurationSeconds}"
+                                        Minimum="0" Maximum="1"
                                         Value="{Binding TrimEndSeconds}"
                                         ValueChanged="TrimEndSlider_ValueChanged"/>
                                 <TextBlock Grid.Column="2" Text="{Binding TrimEndText}" Foreground="#E0E0E0"
@@ -594,12 +594,12 @@
                             <TextBlock Text="{Binding TrimSelectionText}" Foreground="#606060"
                                        FontSize="10" TextWrapping="Wrap"/>
 
-                            <Grid ColumnDefinitions="*,*,*">
-                                <Button Grid.Column="0" Content="▶ Preview" FontSize="12"
-                                        Click="PreviewTrim_Click" Margin="0,0,3,0"/>
-                                <Button Grid.Column="1" Content="Save copy" FontSize="12"
-                                        Click="SaveTrimCopy_Click" Margin="3,0"/>
-                                <Button Grid.Column="2" Content="Overwrite" FontSize="12"
+                            <Button Content="▶ Preview selection" FontSize="12" Padding="8,6"
+                                    HorizontalAlignment="Stretch" Click="PreviewTrim_Click"/>
+                            <Grid ColumnDefinitions="*,*">
+                                <Button Grid.Column="0" Content="Save copy" FontSize="11" Padding="6,6"
+                                        Click="SaveTrimCopy_Click" Margin="0,0,3,0"/>
+                                <Button Grid.Column="1" Content="Overwrite" FontSize="11" Padding="6,6"
                                         Click="SaveTrimOverwrite_Click" Background="#8B2E2E" Margin="3,0,0,0"/>
                             </Grid>
 

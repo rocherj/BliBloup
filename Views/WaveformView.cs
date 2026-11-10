@@ -72,24 +72,39 @@ namespace BoomBx.Views
             var peaks = Peaks;
             double duration = Duration;
 
-            if (peaks is null || peaks.Length == 0 || duration <= 0.0001)
+            if (peaks is null || peaks.Length == 0 || !double.IsFinite(duration) || duration <= 0.0001)
             {
                 return;
             }
 
-            double start = Math.Clamp(Math.Min(SelectionStart, SelectionEnd), 0, duration);
-            double end = Math.Clamp(Math.Max(SelectionStart, SelectionEnd), 0, duration);
-            double startX = start / duration * bounds.Width;
-            double endX = end / duration * bounds.Width;
+            // Guard against invalid / negative / NaN selections: never build geometry from them.
+            double rawStart = double.IsFinite(SelectionStart) ? SelectionStart : 0;
+            double rawEnd = double.IsFinite(SelectionEnd) ? SelectionEnd : duration;
+            double selectionStart = Math.Clamp(Math.Min(rawStart, rawEnd), 0, duration);
+            double selectionEnd = Math.Clamp(Math.Max(rawStart, rawEnd), 0, duration);
+
+            if (selectionEnd < selectionStart)
+            {
+                selectionEnd = selectionStart;
+            }
+
+            double startX = selectionStart / duration * bounds.Width;
+            double endX = selectionEnd / duration * bounds.Width;
 
             var selectedBrush = new SolidColorBrush(Color.Parse("#007ACC"));
             var idleBrush = new SolidColorBrush(Color.Parse("#4A4A4A"));
             double barWidth = bounds.Width / peaks.Length;
 
+            if (barWidth <= 0)
+            {
+                return;
+            }
+
             for (int i = 0; i < peaks.Length; i++)
             {
                 double centerX = (i + 0.5) * barWidth;
-                double height = Math.Max(1, peaks[i] * (mid - 2));
+                double peak = double.IsFinite(peaks[i]) ? Math.Clamp(peaks[i], 0f, 1f) : 0;
+                double height = Math.Max(1, peak * (mid - 2));
                 var rectangle = new Rect(
                     i * barWidth,
                     mid - height,

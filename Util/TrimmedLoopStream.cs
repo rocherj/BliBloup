@@ -20,26 +20,42 @@ public class TrimmedLoopStream : WaveStream
     {
         _source = source ?? throw new ArgumentNullException(nameof(source));
 
+        // Guard against NaN/infinite selections coming from the UI: they would produce a
+        // nonsensical byte range and could make Read loop or throw.
+        if (double.IsNaN(startSeconds) || double.IsInfinity(startSeconds) || startSeconds < 0)
+        {
+            startSeconds = 0;
+        }
+
+        if (double.IsNaN(endSeconds) || double.IsInfinity(endSeconds) || endSeconds < 0)
+        {
+            endSeconds = 0;
+        }
+
         var format = source.WaveFormat;
         long blockAlign = Math.Max(1, format.BlockAlign);
         long length = source.Length;
+        long bytesPerSecond = Math.Max(1, format.AverageBytesPerSecond);
 
         if (length < blockAlign)
         {
+            // Nothing playable: a zero length window makes Read return 0 immediately.
             _segmentStart = 0;
             _segmentLength = 0;
             _loop = loop;
             return;
         }
 
-        long start = (long)Math.Round(Math.Max(0, startSeconds) * format.AverageBytesPerSecond);
+        long start = (long)Math.Round(startSeconds * bytesPerSecond);
         start -= start % blockAlign;
         start = Math.Clamp(start, 0, length - blockAlign);
 
+        // endSeconds == 0 (or any value not after start) means "until the end of the file",
+        // which is how the trim model stores an unset end.
         long end;
         if (endSeconds > startSeconds + 0.001)
         {
-            end = (long)Math.Round(endSeconds * format.AverageBytesPerSecond);
+            end = (long)Math.Round(endSeconds * bytesPerSecond);
             end -= end % blockAlign;
         }
         else
@@ -52,6 +68,12 @@ public class TrimmedLoopStream : WaveStream
         _segmentStart = start;
         _segmentLength = end - start;
         _loop = loop;
+
+        if (_segmentLength <= 0)
+        {
+            _segmentLength = 0;
+            return;
+        }
 
         _source.Position = _segmentStart;
     }
@@ -78,6 +100,11 @@ public class TrimmedLoopStream : WaveStream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+        if (count <= 0 || _segmentLength <= 0)
+        {
+            return 0;
+        }
+
         int totalRead = 0;
 
         while (totalRead < count)

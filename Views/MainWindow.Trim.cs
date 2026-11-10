@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using BoomBx.Models;
 using BoomBx.Services;
 using MsBox.Avalonia;
@@ -16,16 +17,24 @@ namespace BoomBx.Views
     ///
     /// The trim itself is non destructive metadata on <see cref="SoundItem"/>; playback
     /// applies it immediately, saving is an explicit action.
+    ///
+    /// The two sliders are kept strictly ordered through their Minimum/Maximum bounds instead
+    /// of writing back to each other: a start that moves past the end used to make the two
+    /// ValueChanged handlers fight each other, freezing the UI.
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const double MinimumSelectionSeconds = 0.05;
+        /// <summary>Smallest trimmed length and the gap the two handles can never cross.</summary>
+        private const double MinimumSelectionSeconds = 0.1;
 
         private readonly AudioTrimService _trimService = new();
         private bool _syncingTrim;
+        private DispatcherTimer? _trimCommitTimer;
 
         private async Task LoadTrimInfoAsync(SoundItem? sound)
         {
+            CancelPendingTrimCommit();
+
             if (sound is null)
             {
                 ResetTrimDisplay();
@@ -60,28 +69,34 @@ namespace BoomBx.Views
         {
             double duration = Math.Max(MinimumSelectionSeconds, durationSeconds);
 
+            double start = Math.Clamp(sound.TrimStart, 0, Math.Max(0, duration - MinimumSelectionSeconds));
+            double end = sound.TrimEnd > 0.01
+                ? Math.Clamp(sound.TrimEnd, Math.Min(duration, start + MinimumSelectionSeconds), duration)
+                : duration;
+
+            if (end < start + MinimumSelectionSeconds)
+            {
+                start = Math.Max(0, end - MinimumSelectionSeconds);
+            }
+
             _syncingTrim = true;
             try
             {
                 ViewModel.ClipDurationSeconds = duration;
                 ViewModel.ClipPeaks = peaks;
                 ViewModel.ClipDurationText = FormatTime(duration);
-                ViewModel.TrimStartSeconds = Math.Clamp(sound.TrimStart, 0, Math.Max(0, duration - MinimumSelectionSeconds));
-
-                double end = sound.TrimEnd > 0.01
-                    ? Math.Clamp(sound.TrimEnd, ViewModel.TrimStartSeconds + MinimumSelectionSeconds, duration)
-                    : duration;
-
+                ViewModel.TrimStartSeconds = start;
                 ViewModel.TrimEndSeconds = end;
-                ViewModel.TrimStartText = FormatTime(ViewModel.TrimStartSeconds);
+                ViewModel.TrimStartText = FormatTime(start);
                 ViewModel.TrimEndText = FormatTime(end);
+                ViewModel.TrimSelectionText = BuildSelectionText(start, end);
+
+                ApplySliderBounds(start, end, duration);
             }
             finally
             {
                 _syncingTrim = false;
             }
-
-            UpdateTrimSelectionText();
         }
 
         private void ResetTrimDisplay()
@@ -97,11 +112,25 @@ namespace BoomBx.Views
                 ViewModel.TrimStartText = "—";
                 ViewModel.TrimEndText = "—";
                 ViewModel.TrimSelectionText = "Select a sound to edit its trim.";
+
+                ApplySliderBounds(0, 1, 1);
             }
             finally
             {
                 _syncingTrim = false;
             }
+        }
+
+        /// <summary>
+        /// Keeps the handles ordered purely through bounds: start can never exceed end - gap and
+        /// end can never go below start + gap, so the handlers cannot chase each other.
+        /// </summary>
+        private void ApplySliderBounds(double start, double end, double duration)
+        {
+            TrimStartSlider.Minimum = 0;
+            TrimStartSlider.Maximum = Math.Max(0, end - MinimumSelectionSeconds);
+            TrimEndSlider.Minimum = Math.Min(duration, start + MinimumSelectionSeconds);
+            TrimEndSlider.Maximum = duration;
         }
 
         private void TrimStartSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
@@ -111,16 +140,8 @@ namespace BoomBx.Views
                 return;
             }
 
-            double duration = Math.Max(MinimumSelectionSeconds, ViewModel.ClipDurationSeconds);
-            double start = Math.Clamp(e.NewValue, 0, duration - MinimumSelectionSeconds);
-            double end = ViewModel.TrimEndSeconds;
-
-            if (start > end - MinimumSelectionSeconds)
-            {
-                end = Math.Min(duration, start + MinimumSelectionSeconds);
-            }
-
-            ApplyTrimValues(start, end);
+            RefreshBoundsFromValues();
+            ScheduleTrimCommit();
         }
 
         private void TrimEndSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
@@ -130,19 +151,64 @@ namespace BoomBx.Views
                 return;
             }
 
-            double duration = Math.Max(MinimumSelectionSeconds, ViewModel.ClipDurationSeconds);
-            double end = Math.Clamp(e.NewValue, MinimumSelectionSeconds, duration);
-            double start = ViewModel.TrimStartSeconds;
-
-            if (end < start + MinimumSelectionSeconds)
-            {
-                start = Math.Max(0, end - MinimumSelectionSeconds);
-            }
-
-            ApplyTrimValues(start, end);
+            RefreshBoundsFromValues();
+            ScheduleTrimCommit();
         }
 
-        private void ApplyTrimValues(double start, double end)
+        /// <summary>Re-reads both slider values, clamps them and refreshes the mutual bounds.</summary>
+        private void RefreshBoundsFromValues()
+        {
+            double duration = Math.Max(MinimumSelectionSeconds, ViewModel.ClipDurationSeconds);
+
+            _syncingTrim = true;
+            try
+            {
+                double start = Math.Clamp(ViewModel.TrimStartSeconds, 0, Math.Max(0, duration - MinimumSelectionSeconds));
+                double end = Math.Clamp(ViewModel.TrimEndSeconds, Math.Min(duration, start + MinimumSelectionSeconds), duration);
+
+                ApplySliderBounds(start, end, duration);
+
+                // Bound changes can coerce the slider values; mirror the final result.
+                ViewModel.TrimStartSeconds = Math.Clamp(ViewModel.TrimStartSeconds, 0, TrimStartSlider.Maximum);
+                ViewModel.TrimEndSeconds = Math.Clamp(ViewModel.TrimEndSeconds, TrimEndSlider.Minimum, duration);
+            }
+            finally
+            {
+                _syncingTrim = false;
+            }
+        }
+
+        /// <summary>
+        /// Debounced: dragging a slider fires dozens of notifications; the metadata write and the
+        /// formatted labels are coalesced into one update shortly after the mouse stops.
+        /// </summary>
+        private void ScheduleTrimCommit()
+        {
+            _trimCommitTimer ??= CreateTrimCommitTimer();
+            _trimCommitTimer.Stop();
+            _trimCommitTimer.Start();
+        }
+
+        private DispatcherTimer CreateTrimCommitTimer()
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(70) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                CommitTrim();
+            };
+            return timer;
+        }
+
+        private void CancelPendingTrimCommit() => _trimCommitTimer?.Stop();
+
+        private void FlushTrimCommit()
+        {
+            CancelPendingTrimCommit();
+            CommitTrim();
+        }
+
+        private void CommitTrim()
         {
             if (ViewModel.SelectedSound is not { } sound)
             {
@@ -150,39 +216,32 @@ namespace BoomBx.Views
             }
 
             double duration = Math.Max(MinimumSelectionSeconds, ViewModel.ClipDurationSeconds);
-            start = Math.Clamp(start, 0, duration - MinimumSelectionSeconds);
-            end = Math.Clamp(end, start + MinimumSelectionSeconds, duration);
 
             _syncingTrim = true;
             try
             {
+                double start = Math.Clamp(ViewModel.TrimStartSeconds, 0, Math.Max(0, duration - MinimumSelectionSeconds));
+                double end = Math.Clamp(ViewModel.TrimEndSeconds, Math.Min(duration, start + MinimumSelectionSeconds), duration);
+
                 ViewModel.TrimStartSeconds = start;
                 ViewModel.TrimEndSeconds = end;
                 ViewModel.TrimStartText = FormatTime(start);
                 ViewModel.TrimEndText = FormatTime(end);
+                ViewModel.TrimSelectionText = BuildSelectionText(start, end);
+
+                ApplySliderBounds(start, end, duration);
+
+                sound.TrimStart = start;
+                sound.TrimEnd = end >= duration - 0.02 ? 0 : end;
             }
             finally
             {
                 _syncingTrim = false;
             }
-
-            sound.TrimStart = start;
-            sound.TrimEnd = end >= duration - 0.02 ? 0 : end;
-
-            UpdateTrimSelectionText();
         }
 
-        private void UpdateTrimSelectionText()
-        {
-            if (ViewModel.SelectedSound is null)
-            {
-                return;
-            }
-
-            double length = Math.Max(0, ViewModel.TrimEndSeconds - ViewModel.TrimStartSeconds);
-            ViewModel.TrimSelectionText =
-                $"Playing {FormatTime(ViewModel.TrimStartSeconds)} → {FormatTime(ViewModel.TrimEndSeconds)} ({FormatTime(length)})";
-        }
+        private static string BuildSelectionText(double start, double end) =>
+            $"Playing {FormatTime(start)} → {FormatTime(end)} ({FormatTime(Math.Max(0, end - start))})";
 
         private void ResetTrim_Click(object? sender, RoutedEventArgs e)
         {
@@ -191,6 +250,7 @@ namespace BoomBx.Views
                 return;
             }
 
+            CancelPendingTrimCommit();
             sound.TrimStart = 0;
             sound.TrimEnd = 0;
             ApplyTrimDisplay(sound, ViewModel.ClipDurationSeconds, ViewModel.ClipPeaks);
@@ -205,6 +265,8 @@ namespace BoomBx.Views
                 UpdateStatus("Select a sound first.", true);
                 return;
             }
+
+            FlushTrimCommit();
 
             // Isolate the preview so the selection can be judged on its own.
             StopAudioProcessing(updateStatus: false);
@@ -221,6 +283,7 @@ namespace BoomBx.Views
 
             try
             {
+                FlushTrimCommit();
                 UpdateStatus("💾 Saving trimmed copy…");
 
                 var result = await _trimService.SaveTrimmedAsync(
@@ -268,6 +331,8 @@ namespace BoomBx.Views
 
             try
             {
+                FlushTrimCommit();
+
                 var box = MessageBoxManager.GetMessageBoxStandard(
                     "Overwrite audio file",
                     $"Replace the original file permanently?\n\n{sound.Path}\n\n" +

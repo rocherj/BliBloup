@@ -130,6 +130,17 @@ namespace BoomBx.Services
                 throw new FileNotFoundException("Audio file not found.", sourcePath);
             }
 
+            // Defensive: the UI already clamps, but a NaN/infinity must never reach the encoder.
+            if (!double.IsFinite(startSeconds) || startSeconds < 0)
+            {
+                startSeconds = 0;
+            }
+
+            if (!double.IsFinite(endSeconds) || endSeconds < 0)
+            {
+                endSeconds = 0;
+            }
+
             double duration;
 
             using (var probe = new AudioFileReader(sourcePath))
@@ -140,9 +151,9 @@ namespace BoomBx.Services
             double start = Math.Clamp(startSeconds, 0, Math.Max(0, duration - 0.01));
             double end = endSeconds <= 0 ? duration : Math.Clamp(endSeconds, 0, duration);
 
-            if (end - start < 0.05)
+            if (end - start < 0.1)
             {
-                throw new InvalidOperationException("The selection is shorter than 50 ms; extend it before saving.");
+                throw new InvalidOperationException("The selection is shorter than 100 ms; extend it before saving.");
             }
 
             var extension = Path.GetExtension(sourcePath).ToLowerInvariant();
