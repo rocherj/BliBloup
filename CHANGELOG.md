@@ -21,6 +21,7 @@ First public release of BliBloup, based on BoomBx 0.1.6.
 - Automatic migration of older libraries and of the previous BoomBx data folder.
 - Single-instance protection: launching a second copy focuses the existing window.
 - Keyboard focus indicators and improved contrast in the dark theme.
+- Sounds are decoded once into an in-memory PCM cache when the library loads or a file is imported; triggering a sound reads the decoded buffer instead of reopening the file, with LRU eviction and invalidation when a sound is removed or a file changes.
 - Microphone latency settings: WASAPI shared capture with a configurable 10-150 ms buffer (40 ms default), an exclusive mode option that falls back to shared when the driver rejects it, and MMCSS "Pro Audio" thread priority for the capture thread.
 - Trim editor reworked around an interactive waveform control: draggable start and end handles, drag-to-select, click-to-place playhead and a 3 px threshold between a click and a drag. The previous start/end sliders were removed.
 
@@ -35,6 +36,7 @@ First public release of BliBloup, based on BoomBx 0.1.6.
 ### Fixed
 
 - Global hotkey hook is detached and disposed on close instead of leaking.
+- Settings: the version line at the bottom of the page is no longer clipped by the window edge.
 - Startup is silent; the splash screen no longer plays the bundled sound.
 - Sound properties raise change notifications, so titles, hotkey badges and sliders refresh immediately.
 - Custom sound thumbnails are stored in a single icons folder instead of a nested one.

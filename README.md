@@ -32,7 +32,7 @@ Sounds are added from the Sounds tab. A sound can be trimmed, given its own thum
 
 ## Features
 
-**Sound library.** The library supports multiple soundboards, multi-file import of MP3 and WAV files, drag and drop reordering, inline renaming, duplication and deletion with confirmation. Each sound can have a square thumbnail; imported images are center-cropped, resized to 256x256 and compressed, and sounds without a custom image use the bundled default thumbnail.
+**Sound library.** The library supports multiple soundboards, multi-file import of MP3 and WAV files, drag and drop reordering, inline renaming, duplication and deletion with confirmation. Each sound can have a square thumbnail; imported images are center-cropped, resized to 256x256 and compressed, and sounds without a custom image use the bundled default thumbnail. Audio files are decoded once into memory when the library loads, so starting a sound does not decode the file again; decoded buffers are released when a sound is removed and a bounded LRU cache keeps memory use in check.
 
 **Playback and editing.** Playback uses a mixer so several sounds can play simultaneously, with per-sound volume, bass, treble and pitch controls and a limiter on both the speaker and virtual microphone outputs. The trim editor shows the waveform and allows an audible preview. The waveform is interactive: the blue handles set the start and end of the selection, dragging across it selects a new range, and a click places the playhead. The result can be saved as a copy or used to overwrite the original file.
 
