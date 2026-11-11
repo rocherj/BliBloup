@@ -22,6 +22,7 @@ First public release of BliBloup, based on BoomBx 0.1.6.
 - Single-instance protection: launching a second copy focuses the existing window.
 - Keyboard focus indicators and improved contrast in the dark theme.
 - Sounds are decoded once into an in-memory PCM cache when the library loads or a file is imported; triggering a sound reads the decoded buffer instead of reopening the file, with LRU eviction and invalidation when a sound is removed or a file changes.
+- Per-sound Mute the preview option: the clip keeps playing in the virtual microphone mix but is silenced on the local speakers/headphones. The setting is stored with the sound and applied to voices that are already playing.
 - Microphone latency settings: WASAPI shared capture with a configurable 10-150 ms buffer (40 ms default), an exclusive mode option that falls back to shared when the driver rejects it, and MMCSS "Pro Audio" thread priority for the capture thread.
 - Trim editor reworked around an interactive waveform control: draggable start and end handles, drag-to-select, click-to-place playhead and a 3 px threshold between a click and a drag. The previous start/end sliders were removed.
 
