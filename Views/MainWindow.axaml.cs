@@ -33,6 +33,8 @@ namespace BliBloup.Views
     public partial class MainWindow : Window
     {
         private readonly AppSettings _settings = new();
+        private static readonly int[] CaptureBufferOptions = { 10, 20, 30, 40, 50, 75, 100, 150 };
+        private bool _initializingCaptureSettings;
         private readonly SoundboardStore _soundboardStore = new();
 
         private bool _installationDismissed;
@@ -82,6 +84,9 @@ namespace BliBloup.Views
             DataContext = new MainWindowViewModel();
             InitializeSoundboardEditing();
 
+            _settings = SettingsManager.LoadSettings();
+            InitializeCaptureSettingsUi();
+
             _deviceManager = new DeviceManager(
                 (MainWindowViewModel)DataContext!,
                 _settings,
@@ -99,7 +104,6 @@ namespace BliBloup.Views
             this.WindowState = WindowState.Normal;
             this.Opacity = 1;
             this.IsVisible = false;
-            _settings = SettingsManager.LoadSettings();
             Console.WriteLine("[3] Window properties set");
         }
 
@@ -499,6 +503,77 @@ namespace BliBloup.Views
                 catch { /* Ignore cleanup errors */ }
                 HideProgress();
             }
+        }
+
+        private void InitializeCaptureSettingsUi()
+        {
+            CaptureBufferComboBox.ItemsSource = CaptureBufferOptions.Select(ms => $"{ms} ms").ToList();
+
+            int index = Array.IndexOf(CaptureBufferOptions, Math.Clamp(_settings.CaptureBufferMilliseconds, 10, 150));
+            if (index < 0)
+            {
+                index = Array.IndexOf(CaptureBufferOptions, 40);
+            }
+
+            _initializingCaptureSettings = true;
+            try
+            {
+                CaptureBufferComboBox.SelectedIndex = index;
+                ExclusiveCaptureBox.IsChecked = _settings.CaptureExclusiveMode;
+                CaptureExclusiveWarning.IsVisible = _settings.CaptureExclusiveMode;
+                ProAudioBox.IsChecked = _settings.CaptureProAudioPriority;
+            }
+            finally
+            {
+                _initializingCaptureSettings = false;
+            }
+        }
+
+        public void CaptureBufferChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (_initializingCaptureSettings || CaptureBufferComboBox.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            _settings.CaptureBufferMilliseconds = CaptureBufferOptions[CaptureBufferComboBox.SelectedIndex];
+            SettingsManager.SaveSettings(_settings);
+            _audioService?.RestartPersistentAudioRouting();
+            _playbackEngine?.ReattachVirtualInputs();
+            UpdateStatus($"Microphone buffer set to {_settings.CaptureBufferMilliseconds} ms.");
+        }
+
+        public void ExclusiveCaptureChanged(object? sender, RoutedEventArgs e)
+        {
+            if (_initializingCaptureSettings)
+            {
+                return;
+            }
+
+            _settings.CaptureExclusiveMode = ExclusiveCaptureBox.IsChecked == true;
+            CaptureExclusiveWarning.IsVisible = _settings.CaptureExclusiveMode;
+            SettingsManager.SaveSettings(_settings);
+            _audioService?.RestartPersistentAudioRouting();
+            _playbackEngine?.ReattachVirtualInputs();
+            UpdateStatus(_settings.CaptureExclusiveMode
+                ? "Exclusive capture enabled: the microphone is now reserved for BliBloup."
+                : "Shared capture enabled: other applications can use the microphone.");
+        }
+
+        public void ProAudioPriorityChanged(object? sender, RoutedEventArgs e)
+        {
+            if (_initializingCaptureSettings)
+            {
+                return;
+            }
+
+            _settings.CaptureProAudioPriority = ProAudioBox.IsChecked == true;
+            SettingsManager.SaveSettings(_settings);
+            _audioService?.RestartPersistentAudioRouting();
+            _playbackEngine?.ReattachVirtualInputs();
+            UpdateStatus(_settings.CaptureProAudioPriority
+                ? "Pro Audio thread priority requested for the capture thread."
+                : "Pro Audio thread priority disabled.");
         }
 
         public void PlaybackDeviceChanged(object? sender, SelectionChangedEventArgs e)

@@ -18,9 +18,8 @@ namespace BliBloup.Views
     /// The trim itself is non destructive metadata on <see cref="SoundItem"/>; playback
     /// applies it immediately, saving is an explicit action.
     ///
-    /// The two sliders are kept strictly ordered through their Minimum/Maximum bounds instead
-    /// of writing back to each other: a start that moves past the end used to make the two
-    /// ValueChanged handlers fight each other, freezing the UI.
+    /// The waveform control enforces the minimum selection length while a handle is dragged,
+    /// and committed values are debounced before they reach the model.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -91,7 +90,6 @@ namespace BliBloup.Views
                 ViewModel.TrimEndText = FormatTime(end);
                 ViewModel.TrimSelectionText = BuildSelectionText(start, end);
 
-                ApplySliderBounds(start, end, duration);
             }
             finally
             {
@@ -113,7 +111,6 @@ namespace BliBloup.Views
                 ViewModel.TrimEndText = "—";
                 ViewModel.TrimSelectionText = "Select a sound to edit its trim.";
 
-                ApplySliderBounds(0, 1, 1);
             }
             finally
             {
@@ -121,61 +118,14 @@ namespace BliBloup.Views
             }
         }
 
-        /// <summary>
-        /// Keeps the handles ordered purely through bounds: start can never exceed end - gap and
-        /// end can never go below start + gap, so the handlers cannot chase each other.
-        /// </summary>
-        private void ApplySliderBounds(double start, double end, double duration)
-        {
-            TrimStartSlider.Minimum = 0;
-            TrimStartSlider.Maximum = Math.Max(0, end - MinimumSelectionSeconds);
-            TrimEndSlider.Minimum = Math.Min(duration, start + MinimumSelectionSeconds);
-            TrimEndSlider.Maximum = duration;
-        }
-
-        private void TrimStartSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+        private void TrimWaveform_SelectionChanged(object? sender, EventArgs e)
         {
             if (_syncingTrim)
             {
                 return;
             }
 
-            RefreshBoundsFromValues();
             ScheduleTrimCommit();
-        }
-
-        private void TrimEndSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
-        {
-            if (_syncingTrim)
-            {
-                return;
-            }
-
-            RefreshBoundsFromValues();
-            ScheduleTrimCommit();
-        }
-
-        /// <summary>Re-reads both slider values, clamps them and refreshes the mutual bounds.</summary>
-        private void RefreshBoundsFromValues()
-        {
-            double duration = Math.Max(MinimumSelectionSeconds, ViewModel.ClipDurationSeconds);
-
-            _syncingTrim = true;
-            try
-            {
-                double start = Math.Clamp(ViewModel.TrimStartSeconds, 0, Math.Max(0, duration - MinimumSelectionSeconds));
-                double end = Math.Clamp(ViewModel.TrimEndSeconds, Math.Min(duration, start + MinimumSelectionSeconds), duration);
-
-                ApplySliderBounds(start, end, duration);
-
-                // Bound changes can coerce the slider values; mirror the final result.
-                ViewModel.TrimStartSeconds = Math.Clamp(ViewModel.TrimStartSeconds, 0, TrimStartSlider.Maximum);
-                ViewModel.TrimEndSeconds = Math.Clamp(ViewModel.TrimEndSeconds, TrimEndSlider.Minimum, duration);
-            }
-            finally
-            {
-                _syncingTrim = false;
-            }
         }
 
         /// <summary>
@@ -229,10 +179,11 @@ namespace BliBloup.Views
                 ViewModel.TrimEndText = FormatTime(end);
                 ViewModel.TrimSelectionText = BuildSelectionText(start, end);
 
-                ApplySliderBounds(start, end, duration);
-
                 sound.TrimStart = start;
                 sound.TrimEnd = end >= duration - 0.02 ? 0 : end;
+
+                // Keep the trimmed range even if the user closes the app without another save.
+                SaveSoundLibrary();
             }
             finally
             {

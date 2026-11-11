@@ -386,6 +386,28 @@
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
                                 </StackPanel>
+
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="MICROPHONE LATENCY"
+                                            Foreground="#B8B8B8"
+                                            FontSize="12"
+                                            FontWeight="Bold"/>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <ComboBox x:Name="CaptureBufferComboBox" Height="36" FontSize="13"
+                                                SelectionChanged="CaptureBufferChanged"/>
+                                        <TextBlock Grid.Column="1" Text="capture buffer" Foreground="#8A8A8A"
+                                                FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                    </Grid>
+                                    <TextBlock Text="Default 40 ms. Lower values reduce latency but increase CPU load and the risk of dropouts; higher values are more stable."
+                                            Foreground="#8A8A8A" FontSize="11" TextWrapping="Wrap"/>
+                                    <CheckBox x:Name="ExclusiveCaptureBox" Content="Exclusive capture mode (lowest latency)"
+                                            Click="ExclusiveCaptureChanged" Foreground="#E0E0E0"/>
+                                    <TextBlock x:Name="CaptureExclusiveWarning"
+                                            Text="Warning: while enabled, other applications cannot use this microphone."
+                                            Foreground="#FFB86B" FontSize="11" TextWrapping="Wrap" IsVisible="False"/>
+                                    <CheckBox x:Name="ProAudioBox" Content="Request Pro Audio thread priority (MMCSS)"
+                                            Click="ProAudioPriorityChanged" Foreground="#E0E0E0"/>
+                                </StackPanel>
                             </StackPanel>
 
                             <StackPanel Spacing="15">
@@ -625,31 +647,22 @@
                                     </Grid>
                                 </Expander.Header>
                                 <StackPanel Spacing="6" Margin="0,6,0,0">
-                                    <views:WaveformView Height="54"
+                                    <views:TrimWaveformView Height="66"
                                                         Peaks="{Binding ClipPeaks}"
                                                         Duration="{Binding ClipDurationSeconds}"
-                                                        SelectionStart="{Binding TrimStartSeconds}"
-                                                        SelectionEnd="{Binding TrimEndSeconds}"/>
+                                                        SelectionStart="{Binding TrimStartSeconds, Mode=TwoWay}"
+                                                        SelectionEnd="{Binding TrimEndSeconds, Mode=TwoWay}"
+                                                        SelectionChanged="TrimWaveform_SelectionChanged"/>
 
-                                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
-                                        <TextBlock Text="Start" Foreground="#B8B8B8" FontSize="11" Width="36"/>
-                                        <Slider Grid.Column="1" Name="TrimStartSlider"
-                                                Minimum="0" Maximum="1"
-                                                Value="{Binding TrimStartSeconds}"
-                                                ValueChanged="TrimStartSlider_ValueChanged"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding TrimStartText}" Foreground="#E0E0E0"
-                                                   FontSize="11" Width="48" TextAlignment="Right"/>
+                                    <Grid ColumnDefinitions="*,*">
+                                        <TextBlock Text="{Binding TrimStartText, StringFormat='Start {0}'}"
+                                                   Foreground="#B8B8B8" FontSize="11"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding TrimEndText, StringFormat='End {0}'}"
+                                                   Foreground="#B8B8B8" FontSize="11" HorizontalAlignment="Right"/>
                                     </Grid>
 
-                                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
-                                        <TextBlock Text="End" Foreground="#B8B8B8" FontSize="11" Width="36"/>
-                                        <Slider Grid.Column="1" Name="TrimEndSlider"
-                                                Minimum="0" Maximum="1"
-                                                Value="{Binding TrimEndSeconds}"
-                                                ValueChanged="TrimEndSlider_ValueChanged"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding TrimEndText}" Foreground="#E0E0E0"
-                                                   FontSize="11" Width="48" TextAlignment="Right"/>
-                                    </Grid>
+                                    <TextBlock Text="Drag the blue handles to move the start and end. Dragging on the waveform makes a new selection; a click places the playhead."
+                                               Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
 
                                     <TextBlock Text="{Binding TrimSelectionText}" Foreground="#8A8A8A"
                                                FontSize="10" TextWrapping="Wrap"/>

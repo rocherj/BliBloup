@@ -23,6 +23,7 @@ namespace BliBloup.Services
         private WasapiCapture? _micCapture;
         private IWavePlayer? _persistentOutput;
         private MixingSampleProvider? _persistentMixer;
+        private bool _mmcssApplied;
                 
         public bool IsUsingVirtualOutput => 
         _deviceManager.SelectedPlaybackDevice?.FriendlyName?.Contains("CABLE Input") == true;
@@ -119,8 +120,8 @@ namespace BliBloup.Services
                 };
                 _deviceManager.SetPersistentMixer(_persistentMixer);
 
-                _micCapture = new WasapiCapture(_deviceManager.SelectedCaptureDevice);
-                _micCapture.RecordingStopped += HandleCaptureError;
+                _mmcssApplied = false;
+                _micCapture = CreateMicCapture(_settings.CaptureExclusiveMode);
                 var micProvider = new WaveInProvider(_micCapture);
                 var micSampleProvider = ConvertFormat(micProvider.ToSampleProvider(), targetFormat);
                 _persistentMixer.AddMixerInput(micSampleProvider);
@@ -136,7 +137,20 @@ namespace BliBloup.Services
                 // Master limiter for the virtual microphone mix (microphone + clips): several
                 // sounds playing together must not clip before reaching the game/Discord.
                 _persistentOutput.Init(new LimiterSampleProvider(_persistentMixer));
-                _micCapture.StartRecording();
+                try
+                {
+                    _micCapture.StartRecording();
+                }
+                catch (Exception ex) when (_settings.CaptureExclusiveMode)
+                {
+                    // Some drivers only expose their format in shared mode: keep the app usable.
+                    Logger.Log($"Exclusive capture unavailable ({ex.Message}); falling back to shared mode.");
+                    DisposeMicCapture();
+                    _mmcssApplied = false;
+                    _micCapture = CreateMicCapture(exclusive: false);
+                    _micCapture.StartRecording();
+                }
+
                 _persistentOutput.Play();
             }
             catch (Exception ex)
@@ -147,13 +161,7 @@ namespace BliBloup.Services
 
         private void StopPersistentAudioRouting()
         {
-            if (_micCapture != null)
-            {
-                _micCapture.RecordingStopped -= HandleCaptureError;
-                _micCapture.StopRecording();
-                _micCapture.Dispose();
-                _micCapture = null;
-            }
+            DisposeMicCapture();
 
             if (_persistentOutput != null)
             {
@@ -166,6 +174,70 @@ namespace BliBloup.Services
             _persistentMixer?.RemoveAllMixerInputs();
         }
 
+
+        private WasapiCapture CreateMicCapture(bool exclusive)
+        {
+            var device = _deviceManager.SelectedCaptureDevice
+                ?? throw new InvalidOperationException("No capture device is selected.");
+
+            int bufferMilliseconds = Math.Clamp(_settings.CaptureBufferMilliseconds, 10, 250);
+
+            // NAudio 2.2.1 does not expose IAudioClient3, so the shared path uses event-driven
+            // WASAPI with the smallest buffer the device accepts. That is the lowest-latency
+            // shared mode available through the library while other applications can still use
+            // the microphone.
+            var capture = new WasapiCapture(
+                device,
+                useEventSync: true,
+                audioBufferMillisecondsLength: bufferMilliseconds)
+            {
+                ShareMode = exclusive ? AudioClientShareMode.Exclusive : AudioClientShareMode.Shared
+            };
+
+            capture.DataAvailable += HandleMicDataAvailable;
+            capture.RecordingStopped += HandleCaptureError;
+
+            Logger.Log($"Microphone capture: {capture.ShareMode} mode, buffer {bufferMilliseconds} ms, " +
+                       $"Pro Audio priority requested={_settings.CaptureProAudioPriority}.");
+
+            return capture;
+        }
+
+        private void HandleMicDataAvailable(object? sender, WaveInEventArgs e)
+        {
+            if (_mmcssApplied || !_settings.CaptureProAudioPriority)
+            {
+                return;
+            }
+
+            // The first callback always runs on the WASAPI capture thread.
+            _mmcssApplied = true;
+            MmcssThread.TryEnableProAudio();
+        }
+
+        private void DisposeMicCapture()
+        {
+            if (_micCapture is null)
+            {
+                return;
+            }
+
+            _micCapture.DataAvailable -= HandleMicDataAvailable;
+            _micCapture.RecordingStopped -= HandleCaptureError;
+
+            try
+            {
+                _micCapture.StopRecording();
+            }
+            catch
+            {
+                // The device may already be gone; disposal below still releases the COM objects.
+            }
+
+            _micCapture.Dispose();
+            _micCapture = null;
+            _mmcssApplied = false;
+        }
 
         public static ISampleProvider ConvertFormat(ISampleProvider input, WaveFormat targetFormat)
         {
