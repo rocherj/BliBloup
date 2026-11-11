@@ -344,7 +344,7 @@
                                 HorizontalAlignment="Center"/>
                     </Border>
 
-                    <Border Background="#2D2D2D" CornerRadius="8" Padding="25"
+                    <Border Background="#2D2D2D" CornerRadius="8" Padding="25,25,25,32"
                             IsVisible="{Binding #SettingsNav.IsChecked}">
                         <StackPanel Spacing="15">
                             <TextBlock Text="Audio Settings" FontSize="22" FontWeight="Bold"
@@ -518,7 +518,8 @@
                                     Foreground="#8A8A8A"
                                     FontSize="12"
                                     HorizontalAlignment="Center"
-                                    Margin="0,20,0,0"/>
+                                    TextWrapping="NoWrap"
+                                    Margin="0,20,0,20"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
