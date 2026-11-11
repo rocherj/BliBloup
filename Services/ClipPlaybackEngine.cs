@@ -257,7 +257,7 @@ namespace BliBloup.Services
                 {
                     var volume = (float)Math.Clamp(sound.Volume / 100.0, 0, 2);
                     voice.VirtualVolume.Volume = volume;
-                    voice.SpeakerVolume.Volume = volume;
+                    voice.SpeakerVolume.Volume = sound.MutePreview ? 0f : volume;
                     voice.VirtualEq.UpdateFilters(sound);
                     voice.SpeakerEq.UpdateFilters(sound);
                     voice.VirtualPitch.SetPitch((float)sound.Pitch);
@@ -318,7 +318,10 @@ namespace BliBloup.Services
 
                 if (speakerReady)
                 {
-                    var speakerChain = BuildChain(speakerStream, settings, volume);
+                    // Mute the preview keeps the virtual microphone path untouched and only
+                    // silences the local speaker/headphone path of this voice.
+                    float speakerVolume = settings.MutePreview ? 0f : volume;
+                    var speakerChain = BuildChain(speakerStream, settings, speakerVolume);
                     voice.SpeakerEq = speakerChain.Eq;
                     voice.SpeakerPitch = speakerChain.Pitch;
                     voice.SpeakerVolume = speakerChain.Volume;
@@ -363,7 +366,7 @@ namespace BliBloup.Services
                 ScheduleSafetyCleanup(voice);
 
                 var active = ActiveVoiceCount;
-                Logger.Log($"Voice started: {label} (active={active}, trim={settings.TrimStart:0.###}-{settings.TrimEnd:0.###}s, virtual={voice.VirtualAttached}, speaker={voice.SpeakerAttached}, duration={voice.Duration:0.###}s)");
+                Logger.Log($"Voice started: {label} (active={active}, trim={settings.TrimStart:0.###}-{settings.TrimEnd:0.###}s, muted={settings.MutePreview}, virtual={voice.VirtualAttached}, speaker={voice.SpeakerAttached}, duration={voice.Duration:0.###}s)");
                 VoiceStarted?.Invoke(this, new VoiceEventArgs(label, active));
                 return true;
             }

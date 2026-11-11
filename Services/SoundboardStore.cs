@@ -277,7 +277,8 @@ namespace BliBloup.Services
             Pitch = sound.Pitch,
             Hotkey = sound.Hotkey,
             TrimStart = sound.TrimStart,
-            TrimEnd = sound.TrimEnd
+            TrimEnd = sound.TrimEnd,
+            MutePreview = sound.MutePreview
         };
 
         private static Soundboard ToModel(LibraryFileDto dto)
@@ -315,7 +316,8 @@ namespace BliBloup.Services
                 Pitch = Clamp(dto.Pitch, 0.5, 2, 1),
                 Hotkey = dto.Hotkey ?? string.Empty,
                 TrimStart = Math.Max(0, dto.TrimStart),
-                TrimEnd = Math.Max(0, dto.TrimEnd)
+                TrimEnd = Math.Max(0, dto.TrimEnd),
+                MutePreview = dto.MutePreview
             };
 
             if (item.TrimEnd > 0 && item.TrimEnd <= item.TrimStart)
@@ -465,6 +467,8 @@ namespace BliBloup.Services
             public double TrimStart { get; set; }
 
             public double TrimEnd { get; set; }
+
+            public bool MutePreview { get; set; }
         }
     }
 }

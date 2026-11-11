@@ -146,6 +146,25 @@ namespace BliBloup.Models
 
         public bool HasTrim => _trimStart > 0.001 || _trimEnd > 0.001;
 
+        private bool _mutePreview;
+
+        /// <summary>
+        /// Keep this sound in the virtual microphone mix but silence its local speaker/headphone
+        /// copy. Useful to check what goes to Discord/OBS without hearing the clip.
+        /// </summary>
+        public bool MutePreview
+        {
+            get => _mutePreview;
+            set
+            {
+                if (_mutePreview != value)
+                {
+                    _mutePreview = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

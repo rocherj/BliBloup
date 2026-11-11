@@ -59,6 +59,7 @@ namespace BliBloup.Services
                 Pitch = source.Pitch,
                 TrimStart = source.TrimStart,
                 TrimEnd = source.TrimEnd,
+                MutePreview = source.MutePreview,
                 Hotkey = string.Empty
             };
         }

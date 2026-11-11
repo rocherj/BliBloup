@@ -615,6 +615,12 @@
 
                             <CheckBox Content="Loop audio" IsChecked="{Binding IsLoopingEnabled}" Foreground="#E0E0E0"/>
 
+                            <CheckBox Content="Mute the preview"
+                                      IsChecked="{Binding SelectedSound.MutePreview, Mode=TwoWay}"
+                                      Click="MutePreviewChanged"
+                                      Foreground="#E0E0E0"
+                                      ToolTip.Tip="Keep this sound in the virtual microphone mix while muting it on your speakers/headphones."/>
+
                             <Grid ColumnDefinitions="*,*">
                                 <Button Grid.Column="0" Content="Change Icon" Padding="6,6"
                                         Click="ChangeIconClicked" Margin="0,0,3,0"

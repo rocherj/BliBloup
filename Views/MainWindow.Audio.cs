@@ -275,6 +275,25 @@ namespace BliBloup.Views
             }
         }
 
+        private void MutePreviewChanged(object? sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedSound is not { } sound)
+            {
+                return;
+            }
+
+            if (sender is CheckBox box)
+            {
+                sound.MutePreview = box.IsChecked == true;
+            }
+
+            SaveSoundLibrary();
+            _playbackEngine?.UpdateVoiceSettings(sound);
+            UpdateStatus(sound.MutePreview
+                ? "Preview muted: this sound now goes only to the virtual microphone."
+                : "Preview audible: this sound now also plays on your speakers.");
+        }
+
         private void DisposeAudioEngine()
         {
             if (_playbackEngine == null)
