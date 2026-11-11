@@ -378,14 +378,12 @@ namespace BliBloup.Services
 
         private static WaveStream OpenTrimmedStream(SoundItem sound)
         {
-            WaveStream reader = Path.GetExtension(sound.Path).ToLowerInvariant() switch
-            {
-                ".mp3" => new Mp3FileReader(sound.Path),
-                ".wav" => new WaveFileReader(sound.Path),
-                _ => throw new InvalidOperationException("Unsupported file format")
-            };
-
-            return new TrimmedLoopStream(reader, sound.TrimStart, sound.TrimEnd, loop: false);
+            // The PCM cache decodes each file once: triggering a sound only wraps the in-memory
+            // buffer. On a miss (for example a file imported in a previous session) the file is
+            // decoded on the spot; the library preloads in the background to avoid that.
+            var cached = PcmAudioCache.Instance.GetOrLoad(sound.Path);
+            var source = new RawSourceWaveStream(new MemoryStream(cached.Data, writable: false), cached.Format);
+            return new TrimmedLoopStream(source, sound.TrimStart, sound.TrimEnd, loop: false);
         }
 
         private static double GetDuration(WaveStream stream)

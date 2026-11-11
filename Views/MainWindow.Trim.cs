@@ -265,6 +265,7 @@ namespace BliBloup.Views
                     : "💾 Trimmed copy saved to the soundboard.");
 
                 ViewModel.SelectedSound = copy;
+                _ = PcmAudioCache.Instance.PreloadAsync(new[] { copy.Path });
             }
             catch (Exception ex)
             {
@@ -312,6 +313,8 @@ namespace BliBloup.Views
                 sound.TrimStart = 0;
                 sound.TrimEnd = 0;
                 _trimService.Invalidate(result.Path);
+                PcmAudioCache.Instance.Unload(sound.Path);
+                _ = PcmAudioCache.Instance.PreloadAsync(new[] { sound.Path });
                 SaveSoundLibrary();
                 await LoadTrimInfoAsync(sound);
 

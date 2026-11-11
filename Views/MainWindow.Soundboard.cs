@@ -186,6 +186,7 @@ namespace BliBloup.Views
             }
 
             board.Sounds.Remove(sound);
+            ReleaseCachedAudio(sound.Path);
 
             if (ReferenceEquals(ViewModel.SelectedSound, sound))
             {

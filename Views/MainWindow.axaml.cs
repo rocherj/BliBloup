@@ -658,6 +658,7 @@ namespace BliBloup.Views
             });
 
             var added = 0;
+            var addedPaths = new List<string>();
 
             foreach (var file in files)
             {
@@ -677,6 +678,7 @@ namespace BliBloup.Views
 
                 AttachSoundItem(newItem);
                 ViewModel.SelectedSoundboard.Sounds.Add(newItem);
+                addedPaths.Add(path);
                 added++;
             }
 
@@ -685,6 +687,7 @@ namespace BliBloup.Views
                 SaveSoundLibrary();
                 LoadAndRegisterHotkeys(announce: false);
                 UpdateStatus(added == 1 ? "Added 1 sound." : $"Added {added} sounds.");
+                _ = PcmAudioCache.Instance.PreloadAsync(addedPaths);
             }
         }
 
@@ -706,9 +709,23 @@ namespace BliBloup.Views
             }
 
             board.Sounds.Remove(sound);
+            ReleaseCachedAudio(sound.Path);
             SaveSoundLibrary();
             LoadAndRegisterHotkeys(announce: false);
             UpdateStatus($"Removed \"{sound.Name}\".");
+        }
+
+        /// <summary>Drops the decoded PCM buffer once no remaining sound uses the same file.</summary>
+        private void ReleaseCachedAudio(string path)
+        {
+            bool stillUsed = ViewModel.Soundboards
+                .SelectMany(board => board.Sounds)
+                .Any(sound => string.Equals(sound.Path, path, StringComparison.OrdinalIgnoreCase));
+
+            if (!stillUsed)
+            {
+                PcmAudioCache.Instance.Unload(path);
+            }
         }
 
         private void AttachSoundItem(SoundItem sound)
@@ -834,6 +851,11 @@ namespace BliBloup.Views
 
                 // Clip hotkeys are stored with the library, so re-register them after a reload.
                 LoadAndRegisterHotkeys(announce: false);
+
+                // Decode the whole library once, in the background: the first trigger of a sound
+                // should not have to read and decode the file.
+                _ = PcmAudioCache.Instance.PreloadAsync(
+                    ViewModel.Soundboards.SelectMany(board => board.Sounds).Select(sound => sound.Path));
 
                 switch (result.Note)
                 {
