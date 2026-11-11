@@ -1,11 +1,11 @@
 # Contributing to BliBloup
 
-Thanks for your interest in contributing! Here's how to get started.
+Issues and pull requests are welcome. For a pull request, fork the repository, create a branch from `main` and keep the change focused on one topic.
 
-## 📦 Setting Up the Project
+Build the project before opening the pull request:
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/yourproject.git
-   cd yourproject
+```powershell
+dotnet build -c Release
+```
 
+Describe what changed and how you tested it. For a bug report, include the Windows version, the steps to reproduce it and the relevant lines from `BliBloup.log`, which is written to the desktop.

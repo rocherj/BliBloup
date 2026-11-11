@@ -2,75 +2,46 @@
   <img src="Assets/logo.png" width="220" alt="BliBloup logo">
 </p>
 
-<h1 align="center">BliBloup</h1>
+# BliBloup
 
-<p align="center">
-  Free soundboard for playing audio through a virtual microphone (or any output you like).
-</p>
+BliBloup is a soundboard for Windows. It plays audio clips through a virtual microphone, so applications such as Discord, a game or a voice chat receive the sound as microphone input. The application is written in C# with .NET 8, Avalonia and NAudio.
 
-<h1 align="center">Build &amp; Run</h1>
+## Requirements
 
-Requires the .NET 8 SDK on Windows.
+BliBloup runs on Windows x64. Routing audio through a virtual microphone requires VB-Cable; the application checks for the driver at startup and offers to install it. The published executable is self-contained, so no .NET runtime is needed on the target machine.
+
+## Build and run
 
 ```powershell
 dotnet build -c Release
 .\bin\Release\net8.0\win-x64\BliBloup.exe
 ```
 
-Single-file self-contained build:
+To produce the standalone single-file executable:
 
 ```powershell
-dotnet publish -c Release -r win-x64 --self-contained true -o publish
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
 .\publish\BliBloup.exe
 ```
 
-<div>
+## Usage
 
-## 🎯 What is BliBloup?
+Open Settings and set the playback device to `CABLE Input` and the microphone to your real microphone. In the application you want to send audio to, select `Cable Output` as the microphone.
 
-BliBloup is a soundboard for Windows that plays audio clips through a virtual microphone, so your friends in Discord, a game or any voice application hear them as your microphone input. It is built with Avalonia UI and NAudio.
+Sounds are added from the Sounds tab. A sound can be trimmed, given its own thumbnail and assigned a global hotkey. Sounds play through a mix bus, so several of them can be active at the same time.
 
-## ❓ How to use
+## Features
 
-1. Make sure VB-Cable is installed (BliBloup detects it and can install it for you).
-2. After restarting your device, open Settings: set the playback device to `CABLE Input` and the microphone to your real microphone.
-3. In your game or Discord, select `Cable Output` as the microphone input.
-4. Import your audio files, assign hotkeys if you want, and play them.
+**Sound library.** The library supports multiple soundboards, multi-file import of MP3 and WAV files, drag and drop reordering, inline renaming, duplication and deletion with confirmation. Each sound can have a square thumbnail; imported images are center-cropped, resized to 256x256 and compressed, and sounds without a custom image use the bundled default thumbnail.
 
-## ✨ Key Features
+**Playback and editing.** Playback uses a mixer so several sounds can play simultaneously, with per-sound volume, bass, treble and pitch controls and a limiter on both the speaker and virtual microphone outputs. The trim editor shows the waveform, allows an audible preview and can save the result as a copy or overwrite the original file.
 
-### 🎚️ Soundboard
+**Hotkeys and background use.** Each sound can have its own global hotkey, and the transport actions (play/pause, stop, pause and emergency stop) are configurable as well. Hotkeys work while another application has focus, without bringing BliBloup to the front. The settings report duplicate combinations, shortcuts already used by Windows and combinations owned by other applications.
 
-- **Sound library** — import MP3/WAV files (multi-select), organise multiple soundboards, reorder sounds with drag and drop.
-- **Trim editor** — non-destructive waveform selection with audible preview; save as a trimmed copy or overwrite the original.
-- **Custom thumbnails** — every sound can have its own picture; imports are center-cropped, resized to 256×256 and compressed automatically.
-- **Editing tools** — duplicate, rename inline, delete with confirmation, reset a thumbnail to the default.
-- **Simultaneous playback** — several sounds can play at once through a real mix bus with an anti-clipping limiter.
+**Tray and notifications.** The tray icon shows the sound currently playing and provides actions to stop playback, enable or disable hotkeys and reopen the window. When a sound starts while the main window is not active, a short toast confirms it.
 
-### ⌨️ Background control
-
-- **Global hotkeys** — assign a combination to each sound plus play/pause, stop, pause and an emergency stop key.
-- **Works without focus** — play a sound while a game or another app is in the foreground; BliBloup never steals focus.
-- **Conflict detection** — duplicate combinations, Windows-reserved shortcuts and combinations already owned by other applications are reported.
-- **Tray and notifications** — the tray shows what is playing, offers Stop all and hotkey toggling, and a discreet toast confirms background playback.
-
-### 💾 Reliability
-
-- **Safe persistence** — readable JSON library, atomic saves, previous-version backup and rotating backups.
-- **Single instance** — a second launch focuses the running window instead of starting another copy.
-- **Easy upgrades** — older data folders are migrated automatically on first run.
-
-### 🖥️ Technical
-
-- **Stack** — .NET 8, Avalonia UI, NAudio/WASAPI, SharpHook global keyboard hooks.
-- **Windows build** — a self-contained `win-x64` executable is produced by the publish command above; the code is structured with Avalonia to allow future ports.
-
-## 📦 Requirements
-
-VB-Cable Virtual Audio Device is required for virtual microphone routing. BliBloup verifies its presence at startup and offers an installation path.
-
-</div>
+**Data storage.** Settings and the sound library are stored under `%APPDATA%\BliBloup`. The library is a readable JSON file saved atomically, with a previous-version backup and rotating timestamped backups. Data from older BoomBx installations is migrated automatically on first run. The `BLIBLOUP_DATA_DIR` environment variable can be used to keep a separate library.
 
 ## Credits
 
-BliBloup is a rebranded fork of the open-source [BoomBx](https://github.com/sardeq/BoomBx) project by sardeq. Many thanks to the original author for the audio engine, soundboard and virtual microphone routing foundations.
+BliBloup is a rebranded fork of the open-source [BoomBx](https://github.com/sardeq/BoomBx) project by sardeq. The audio engine, soundboard and virtual microphone routing started there, and the original author deserves credit for that work.
