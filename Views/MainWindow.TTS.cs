@@ -116,7 +116,7 @@ namespace BliBloup.Views
                         AttachSoundItem(newItem);
                         vm.SelectedSoundboard?.Sounds.Add(newItem);
                         SaveSoundLibrary();
-                        UpdateStatus("💾 TTS audio saved to soundboard!");
+                        UpdateStatus("TTS audio saved to soundboard.");
                     }
                 }
             }

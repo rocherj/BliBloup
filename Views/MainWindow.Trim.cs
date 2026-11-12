@@ -280,7 +280,7 @@ namespace BliBloup.Views
             try
             {
                 FlushTrimCommit();
-                UpdateStatus("💾 Saving trimmed copy…");
+                UpdateStatus("Saving trimmed copy...");
 
                 var result = await _trimService.SaveTrimmedAsync(
                     sound.Path,
@@ -369,7 +369,7 @@ namespace BliBloup.Views
                 SaveSoundLibrary();
                 await LoadTrimInfoAsync(sound);
 
-                UpdateStatus($"💾 Original overwritten: {result.Path}");
+                UpdateStatus($"Original overwritten: {result.Path}");
             }
             catch (Exception ex)
             {

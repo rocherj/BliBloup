@@ -606,7 +606,7 @@
                                                                     <TextBlock Text="{Binding Name}" Foreground="#E0E0E0"
                                                                             FontSize="12" TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Grid.Column="1" Text="{Binding Hotkey}"
-                                                                            Foreground="#4FC1FF" FontSize="12"
+                                                                            Foreground="#007ACC" FontSize="12"
                                                                             FontFamily="Cascadia Mono, Consolas"/>
                                                                 </Grid>
                                                             </DataTemplate>
@@ -658,7 +658,7 @@
             <Border IsVisible="{Binding HasSelectedSound}" Background="#252525" CornerRadius="8">
                 <Grid RowDefinitions="Auto,*,Auto">
                     <!-- Fixed header: icon and an obviously editable title -->
-                    <Border Grid.Row="0" Background="#2D2D2D" CornerRadius="8,8,0,0" Padding="12">
+                    <Border Grid.Row="0" Background="#2D2D2D" CornerRadius="8,8,0,0" Padding="16">
                         <Grid ColumnDefinitions="Auto,*">
                             <Button Classes="ThumbnailButton" Width="56" Height="56"
                                     Click="ChangeIconClicked"
@@ -681,8 +681,8 @@
 
                     <!-- Scrollable settings -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                                      AllowAutoHide="True" Padding="16,10,16,28">
-                        <StackPanel Spacing="10">
+                                      AllowAutoHide="True" Padding="18,12,18,32">
+                        <StackPanel Spacing="12">
                             <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
                                        TextWrapping="Wrap" MinHeight="16"/>
 
@@ -711,7 +711,7 @@
                                 <Expander.Header>
                                     <TextBlock Text="Tone (EQ)" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <Border Background="#2D2D2D" CornerRadius="0,0,6,6" Padding="10,8,10,10">
                                 <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
@@ -736,7 +736,7 @@
                                 <Expander.Header>
                                     <TextBlock Text="Pitch &amp; Modulation" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <Border Background="#2D2D2D" CornerRadius="0,0,6,6" Padding="10,8,10,10">
                                 <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="62,*,Auto,46" VerticalAlignment="Center">
                                         <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
@@ -762,7 +762,7 @@
                                 <Expander.Header>
                                     <TextBlock Text="Distortion" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <Border Background="#2D2D2D" CornerRadius="0,0,6,6" Padding="10,8,10,10">
                                 <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Amount" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
@@ -782,7 +782,7 @@
                                 <Expander.Header>
                                     <TextBlock Text="Space &amp; FX" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <Border Background="#2D2D2D" CornerRadius="0,0,6,6" Padding="10,8,10,10">
                                 <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Echo" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
@@ -855,7 +855,7 @@
                                         <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#8A8A8A" FontSize="10"/>
                                     </Grid>
                                 </Expander.Header>
-                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <Border Background="#2D2D2D" CornerRadius="0,0,6,6" Padding="10,8,10,10">
                                 <StackPanel Spacing="6">
                                     <views:TrimWaveformView x:Name="TrimWaveform" Height="66"
                                                         Peaks="{Binding ClipPeaks}"
@@ -897,7 +897,7 @@
                     </ScrollViewer>
 
                     <!-- Fixed footer: transport and save stay visible; the trim editor now scrolls with the settings -->
-                    <Border Grid.Row="2" Background="#2D2D2D" CornerRadius="0,0,8,8" Padding="12">
+                    <Border Grid.Row="2" Background="#2D2D2D" CornerRadius="0,0,8,8" Padding="16">
                         <StackPanel Spacing="8">
 
                             <Grid ColumnDefinitions="*,Auto">

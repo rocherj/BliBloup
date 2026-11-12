@@ -4,6 +4,15 @@
              xmlns:local="using:BliBloup"
              RequestedThemeVariant="Dark">
 
+    <Application.Resources>
+        <SolidColorBrush x:Key="ExpanderHeaderBackground">#2D2D2D</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver">#353535</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed">#2A2A2A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrush">#3A3A3A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver">#4A4A4A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed">#4A4A4A</SolidColorBrush>
+    </Application.Resources>
+
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>
@@ -99,21 +108,23 @@
         <!-- Button Styles -->
         <Style Selector="Button">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Background" Value="#404040"/>
+            <Setter Property="Background" Value="#333333"/>
             <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="Padding" Value="15 8"/>
+            <Setter Property="BorderBrush" Value="#454545"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14 8"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        
+
         <Style Selector="Button:pointerover">
-            <Setter Property="Background" Value="#007ACC"/>
+            <Setter Property="Background" Value="#3D3D3D"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
         </Style>
-        
+
         <Style Selector="Button:pressed">
-            <Setter Property="Background" Value="#006CBE"/>
+            <Setter Property="Background" Value="#2A2A2A"/>
         </Style>
 
         <Style Selector="ScrollViewer">
@@ -198,7 +209,7 @@
             <Setter Property="Template">
                 <ControlTemplate>
                     <Grid Width="20" Height="20">
-                        <Ellipse Fill="#4FC1FF"
+                        <Ellipse Fill="#007ACC"
                                  Width="18" Height="18"
                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <Ellipse Fill="#FFFFFF"
@@ -213,7 +224,7 @@
             <Setter Property="Template">
                 <ControlTemplate>
                     <Grid Width="20" Height="20">
-                        <Ellipse Fill="#4FC1FF"
+                        <Ellipse Fill="#007ACC"
                                  Width="18" Height="18"
                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <Ellipse Fill="#999999"
@@ -225,13 +236,8 @@
         </Style>
 
         <!-- Focus and contrast polish: every interactive control shows a clear keyboard focus ring -->
-        <Style Selector="Button">
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-        </Style>
-
         <Style Selector="Button:focus-visible">
-            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
 
@@ -240,7 +246,7 @@
         </Style>
 
         <Style Selector="TextBox:focus">
-            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
         </Style>
 
         <Style Selector="TextBox.EditableTitle">
@@ -250,11 +256,11 @@
         </Style>
 
         <Style Selector="TextBox.EditableTitle:pointerover">
-            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
         </Style>
 
         <Style Selector="ListBoxItem:focus /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#4FC1FF" />
+            <Setter Property="BorderBrush" Value="#007ACC" />
             <Setter Property="BorderThickness" Value="2" />
         </Style>
 
@@ -271,8 +277,22 @@
         </Style>
 
         <Style Selector="Button.ThumbnailButton:pointerover">
-            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
             <Setter Property="Background" Value="#007ACC20"/>
+        </Style>
+
+        <!-- Right/left pane expanders: same grey as the soundboard blocks, rounded corners. -->
+        <Style Selector="Expander">
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+
+        <Style Selector="Expander /template/ ToggleButton#ExpanderHeader">
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+
+        <Style Selector="Expander:pointerover /template/ ToggleButton#ExpanderHeader">
+            <Setter Property="Background" Value="#353535"/>
         </Style>
 
         <!-- Sound tile selection: a complete rounded frame around the tile content. -->
@@ -282,7 +302,7 @@
         </Style>
 
         <Style Selector="Border.SoundTile:pointerover">
-            <Setter Property="BorderBrush" Value="#4FC1FF80"/>
+            <Setter Property="BorderBrush" Value="#007ACC80"/>
             <Setter Property="RenderTransform">
                 <TransformGroup>
                     <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
@@ -291,7 +311,7 @@
         </Style>
 
         <Style Selector="ListBoxItem:selected Border.SoundTile">
-            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+            <Setter Property="BorderBrush" Value="#007ACC"/>
         </Style>
 
     </Application.Styles>

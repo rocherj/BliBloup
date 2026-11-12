@@ -12,7 +12,7 @@
         WindowStartupLocation="Manual">
     <Border Background="#2B2B2B" BorderBrush="#007ACC" BorderThickness="1" CornerRadius="8" Padding="12">
         <Grid ColumnDefinitions="Auto,*">
-            <TextBlock x:Name="IconText" Text="🔊" FontSize="22" VerticalAlignment="Center" Foreground="#4FC1FF"/>
+            <TextBlock x:Name="IconText" Text="🔊" FontSize="22" VerticalAlignment="Center" Foreground="#007ACC"/>
             <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="2" VerticalAlignment="Center">
                 <TextBlock x:Name="TitleText" Foreground="#F0F0F0" FontSize="12" FontWeight="Bold"
                            TextTrimming="CharacterEllipsis"/>

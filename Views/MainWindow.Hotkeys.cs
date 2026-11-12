@@ -195,7 +195,7 @@ namespace BliBloup.Views
 
             StopAudioProcessing(updateStatus: false);
             Logger.Log("Panic stop: playback stopped.");
-            UpdateStatus("🛑 Panic stop — playback stopped");
+            UpdateStatus("Panic stop: playback stopped");
         }
 
         private IEnumerable<SoundItem> GetAllSounds() =>

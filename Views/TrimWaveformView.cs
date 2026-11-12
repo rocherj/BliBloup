@@ -158,7 +158,7 @@ namespace BliBloup.Views
                 }
             }
 
-            var handleBrush = new SolidColorBrush(Color.Parse("#4FC1FF"));
+            var handleBrush = new SolidColorBrush(Color.Parse("#007ACC"));
             var handlePen = new Pen(handleBrush, 1.5);
 
             // Playhead: a thin line, drawn under the handles so the selection stays readable.

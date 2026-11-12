@@ -139,13 +139,13 @@ namespace BliBloup.Views
 
             if (_playbackEngine == null)
             {
-                UpdateStatus("🔇 Audio engine unavailable", true);
+                UpdateStatus("Audio engine unavailable", true);
                 return;
             }
 
             if (target == null)
             {
-                UpdateStatus("🔇 No sound selected");
+                UpdateStatus("No sound selected");
                 return;
             }
 
@@ -158,7 +158,7 @@ namespace BliBloup.Views
 
                 if (!_playbackEngine.PlaySound(target, speakerOnly: previewOnly))
                 {
-                    UpdateStatus($"❌ {_playbackEngine.LastError ?? $"Could not play \"{target.Name}\"."}", true);
+                    UpdateStatus($"{_playbackEngine.LastError ?? $"Could not play \"{target.Name}\"."}", true);
                     return;
                 }
 
@@ -172,7 +172,7 @@ namespace BliBloup.Views
             }
             catch (Exception ex)
             {
-                UpdateStatus($"⛔ Error: {ex.Message}");
+                UpdateStatus($"Error: {ex.Message}");
             }
             finally
             {
@@ -226,7 +226,7 @@ namespace BliBloup.Views
 
             _playbackEngine.ResumeAll();
             _currentPlaybackState = PlaybackState.Playing;
-            UpdateStatus($"🎵 Playing {_playbackEngine.ActiveVoiceCount} sound(s)");
+            UpdateStatus($"Playing {_playbackEngine.ActiveVoiceCount} sound(s)");
             UpdatePlayPauseButtonState();
         }
 
@@ -255,7 +255,7 @@ namespace BliBloup.Views
         {
             if (_playbackEngine == null)
             {
-                UpdateStatus("🔇 Audio engine unavailable", true);
+                UpdateStatus("Audio engine unavailable", true);
                 return;
             }
 
@@ -273,7 +273,7 @@ namespace BliBloup.Views
                 }
 
                 _currentPlaybackState = PlaybackState.Playing;
-                UpdateStatus($"🗣️ Playing {label}");
+                UpdateStatus($"Playing {label}");
             }
             catch (Exception ex)
             {

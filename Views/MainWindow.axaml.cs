@@ -784,7 +784,7 @@ namespace BliBloup.Views
                 SaveSoundLibrary();
 
                 var sizeKb = Math.Max(1, result.Bytes / 1024);
-                UpdateStatus($"🖼️ Thumbnail updated for \"{sound.Name}\" ({result.Width}×{result.Height}px, {sizeKb} KB).");
+                UpdateStatus($"Thumbnail updated for \"{sound.Name}\" ({result.Width}×{result.Height}px, {sizeKb} KB).");
             }
             catch (Exception ex)
             {
