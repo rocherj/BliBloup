@@ -34,6 +34,13 @@ namespace BliBloup.Services
         public MMDevice? SelectedPlaybackDevice => _selectedPlaybackDevice;
         public MMDevice? SelectedCaptureDevice => _selectedCaptureDevice;
 
+        /// <summary>
+        /// When the selected playback device is also the default output, clips already play
+        /// through the speaker mixer; feeding them to the virtual mixer as well would play
+        /// every clip twice on the same device.
+        /// </summary>
+        public bool AllowVirtualClipInputs { get; set; } = true;
+
         public DeviceManager(
             MainWindowViewModel viewModel,
             AppSettings settings,
@@ -164,7 +171,7 @@ namespace BliBloup.Services
         /// </summary>
         public bool TryAddMixerInput(ISampleProvider input)
         {
-            if (input is null)
+            if (input is null || !AllowVirtualClipInputs)
             {
                 return false;
             }

@@ -518,6 +518,8 @@ namespace BliBloup.Services
                 return true;
             }
 
+            WasapiOut? output = null;
+
             try
             {
                 using var enumerator = new MMDeviceEnumerator();
@@ -528,23 +530,48 @@ namespace BliBloup.Services
                     return false;
                 }
 
-                _speakerMixer = new MixingSampleProvider(MixFormat) { ReadFully = true };
-                _speakerMixer.MixerInputEnded += OnSpeakerMixerInputEnded;
+                var mixer = new MixingSampleProvider(MixFormat) { ReadFully = true };
+                mixer.MixerInputEnded += OnSpeakerMixerInputEnded;
+                _speakerMixer = mixer;
 
-                var limiter = new LimiterSampleProvider(_speakerMixer);
-                var output = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: false, latency: 80);
+                var limiter = new LimiterSampleProvider(mixer);
+                output = new WasapiOut(device, AudioClientShareMode.Shared, useEventSync: false, latency: 80);
+                var currentOutput = output;
+
                 output.PlaybackStopped += (_, args) =>
                 {
                     if (args.Exception != null)
                     {
                         Logger.Log($"Speaker output stopped: {args.Exception.Message}");
                     }
+
+                    // A dead output must not be reused: the next PlaySound will build a fresh
+                    // mixer/output instead of attaching voices to a stopped WASAPI stream.
+                    if (!ReferenceEquals(_speakerOutput, currentOutput))
+                    {
+                        return;
+                    }
+
+                    _speakerOutput = null;
+                    _speakerMixer = null;
+
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        try
+                        {
+                            currentOutput.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log($"Failed to dispose stopped speaker output: {ex.Message}");
+                        }
+                    });
                 };
 
+                _speakerOutput = output;
                 output.Init(limiter);
                 output.Play();
 
-                _speakerOutput = output;
                 Logger.Log("Speaker mix started.");
                 return true;
             }
@@ -553,6 +580,16 @@ namespace BliBloup.Services
                 Logger.Log($"Speaker mix unavailable: {ex.Message}");
                 _speakerMixer = null;
                 _speakerOutput = null;
+
+                try
+                {
+                    output?.Dispose();
+                }
+                catch (Exception disposeEx)
+                {
+                    Logger.Log($"Failed to dispose unavailable speaker output: {disposeEx.Message}");
+                }
+
                 return false;
             }
         }

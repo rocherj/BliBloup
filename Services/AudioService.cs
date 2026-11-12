@@ -118,10 +118,40 @@ namespace BliBloup.Services
             StartPersistentAudioRouting();
         }
 
+        private void UpdateClipRoutingPolicy()
+        {
+            bool allowClipInputs = true;
+
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                var defaultPlayback = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                var selectedPlayback = _deviceManager.SelectedPlaybackDevice;
+
+                if (defaultPlayback is not null && selectedPlayback is not null)
+                {
+                    allowClipInputs = !string.Equals(
+                        defaultPlayback.ID,
+                        selectedPlayback.ID,
+                        StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch (Exception ex)
+            {
+                // If the default endpoint cannot be queried, prefer allowing clip routing
+                // rather than breaking the virtual microphone path.
+                Logger.Log($"Could not determine default playback device for clip routing: {ex.Message}");
+            }
+
+            _deviceManager.AllowVirtualClipInputs = allowClipInputs;
+        }
+
         private void StartPersistentAudioRouting()
         {
             if (_deviceManager.SelectedPlaybackDevice == null || _deviceManager.SelectedCaptureDevice == null)
                 return;
+
+            UpdateClipRoutingPolicy();
 
             try
             {
@@ -339,11 +369,10 @@ namespace BliBloup.Services
             {
                 using var enumerator = new MMDeviceEnumerator();
                 var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                var selected = _deviceManager.SelectedPlaybackDevice;
 
-                if (selected is not null &&
-                    (string.Equals(selected.ID, device.ID, StringComparison.OrdinalIgnoreCase) ||
-                     device.FriendlyName.Contains("CABLE", StringComparison.OrdinalIgnoreCase)))
+                // Monitoring always follows the default output. It is pointless (and prone to
+                // feedback) only when that output is itself the virtual cable.
+                if (device.FriendlyName.Contains("CABLE", StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.Log("Voice monitoring skipped: the default output is the virtual cable.");
                     return;

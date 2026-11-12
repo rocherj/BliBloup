@@ -6,6 +6,7 @@ using NAudio.Wave;
 public class EqualizerSampleProvider : ISampleProvider
 {
     private readonly ISampleProvider _source;
+    private readonly object _filterGate = new();
     private BiQuadFilter? _bassFilter;
     private BiQuadFilter? _trebleFilter;
     
@@ -26,19 +27,35 @@ public class EqualizerSampleProvider : ISampleProvider
     public void UpdateFilters(SoundItem soundItem)
     {
         if (WaveFormat == null) throw new InvalidOperationException("WaveFormat is null");
-        _bassFilter = BiQuadFilter.LowShelf(WaveFormat.SampleRate, 200f, 1f, (float)soundItem.Bass);
-        _trebleFilter = BiQuadFilter.HighShelf(WaveFormat.SampleRate, 4000f, 1f, (float)soundItem.Treble);
+
+        var bass = BiQuadFilter.LowShelf(WaveFormat.SampleRate, 200f, 1f, (float)soundItem.Bass);
+        var treble = BiQuadFilter.HighShelf(WaveFormat.SampleRate, 4000f, 1f, (float)soundItem.Treble);
+
+        lock (_filterGate)
+        {
+            _bassFilter = bass;
+            _trebleFilter = treble;
+        }
     }
 
     public int Read(float[] buffer, int offset, int count)
     {
+        BiQuadFilter? bassFilter;
+        BiQuadFilter? trebleFilter;
+
+        lock (_filterGate)
+        {
+            bassFilter = _bassFilter;
+            trebleFilter = _trebleFilter;
+        }
+
         int samplesRead = _source.Read(buffer, offset, count);
-        
+
         for (int i = 0; i < samplesRead; i++)
         {
             float sample = buffer[offset + i];
-            sample = _bassFilter?.Transform(sample) ?? sample;
-            sample = _trebleFilter?.Transform(sample) ?? sample;
+            sample = bassFilter?.Transform(sample) ?? sample;
+            sample = trebleFilter?.Transform(sample) ?? sample;
             buffer[offset + i] = sample;
         }
         return samplesRead;

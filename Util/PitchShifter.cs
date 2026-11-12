@@ -17,6 +17,7 @@ public class PitchShifter : ISampleProvider
     private const float SmoothingSeconds = 0.03f;
 
     private readonly ISampleProvider _source;
+    private readonly object _stateGate = new();
     private SmbPitchShiftingSampleProvider? _shifter;
     private float _target = 1f;
     private float _current = 1f;
@@ -36,11 +37,23 @@ public class PitchShifter : ISampleProvider
 
     public WaveFormat WaveFormat { get; }
 
-    public float PitchFactor => _target;
+    public float PitchFactor
+    {
+        get
+        {
+            lock (_stateGate)
+            {
+                return _target;
+            }
+        }
+    }
 
     public void SetPitch(float factor)
     {
-        _target = Math.Clamp(factor, 0.5f, 2f);
+        lock (_stateGate)
+        {
+            _target = Math.Clamp(factor, 0.5f, 2f);
+        }
     }
 
     /// <summary>
@@ -49,11 +62,14 @@ public class PitchShifter : ISampleProvider
     /// </summary>
     public void Reset()
     {
-        _target = 1f;
-        _current = 1f;
-        _bypassing = true;
-        _fadeRemaining = 0;
-        _shifter = null;
+        lock (_stateGate)
+        {
+            _target = 1f;
+            _current = 1f;
+            _bypassing = true;
+            _fadeRemaining = 0;
+            _shifter = null;
+        }
     }
 
     public int Read(float[] buffer, int offset, int count)
@@ -63,55 +79,65 @@ public class PitchShifter : ISampleProvider
             return 0;
         }
 
-        // Move the working factor gently towards the requested one.
-        float difference = _target - _current;
-        if (Math.Abs(difference) < 0.0005f)
-        {
-            _current = _target;
-        }
-        else
-        {
-            float blend = Math.Min(1f, count / (float)(WaveFormat.SampleRate * SmoothingSeconds));
-            _current += difference * Math.Max(0.05f, blend);
-        }
+        SmbPitchShiftingSampleProvider? shifter;
+        bool bypass;
+        int fadeRemaining;
 
-        bool bypass = Math.Abs(_current - 1f) < BypassEpsilon;
-
-        if (bypass != _bypassing)
+        // Keep UI-driven Reset/SetPitch serialized with the per-buffer state update. The
+        // actual source read happens outside the lock so the UI never waits on the decoder.
+        lock (_stateGate)
         {
-            _bypassing = bypass;
-            _fadeRemaining = _fadeSamples;
-
-            if (!bypass)
+            // Move the working factor gently towards the requested one.
+            float difference = _target - _current;
+            if (Math.Abs(difference) < 0.0005f)
             {
-                // Never reuse a shifter whose internal buffers were left in a corrupted state.
-                _shifter = new SmbPitchShiftingSampleProvider(_source)
+                _current = _target;
+            }
+            else
+            {
+                float blend = Math.Min(1f, count / (float)(WaveFormat.SampleRate * SmoothingSeconds));
+                _current += difference * Math.Max(0.05f, blend);
+            }
+
+            bool nextBypass = Math.Abs(_current - 1f) < BypassEpsilon;
+
+            if (nextBypass != _bypassing)
+            {
+                _bypassing = nextBypass;
+                _fadeRemaining = _fadeSamples;
+
+                if (!nextBypass)
+                {
+                    // Never reuse a shifter whose internal buffers were left in a corrupted state.
+                    _shifter = new SmbPitchShiftingSampleProvider(_source)
+                    {
+                        PitchFactor = _current
+                    };
+                }
+            }
+
+            if (!_bypassing)
+            {
+                _shifter ??= new SmbPitchShiftingSampleProvider(_source)
                 {
                     PitchFactor = _current
                 };
+
+                _shifter.PitchFactor = _current;
             }
+
+            bypass = _bypassing;
+            shifter = _shifter;
+            fadeRemaining = _fadeRemaining;
         }
 
-        int read;
+        int read = bypass
+            ? _source.Read(buffer, offset, count)
+            : shifter!.Read(buffer, offset, count);
 
-        if (_bypassing)
+        if (fadeRemaining > 0)
         {
-            read = _source.Read(buffer, offset, count);
-        }
-        else
-        {
-            _shifter ??= new SmbPitchShiftingSampleProvider(_source)
-            {
-                PitchFactor = _current
-            };
-
-            _shifter.PitchFactor = _current;
-            read = _shifter.Read(buffer, offset, count);
-        }
-
-        if (_fadeRemaining > 0)
-        {
-            int fade = _fadeRemaining;
+            int fade = fadeRemaining;
             int total = _fadeSamples;
 
             for (int i = 0; i < read && fade > 0; i++)
@@ -121,7 +147,14 @@ public class PitchShifter : ISampleProvider
                 fade--;
             }
 
-            _fadeRemaining = fade;
+            lock (_stateGate)
+            {
+                // A Reset that happened during the read owns the new fade state.
+                if (_fadeRemaining == fadeRemaining)
+                {
+                    _fadeRemaining = fade;
+                }
+            }
         }
 
         return read;

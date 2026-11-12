@@ -67,6 +67,14 @@ public sealed class SoundEffectsSampleProvider : ISampleProvider
 
     public int Read(float[] buffer, int offset, int count)
     {
+        // Snapshot the live settings once per buffer: the UI can then change sliders while
+        // this buffer is processed without the parameters changing halfway through it.
+        float distortionTarget = (float)(Math.Clamp(_sound.Distortion, 0, 100) / 100.0);
+        float delayTarget = (float)(Math.Clamp(_sound.EchoDelayMs, 0, 500) / 1000.0 * _sampleRate);
+        float feedbackTarget = (float)(Math.Clamp(_sound.EchoFeedback, 0, 90) / 100.0);
+        float reverbTarget = (float)(Math.Clamp(_sound.ReverbMix, 0, 100) / 100.0) * 0.7f;
+        float robotTarget = _sound.Robotize ? 1f : 0f;
+
         int read = _source.Read(buffer, offset, count);
 
         if (read <= 0)
@@ -80,12 +88,6 @@ public sealed class SoundEffectsSampleProvider : ISampleProvider
         {
             return read;
         }
-
-        float distortionTarget = (float)(Math.Clamp(_sound.Distortion, 0, 100) / 100.0);
-        float delayTarget = (float)(Math.Clamp(_sound.EchoDelayMs, 0, 500) / 1000.0 * _sampleRate);
-        float feedbackTarget = (float)(Math.Clamp(_sound.EchoFeedback, 0, 90) / 100.0);
-        float reverbTarget = (float)(Math.Clamp(_sound.ReverbMix, 0, 100) / 100.0) * 0.7f;
-        float robotTarget = _sound.Robotize ? 1f : 0f;
 
         bool echoActive = delayTarget >= _sampleRate * 0.005f && feedbackTarget > 0.001f;
         float echoWetTarget = echoActive ? EchoWet : 0f;
