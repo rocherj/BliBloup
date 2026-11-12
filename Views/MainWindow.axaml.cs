@@ -98,6 +98,7 @@ namespace BliBloup.Views
 
             InitializeAudioService();
             InitializeTts();
+            StartTrimPlayheadTimer();
             this.Closing += (s, e) =>
             {
                 _ttsService?.Cleanup();
@@ -602,6 +603,7 @@ namespace BliBloup.Views
         {
             _settings.VoiceChanger.PropertyChanged -= VoiceChanger_PropertyChanged;
             _voiceSaveTimer?.Stop();
+            StopTrimPlayheadTimer();
             DisposeHotkeys();
             DisposeAudioEngine();
             _audioService?.Dispose();

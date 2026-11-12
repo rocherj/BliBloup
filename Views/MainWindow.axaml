@@ -16,8 +16,8 @@
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
         CanResize="True"
-        Width="1472"
-        Height="803"
+        Width="1505"
+        Height="842"
         MinWidth="980"
         MinHeight="620">
     
@@ -345,11 +345,6 @@
                                         <Button Content="Robot" Click="RobotPreset_Click" Width="112" Margin="0,0,8,8"/>
                                         <Button Content="Phone / Radio" Click="PhonePreset_Click" Width="136" Margin="0,0,8,8"/>
                                         <Button Content="Cave" Click="CavePreset_Click" Width="112" Margin="0,0,8,8"/>
-                                    </WrapPanel>
-
-                                    <TextBlock Text="MORE PRESETS" Foreground="#A8A8A8" FontSize="10"
-                                            FontWeight="Bold" Margin="0,4,0,0"/>
-                                    <WrapPanel Orientation="Horizontal">
                                         <Button Content="Alien / Insect" Click="AlienPreset_Click" Width="132" Margin="0,0,8,8"/>
                                         <Button Content="Monster / Ogre" Click="MonsterPreset_Click" Width="136" Margin="0,0,8,8"/>
                                         <Button Content="Megaphone" Click="MegaphonePreset_Click" Width="120" Margin="0,0,8,8"/>
@@ -862,7 +857,7 @@
                                 </Expander.Header>
                                 <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
                                 <StackPanel Spacing="6">
-                                    <views:TrimWaveformView Height="66"
+                                    <views:TrimWaveformView x:Name="TrimWaveform" Height="66"
                                                         Peaks="{Binding ClipPeaks}"
                                                         Duration="{Binding ClipDurationSeconds}"
                                                         SelectionStart="{Binding TrimStartSeconds, Mode=TwoWay}"

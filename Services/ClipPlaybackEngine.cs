@@ -233,6 +233,57 @@ namespace BliBloup.Services
             }
         }
 
+        /// <summary>
+        /// Returns the position (in seconds) inside the played trim window for the most recent
+        /// active voice of this sound. Used by the trim playhead timer.
+        /// </summary>
+        public bool TryGetPlaybackPosition(SoundItem sound, out double positionSeconds)
+        {
+            positionSeconds = 0;
+
+            if (sound is null || _disposed)
+            {
+                return false;
+            }
+
+            PlaybackVoice? latest = null;
+
+            lock (_sync)
+            {
+                for (int i = _voices.Count - 1; i >= 0; i--)
+                {
+                    if (ReferenceEquals(_voices[i].Sound, sound) && !_voices[i].Ended)
+                    {
+                        latest = _voices[i];
+                        break;
+                    }
+                }
+            }
+
+            if (latest is null)
+            {
+                return false;
+            }
+
+            var stream = latest.VirtualStream ?? latest.SpeakerStream;
+
+            if (stream is null)
+            {
+                return false;
+            }
+
+            try
+            {
+                double bytesPerSecond = Math.Max(1, stream.WaveFormat.AverageBytesPerSecond);
+                positionSeconds = stream.Position / bytesPerSecond;
+                return double.IsFinite(positionSeconds);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>Re-applies volume, EQ and pitch after the user edits them while playing.</summary>
         public void UpdateVoiceSettings(SoundItem sound)
         {

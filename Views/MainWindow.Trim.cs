@@ -29,6 +29,49 @@ namespace BliBloup.Views
         private readonly AudioTrimService _trimService = new();
         private bool _syncingTrim;
         private DispatcherTimer? _trimCommitTimer;
+        private DispatcherTimer? _trimPlayheadTimer;
+
+        private void StartTrimPlayheadTimer()
+        {
+            if (_trimPlayheadTimer is not null)
+            {
+                return;
+            }
+
+            _trimPlayheadTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(33)
+            };
+
+            _trimPlayheadTimer.Tick += (_, _) => UpdateTrimPlayhead();
+            _trimPlayheadTimer.Start();
+        }
+
+        private void StopTrimPlayheadTimer() => _trimPlayheadTimer?.Stop();
+
+        private void UpdateTrimPlayhead()
+        {
+            if (_playbackEngine is null || ViewModel.SelectedSound is not { } sound)
+            {
+                TrimWaveform.PlayheadSeconds = double.NaN;
+                return;
+            }
+
+            if (!_playbackEngine.TryGetPlaybackPosition(sound, out double relativeSeconds))
+            {
+                TrimWaveform.PlayheadSeconds = double.NaN;
+                return;
+            }
+
+            double duration = Math.Max(0.0001, ViewModel.ClipDurationSeconds);
+            double start = Math.Clamp(Math.Min(ViewModel.TrimStartSeconds, ViewModel.TrimEndSeconds), 0, duration);
+            double end = Math.Clamp(Math.Max(ViewModel.TrimStartSeconds, ViewModel.TrimEndSeconds), start, duration);
+            double absolute = start + Math.Max(0, relativeSeconds);
+
+            // If the trim was edited while this voice is playing, keep the head inside the new
+            // selection instead of drawing it outside the blue handles.
+            TrimWaveform.PlayheadSeconds = Math.Clamp(absolute, start, end);
+        }
 
         private async Task LoadTrimInfoAsync(SoundItem? sound)
         {
