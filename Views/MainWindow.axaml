@@ -25,19 +25,20 @@
         <conv:UriToImageSourceConverter x:Key="UriConverter"/>
         <conv:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter"/>
 
-        <ControlTheme x:Key="CustomListBoxItemTheme" TargetType="ListBoxItem">
-            <Setter Property="Background" Value="#1A1A1A"/>
-            <Style Selector="^:selected">
-                <Setter Property="Background" Value="#1A1A1A"/>
-            </Style>
-            <Style Selector="^:focused">
-                <Setter Property="Background" Value="#1A1A1A"/>
-            </Style>
-            <Style Selector="^:pointerover">
-                <Setter Property="Background" Value="#1A1A1A"/>
-            </Style>
-            <Style Selector="^:selected:focused">
-                <Setter Property="Background" Value="#1A1A1A"/>
+        <ControlTheme x:Key="SoundTileItemTheme" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"/>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:focus /template/ ContentPresenter">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
             </Style>
         </ControlTheme>
     </Window.Resources>
@@ -168,10 +169,10 @@
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Padding="0"
-                                        ItemContainerTheme="{StaticResource CustomListBoxItemTheme}">
+                                        ItemContainerTheme="{StaticResource SoundTileItemTheme}">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <UniformGrid Columns="4" 
+                                            <UniformGrid Columns="2" 
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Top"
                                                 Margin="0 10"/>
@@ -179,30 +180,19 @@
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate DataType="model:SoundItem">
-                                            <Border Classes="listbox-item"
-                                                    Width="200" 
+                                            <Border Classes="SoundTile"
                                                     Height="160" 
+                                                    HorizontalAlignment="Stretch"
                                                     Background="#333333" 
                                                     CornerRadius="8"
                                                     Margin="5"
                                                     Padding="6"
                                                     Cursor="Hand">
-                                                <Border.Styles>
-                                                    <Style Selector="Border.listbox-item:focus">
-                                                        <Setter Property="BorderThickness" Value="1"/>
-                                                    </Style>
-                                                    <Style Selector="Border.listbox-item">
-                                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                                        <Setter Property="BorderThickness" Value="2"/>
-                                                    </Style>
-                                                    <Style Selector="Border.listbox-item:pointerover">
-                                                        <Setter Property="RenderTransform">
-                                                            <TransformGroup>
-                                                                <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
-                                                            </TransformGroup>
-                                                        </Setter>
-                                                    </Style>
-                                                </Border.Styles>
+                                                <Border.Transitions>
+                                                    <Transitions>
+                                                        <BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+                                                    </Transitions>
+                                                </Border.Transitions>
                                                 <StackPanel Spacing="4" HorizontalAlignment="Center">
                                                     <Border Width="70" 
                                                             Height="70" 
@@ -217,14 +207,14 @@
                                                             FontSize="11"
                                                             TextWrapping="Wrap"
                                                             HorizontalAlignment="Center"
-                                                            MaxWidth="100"
+                                                            MaxWidth="150"
                                                             TextAlignment="Center"/>
                                                     <Border IsVisible="{Binding HasHotkey}"
                                                             Background="#007ACC"
                                                             CornerRadius="3"
                                                             Padding="4,0"
                                                             HorizontalAlignment="Center"
-                                                            MaxWidth="100">
+                                                            MaxWidth="150">
                                                         <TextBlock Text="{Binding Hotkey}"
                                                                 Foreground="White"
                                                                 FontSize="8"
@@ -574,29 +564,109 @@
                                            Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
                             </Grid>
 
-                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
-                                <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Minimum="-20" Maximum="20"
-                                        Value="{Binding SelectedSound.Bass, Mode=TwoWay}" Foreground="#007ACC"/>
-                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Bass, StringFormat='{}{0:F0} dB'}"
-                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
-                            </Grid>
+                            <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
-                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
-                                <TextBlock Text="Treble" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Minimum="-20" Maximum="20"
-                                        Value="{Binding SelectedSound.Treble, Mode=TwoWay}" Foreground="#007ACC"/>
-                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Treble, StringFormat='{}{0:F0} dB'}"
-                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
-                            </Grid>
+                            <CheckBox Content="Loop audio" IsChecked="{Binding IsLoopingEnabled}" Foreground="#E0E0E0"/>
 
-                            <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
-                                <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
-                                <Slider Grid.Column="1" Minimum="0.5" Maximum="2.0"
-                                        Value="{Binding SelectedSound.Pitch, Mode=TwoWay}" Foreground="#007ACC"/>
-                                <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Pitch, StringFormat='{}{0:F1}x'}"
-                                           Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
-                            </Grid>
+                            <CheckBox Content="Mute the preview"
+                                      IsChecked="{Binding SelectedSound.MutePreview, Mode=TwoWay}"
+                                      Click="MutePreviewChanged"
+                                      Foreground="#E0E0E0"
+                                      ToolTip.Tip="Keep this sound in the virtual microphone mix while muting it on your speakers/headphones."/>
+
+                            <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="Tone (EQ)" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                                Value="{Binding SelectedSound.Bass, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Bass, StringFormat='{}{0:F0} dB'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Treble" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                                Value="{Binding SelectedSound.Treble, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Treble, StringFormat='{}{0:F0} dB'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="Pitch &amp; Modulation" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0.5" Maximum="2.0"
+                                                Value="{Binding SelectedSound.Pitch, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Pitch, StringFormat='{}{0:F1}x'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <CheckBox Content="Robotize (ring modulator)"
+                                              IsChecked="{Binding SelectedSound.Robotize, Mode=TwoWay}"
+                                              Foreground="#E0E0E0"/>
+                                    <TextBlock Text="Pitch is bypassed at 1.0x; changes are smoothed."
+                                               Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="Distortion" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Amount" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                                Value="{Binding SelectedSound.Distortion, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.Distortion, StringFormat='{}{0:F0}%'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <TextBlock Text="Soft clipping (tanh). 0% bypasses the effect."
+                                               Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch">
+                                <Expander.Header>
+                                    <TextBlock Text="Space &amp; FX" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Echo" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="500"
+                                                Value="{Binding SelectedSound.EchoDelayMs, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.EchoDelayMs, StringFormat='{}{0:F0} ms'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Feedback" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="90"
+                                                Value="{Binding SelectedSound.EchoFeedback, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.EchoFeedback, StringFormat='{}{0:F0}%'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Reverb" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                                Value="{Binding SelectedSound.ReverbMix, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SelectedSound.ReverbMix, StringFormat='{}{0:F0}%'}"
+                                                   Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <TextBlock Text="0 ms or 0% feedback bypasses the echo; 0% reverb is bypassed."
+                                               Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
                             <StackPanel Spacing="4">
                                 <TextBlock Text="PLAYBACK HOTKEY" Foreground="#A8A8A8" FontSize="10" FontWeight="Bold"/>
@@ -613,14 +683,6 @@
                                 </Grid>
                             </StackPanel>
 
-                            <CheckBox Content="Loop audio" IsChecked="{Binding IsLoopingEnabled}" Foreground="#E0E0E0"/>
-
-                            <CheckBox Content="Mute the preview"
-                                      IsChecked="{Binding SelectedSound.MutePreview, Mode=TwoWay}"
-                                      Click="MutePreviewChanged"
-                                      Foreground="#E0E0E0"
-                                      ToolTip.Tip="Keep this sound in the virtual microphone mix while muting it on your speakers/headphones."/>
-
                             <Grid ColumnDefinitions="*,*">
                                 <Button Grid.Column="0" Content="Change Icon" Padding="6,6"
                                         Click="ChangeIconClicked" Margin="0,0,3,0"
@@ -629,9 +691,6 @@
                                         Click="ResetThumbnail_Click" Margin="3,0,0,0"
                                         ToolTip.Tip="Use the default BliBloup thumbnail"/>
                             </Grid>
-
-                            <Button Content="Save Changes" Padding="6,6" HorizontalAlignment="Stretch"
-                                    Click="SaveChangesClicked" Background="#007ACC"/>
 
                             <Grid ColumnDefinitions="*,*">
                                 <Button Grid.Column="0" Content="Duplicate" Padding="6,6"
@@ -695,6 +754,10 @@
                                         FontSize="15" Width="100" Height="42" Background="#404040" Foreground="White"
                                         Click="StopHandler"/>
                             </Grid>
+
+                            <Button Content="Save Changes" FontSize="12" Height="32"
+                                    HorizontalAlignment="Stretch" Click="SaveChangesClicked"
+                                    Background="#007ACC" Foreground="White"/>
 
                             <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
                                        TextWrapping="Wrap" MinHeight="16"/>

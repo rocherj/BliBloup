@@ -241,5 +241,24 @@
             <Setter Property="Background" Value="#007ACC20"/>
         </Style>
 
+        <!-- Sound tile selection: a complete rounded frame around the tile content. -->
+        <Style Selector="Border.SoundTile">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="Border.SoundTile:pointerover">
+            <Setter Property="BorderBrush" Value="#4FC1FF80"/>
+            <Setter Property="RenderTransform">
+                <TransformGroup>
+                    <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+                </TransformGroup>
+            </Setter>
+        </Style>
+
+        <Style Selector="ListBoxItem:selected Border.SoundTile">
+            <Setter Property="BorderBrush" Value="#4FC1FF"/>
+        </Style>
+
     </Application.Styles>
 </Application>
