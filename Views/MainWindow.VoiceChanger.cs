@@ -23,13 +23,22 @@ namespace BliBloup.Views
         private void SaveVoiceSettings(object? sender, EventArgs e)
         {
             _voiceSaveTimer?.Stop();
-            SettingsManager.SaveSettings(_settings);
+
+            try
+            {
+                SettingsManager.SaveSettings(_settings);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Failed to save voice changer settings: {ex}");
+                UpdateStatus($"Could not save voice settings: {ex.Message}", true);
+            }
         }
 
         private void ApplyVoicePreset(string label, Action<VoiceChangerSettings> apply)
         {
             apply(_settings.VoiceChanger);
-            SettingsManager.SaveSettings(_settings);
+            SaveVoiceSettings(null, EventArgs.Empty);
             UpdateStatus($"Voice preset applied: {label}.");
         }
 

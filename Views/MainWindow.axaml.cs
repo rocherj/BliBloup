@@ -482,7 +482,8 @@ namespace BliBloup.Views
 
                 for (int i = 0; i < 20; i++) //extended to 20 seconds until everything stable
                 {
-                    if (!CheckVBCableInstallation())
+                    // CheckVBCableInstallation() means "needs installation": true = cable missing.
+                    if (CheckVBCableInstallation())
                     {
                         await Task.Delay(1000);
                         continue;
@@ -601,8 +602,11 @@ namespace BliBloup.Views
 
         protected override void OnClosed(EventArgs e)
         {
+            // Flush pending debounced settings before tearing the services down.
             _settings.VoiceChanger.PropertyChanged -= VoiceChanger_PropertyChanged;
             _voiceSaveTimer?.Stop();
+            SaveVoiceSettings(null, EventArgs.Empty);
+            FlushTrimCommit();
             StopTrimPlayheadTimer();
             DisposeHotkeys();
             DisposeAudioEngine();
@@ -717,6 +721,12 @@ namespace BliBloup.Views
 
             board.Sounds.Remove(sound);
             ReleaseCachedAudio(sound.Path);
+
+            if (ReferenceEquals(ViewModel.SelectedSound, sound))
+            {
+                ViewModel.SelectedSound = null;
+            }
+
             SaveSoundLibrary();
             LoadAndRegisterHotkeys(announce: false);
             UpdateStatus($"Removed \"{sound.Name}\".");
