@@ -6,6 +6,7 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,9 +25,20 @@ namespace BliBloup.Services
         private IWavePlayer? _persistentOutput;
         private MixingSampleProvider? _persistentMixer;
         private bool _mmcssApplied;
+
+        private EqualizerSampleProvider? _micEq;
+        private PitchShifter? _micPitch;
+        private SoundEffectsSampleProvider? _micFx;
+        private TeeSampleProvider? _micTee;
+        private IWavePlayer? _micMonitorOutput;
+        private BufferedWaveProvider? _micMonitorBuffer;
+        private readonly SoundItem _micSound = new() { Name = "Microphone" };
                 
         public bool IsUsingVirtualOutput => 
         _deviceManager.SelectedPlaybackDevice?.FriendlyName?.Contains("CABLE Input") == true;
+
+        /// <summary>Raised after the persistent routing mixer has been rebuilt.</summary>
+        public event EventHandler? RoutingRestarted;
 
         public AudioService(MainWindowViewModel viewModel, AppSettings settings, DeviceManager deviceManager)
         {
@@ -34,6 +46,8 @@ namespace BliBloup.Services
             _viewModel = viewModel;
             _settings = settings;
             _deviceManager = deviceManager;
+            _settings.VoiceChanger ??= new VoiceChangerSettings();
+            _settings.VoiceChanger.PropertyChanged += HandleVoiceChangerSettingsChanged;
         }
 
         public void InitializeDevices()
@@ -124,7 +138,26 @@ namespace BliBloup.Services
                 _micCapture = CreateMicCapture(_settings.CaptureExclusiveMode);
                 var micProvider = new WaveInProvider(_micCapture);
                 var micSampleProvider = ConvertFormat(micProvider.ToSampleProvider(), targetFormat);
-                _persistentMixer.AddMixerInput(micSampleProvider);
+
+                // Voice changer: EQ, pitch and the shared effect chain live on the microphone
+                // branch only. Soundboard clips still enter the persistent mixer separately.
+                ApplyVoiceChangerSettings();
+                _micEq = new EqualizerSampleProvider(micSampleProvider, _micSound);
+                _micPitch = new PitchShifter(_micEq);
+                _micPitch.SetPitch((float)_micSound.Pitch);
+                _micFx = new SoundEffectsSampleProvider(_micPitch, _micSound);
+                _micTee = new TeeSampleProvider(_micFx);
+
+                if (_settings.VoiceChanger.Monitor)
+                {
+                    StartMicMonitor();
+                }
+
+                _persistentMixer.AddMixerInput(_micTee);
+
+                Logger.Log($"Voice changer active: pitch={_micSound.Pitch:0.##}, bass={_micSound.Bass:0.#}/{_micSound.Treble:0.#} dB, " +
+                           $"distortion={_micSound.Distortion:0}%, echo={_micSound.EchoDelayMs:0}ms, " +
+                           $"reverb={_micSound.ReverbMix:0}%, robot={_micSound.Robotize}.");
 
                 _persistentOutput = new WasapiOut(
                     _deviceManager.SelectedPlaybackDevice,
@@ -152,6 +185,7 @@ namespace BliBloup.Services
                 }
 
                 _persistentOutput.Play();
+                RoutingRestarted?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -161,6 +195,11 @@ namespace BliBloup.Services
 
         private void StopPersistentAudioRouting()
         {
+            StopMicMonitor();
+            _micEq = null;
+            _micPitch = null;
+            _micFx = null;
+            _micTee = null;
             DisposeMicCapture();
 
             if (_persistentOutput != null)
@@ -239,6 +278,133 @@ namespace BliBloup.Services
             _mmcssApplied = false;
         }
 
+        /// <summary>Forces a neutral voice and clears the microphone pitch-shifter state.</summary>
+        public void ResetVoiceChanger()
+        {
+            ApplyVoiceChangerSettings();
+            _micPitch?.Reset();
+        }
+
+        private void ApplyVoiceChangerSettings()
+        {
+            var voice = _settings.VoiceChanger;
+
+            _micSound.Bass = voice.Bass;
+            _micSound.Treble = voice.Treble;
+            _micSound.Pitch = voice.Pitch;
+            _micSound.Distortion = voice.Distortion;
+            _micSound.EchoDelayMs = voice.EchoDelayMs;
+            _micSound.EchoFeedback = voice.EchoFeedback;
+            _micSound.ReverbMix = voice.ReverbMix;
+            _micSound.Robotize = voice.Robotize;
+
+            _micEq?.UpdateFilters(_micSound);
+
+            if (_micPitch is not null)
+            {
+                if (Math.Abs(voice.Pitch - 1.0) < 0.0001)
+                {
+                    _micPitch.Reset();
+                }
+                else
+                {
+                    _micPitch.SetPitch((float)voice.Pitch);
+                }
+            }
+        }
+
+        private void HandleVoiceChangerSettingsChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(VoiceChangerSettings.Monitor))
+            {
+                if (_micCapture is not null)
+                {
+                    RestartPersistentAudioRouting();
+                }
+
+                return;
+            }
+
+            ApplyVoiceChangerSettings();
+        }
+
+        private void StartMicMonitor()
+        {
+            if (_micTee is null)
+            {
+                return;
+            }
+
+            try
+            {
+                using var enumerator = new MMDeviceEnumerator();
+                var device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                var selected = _deviceManager.SelectedPlaybackDevice;
+
+                if (selected is not null &&
+                    (string.Equals(selected.ID, device.ID, StringComparison.OrdinalIgnoreCase) ||
+                     device.FriendlyName.Contains("CABLE", StringComparison.OrdinalIgnoreCase)))
+                {
+                    Logger.Log("Voice monitoring skipped: the default output is the virtual cable.");
+                    return;
+                }
+
+                var format = _micTee.WaveFormat;
+                _micMonitorBuffer = new BufferedWaveProvider(format)
+                {
+                    BufferDuration = TimeSpan.FromSeconds(1),
+                    DiscardOnBufferOverflow = true,
+                    ReadFully = true
+                };
+
+                _micTee.Sink = _micMonitorBuffer;
+
+                _micMonitorOutput = new WasapiOut(
+                    device,
+                    AudioClientShareMode.Shared,
+                    useEventSync: false,
+                    latency: 100);
+
+                _micMonitorOutput.PlaybackStopped += HandleOutputError;
+                _micMonitorOutput.Init(_micMonitorBuffer);
+                _micMonitorOutput.Play();
+
+                Logger.Log($"Voice monitoring enabled on '{device.FriendlyName}'.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Voice monitoring unavailable: {ex.Message}");
+                StopMicMonitor();
+            }
+        }
+
+        private void StopMicMonitor()
+        {
+            if (_micTee is not null)
+            {
+                _micTee.Sink = null;
+            }
+
+            if (_micMonitorOutput is not null)
+            {
+                _micMonitorOutput.PlaybackStopped -= HandleOutputError;
+
+                try
+                {
+                    _micMonitorOutput.Stop();
+                }
+                catch
+                {
+                    // Device may already be gone.
+                }
+
+                _micMonitorOutput.Dispose();
+                _micMonitorOutput = null;
+            }
+
+            _micMonitorBuffer = null;
+        }
+
         public static ISampleProvider ConvertFormat(ISampleProvider input, WaveFormat targetFormat)
         {
             if (input.WaveFormat.Channels != targetFormat.Channels)
@@ -274,6 +440,7 @@ namespace BliBloup.Services
 
         public void Dispose()
         {
+            _settings.VoiceChanger.PropertyChanged -= HandleVoiceChangerSettingsChanged;
             StopPersistentAudioRouting();
             _persistentOutput?.Dispose();
             _micCapture?.Dispose();

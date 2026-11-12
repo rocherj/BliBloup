@@ -128,5 +128,8 @@ namespace BliBloup.ViewModels
 
         [ObservableProperty]
         private MMDevice? _selectedCaptureDevice;
+
+        [ObservableProperty]
+        private VoiceChangerSettings _voiceChanger = new();
     }
 }

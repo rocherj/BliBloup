@@ -85,6 +85,9 @@ namespace BliBloup.Views
             InitializeSoundboardEditing();
 
             _settings = SettingsManager.LoadSettings();
+            _settings.VoiceChanger ??= new VoiceChangerSettings();
+            ViewModel.VoiceChanger = _settings.VoiceChanger;
+            _settings.VoiceChanger.PropertyChanged += VoiceChanger_PropertyChanged;
             InitializeCaptureSettingsUi();
 
             _deviceManager = new DeviceManager(
@@ -597,6 +600,8 @@ namespace BliBloup.Views
 
         protected override void OnClosed(EventArgs e)
         {
+            _settings.VoiceChanger.PropertyChanged -= VoiceChanger_PropertyChanged;
+            _voiceSaveTimer?.Stop();
             DisposeHotkeys();
             DisposeAudioEngine();
             _audioService?.Dispose();

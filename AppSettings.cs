@@ -29,4 +29,7 @@ public class AppSettings
 
     /// <summary>Ask Windows MMCSS for the "Pro Audio" thread priority on the capture thread.</summary>
     public bool CaptureProAudioPriority { get; set; } = true;
+
+    /// <summary>Real-time microphone voice changer settings.</summary>
+    public VoiceChangerSettings VoiceChanger { get; set; } = new();
 }

@@ -34,11 +34,19 @@ namespace BliBloup.Views
                 _playbackEngine = new ClipPlaybackEngine(_deviceManager);
                 _playbackEngine.VoiceStarted += OnVoiceStarted;
                 _playbackEngine.VoiceEnded += OnVoiceEnded;
+                _audioService.RoutingRestarted += OnPersistentRoutingRestarted;
             }
             catch (Exception ex)
             {
                 UpdateStatus($"Audio service init failed: {ex.Message}");
             }
+        }
+
+        private void OnPersistentRoutingRestarted(object? sender, EventArgs e)
+        {
+            // The voice changer monitor or a device change rebuilt the routing mixer: put the
+            // still-playing clips back on the new virtual microphone input.
+            _playbackEngine?.ReattachVirtualInputs();
         }
 
         private void OnVoiceStarted(object? sender, VoiceEventArgs e)
