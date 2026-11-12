@@ -34,18 +34,26 @@
             <Setter Property="Margin" Value="3,2"/>
             <Setter Property="Template">
                 <ControlTemplate>
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{TemplateBinding CornerRadius}"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          HorizontalContentAlignment="Stretch"
-                                          VerticalContentAlignment="Center"/>
-                    </Border>
+                    <Grid>
+                        <Border Name="SeparatorTop" Height="1" Background="#3A3A3A"
+                                VerticalAlignment="Top"/>
+                        <Border Margin="0,1,0,0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalContentAlignment="Stretch"
+                                              VerticalContentAlignment="Center"/>
+                        </Border>
+                    </Grid>
                 </ControlTemplate>
             </Setter>
+            <Style Selector="^:first-child /template/ Border#SeparatorTop">
+                <Setter Property="IsVisible" Value="False"/>
+            </Style>
             <Style Selector="^:selected">
                 <Setter Property="Background" Value="#2D2D2D"/>
                 <Setter Property="BorderBrush" Value="#007ACC"/>
@@ -147,12 +155,9 @@
                                  BorderThickness="0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Name}" 
-                                                   Foreground="#E0E0E0"
-                                                   Padding="5"/>
-                                        <Border Height="1" Background="#3A3A3A" Margin="4,0,4,0"/>
-                                    </StackPanel>
+                                    <TextBlock Text="{Binding Name}" 
+                                               Foreground="#E0E0E0"
+                                               Padding="5"/>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
