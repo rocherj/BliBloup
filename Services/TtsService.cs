@@ -16,17 +16,28 @@ namespace BliBloup.Services
         
         public TtsService(MainWindowViewModel viewModel)
         {
-
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-            InitializeESpeak();
         }
 
-        private void InitializeESpeak()
+        public async Task InitializeAsync()
         {
+            if (_espeakGenerator is not null)
+            {
+                return;
+            }
+
             try
             {
-                _espeakGenerator = new ESpeakGenerator();
-                _espeakGenerator.Initialize();
+                // Extraction of the embedded eSpeak files is IO-heavy; keep it off the UI
+                // thread so opening the main window never waits for it.
+                var generator = await Task.Run(() =>
+                {
+                    var created = new ESpeakGenerator();
+                    created.Initialize();
+                    return created;
+                });
+
+                _espeakGenerator = generator;
                 RefreshVoices();
                 Console.WriteLine("TTS Service initialized successfully");
             }

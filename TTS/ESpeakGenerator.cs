@@ -232,11 +232,34 @@ public class ESpeakGenerator
         try
         {
             process.Start();
-            
-            string errorOutput = await process.StandardError.ReadToEndAsync();
-            string standardOutput = await process.StandardOutput.ReadToEndAsync();
-            
-            await process.WaitForExitAsync();
+
+            // Read both pipes concurrently. Reading stderr to completion before stdout can
+            // deadlock when the child fills the stdout pipe first.
+            var standardOutputTask = process.StandardOutput.ReadToEndAsync();
+            var errorOutputTask = process.StandardError.ReadToEndAsync();
+
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+
+            try
+            {
+                await process.WaitForExitAsync(timeoutCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                try
+                {
+                    process.Kill(entireProcessTree: true);
+                }
+                catch
+                {
+                    // The process may already have exited.
+                }
+
+                throw new TimeoutException("eSpeak did not finish within 60 seconds.");
+            }
+
+            string standardOutput = await standardOutputTask;
+            string errorOutput = await errorOutputTask;
 
             if (process.ExitCode != 0)
             {

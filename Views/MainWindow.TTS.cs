@@ -23,18 +23,27 @@ namespace BliBloup.Views
 
         private void InitializeTts()
         {
+            _ = InitializeTtsAsync();
+        }
+
+        private async Task InitializeTtsAsync()
+        {
             try
             {
-                if (DataContext is MainWindowViewModel viewModel)
+                if (DataContext is not MainWindowViewModel viewModel)
                 {
-                    _ttsService = new TtsService(viewModel);
-                    Console.WriteLine("TTS Service initialized successfully");
+                    return;
                 }
+
+                var service = new TtsService(viewModel);
+                await service.InitializeAsync();
+                _ttsService = service;
+                Console.WriteLine("TTS Service initialized successfully");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"TTS initialization failed: {ex.Message}");
-                // Don't throw here - let the app continue without TTS if needed
+                // Don't throw here - let the app continue without TTS if needed.
                 Logger.Log($"TTS Init Error: {ex}");
                 UpdateStatus("TTS unavailable - check eSpeak installation");
             }

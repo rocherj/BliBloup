@@ -168,6 +168,8 @@ namespace BliBloup.Views
 
         private async void DeleteSoundFromList_Click(object? sender, RoutedEventArgs e)
         {
+            try
+            {
             Logger.Log($"Delete action: tag={((sender as Control)?.Tag as SoundItem)?.Name ?? "null"}, selected={ViewModel.SelectedSound?.Name ?? "null"}, board={ViewModel.SelectedSoundboard?.Name ?? "null"}");
             if (GetSoundFromAction(sender) is not { } sound ||
                 ViewModel.SelectedSoundboard is not { } board)
@@ -196,6 +198,12 @@ namespace BliBloup.Views
             SaveSoundLibrary();
             LoadAndRegisterHotkeys(announce: false);
             UpdateStatus($"Deleted \"{sound.Name}\".");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Delete sound failed: {ex}");
+                UpdateStatus($"Could not delete sound: {ex.Message}", true);
+            }
         }
 
         private void DuplicateSound_Click(object? sender, RoutedEventArgs e)

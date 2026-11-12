@@ -459,9 +459,23 @@ namespace BliBloup.Views
                 }
 
                 var timeout = TimeSpan.FromMinutes(3);
-                if (!process.WaitForExit((int)timeout.TotalMilliseconds))
+                using var timeoutCts = new CancellationTokenSource(timeout);
+
+                try
                 {
-                    process.Kill();
+                    await process.WaitForExitAsync(timeoutCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    try
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                    catch
+                    {
+                        // The process may already have exited.
+                    }
+
                     UpdateStatus("Installation timed out - Please try again", true);
                     return false;
                 }
@@ -652,6 +666,8 @@ namespace BliBloup.Views
 
         public async void AddToLibrary(object? sender, RoutedEventArgs e)
         {
+            try
+            {
             if (ViewModel.SelectedSoundboard == null)
             {
                 UpdateStatus("Select a soundboard first.", true);
@@ -700,10 +716,18 @@ namespace BliBloup.Views
                 UpdateStatus(added == 1 ? "Added 1 sound." : $"Added {added} sounds.");
                 _ = PcmAudioCache.Instance.PreloadAsync(addedPaths);
             }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Add sound failed: {ex}");
+                UpdateStatus($"Could not add sound: {ex.Message}", true);
+            }
         }
 
         public async void RemoveFromLibrary(object? sender, RoutedEventArgs e)
         {
+            try
+            {
             if (ViewModel.SelectedSoundboard is not { } board || ViewModel.SelectedSound is not { } sound)
             {
                 return;
@@ -730,6 +754,12 @@ namespace BliBloup.Views
             SaveSoundLibrary();
             LoadAndRegisterHotkeys(announce: false);
             UpdateStatus($"Removed \"{sound.Name}\".");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Remove sound failed: {ex}");
+                UpdateStatus($"Could not remove sound: {ex.Message}", true);
+            }
         }
 
         /// <summary>Drops the decoded PCM buffer once no remaining sound uses the same file.</summary>
@@ -762,6 +792,8 @@ namespace BliBloup.Views
 
         private async void ChangeIconClicked(object? sender, RoutedEventArgs e)
         {
+            try
+            {
             if (ViewModel.SelectedSound is not { } sound) return;
 
             Logger.Log($"Thumbnail picker opened for '{sound.Name}'.");
@@ -800,6 +832,12 @@ namespace BliBloup.Views
             {
                 Logger.Log($"Thumbnail import failed: {ex}");
                 UpdateStatus($"Could not use that image: {ex.Message}", true);
+            }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Thumbnail picker failed: {ex}");
+                UpdateStatus($"Could not open the image picker: {ex.Message}", true);
             }
         }
 
@@ -931,35 +969,51 @@ namespace BliBloup.Views
 
         public async void AddSoundboard(object sender, RoutedEventArgs e)
         {
-            var dialog = new InputDialog { Prompt = "Enter soundboard name:" };
-            var result = await dialog.ShowDialog<string>(this);
-
-            if (!string.IsNullOrWhiteSpace(result))
+            try
             {
-                var soundboard = new Soundboard { Name = result };
-                ViewModel.Soundboards.Add(soundboard);
-                ViewModel.SelectedSoundboard = soundboard;
-                SaveSoundLibrary();
+                var dialog = new InputDialog { Prompt = "Enter soundboard name:" };
+                var result = await dialog.ShowDialog<string>(this);
+
+                if (!string.IsNullOrWhiteSpace(result))
+                {
+                    var soundboard = new Soundboard { Name = result };
+                    ViewModel.Soundboards.Add(soundboard);
+                    ViewModel.SelectedSoundboard = soundboard;
+                    SaveSoundLibrary();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"Add soundboard failed: {ex}");
+                UpdateStatus($"Could not add soundboard: {ex.Message}", true);
             }
         }
 
         public async void RenameSoundboard(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.SelectedSoundboard == null) return;
-
-            var dialog = new InputDialog
+            try
             {
-                Title = "Rename Soundboard",
-                Prompt = "Enter new name:",
-                InputText = ViewModel.SelectedSoundboard.Name ?? string.Empty
-            };
+                if (ViewModel.SelectedSoundboard == null) return;
 
-            var newName = await dialog.ShowDialog<string>(this);
+                var dialog = new InputDialog
+                {
+                    Title = "Rename Soundboard",
+                    Prompt = "Enter new name:",
+                    InputText = ViewModel.SelectedSoundboard.Name ?? string.Empty
+                };
 
-            if (!string.IsNullOrWhiteSpace(newName))
+                var newName = await dialog.ShowDialog<string>(this);
+
+                if (!string.IsNullOrWhiteSpace(newName))
+                {
+                    ViewModel.SelectedSoundboard.Name = newName;
+                    SaveSoundLibrary();
+                }
+            }
+            catch (Exception ex)
             {
-                ViewModel.SelectedSoundboard.Name = newName;
-                SaveSoundLibrary();
+                Logger.Log($"Rename soundboard failed: {ex}");
+                UpdateStatus($"Could not rename soundboard: {ex.Message}", true);
             }
         }
 
