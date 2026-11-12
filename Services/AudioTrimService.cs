@@ -181,7 +181,7 @@ namespace BliBloup.Services
                         WriteWav(sourcePath, start, end, tempPath);
                     }
 
-                    File.Move(tempPath, sourcePath, overwrite: true);
+                    ReplaceWithBackup(tempPath, sourcePath);
                 }
                 finally
                 {
@@ -218,6 +218,41 @@ namespace BliBloup.Services
             var wavCopyPath = BuildCopyPath(sourcePath, ".wav");
             WriteWav(sourcePath, start, end, wavCopyPath);
             return new TrimSaveResult(wavCopyPath, Overwritten: false, FormatChanged: true);
+        }
+
+        private static void ReplaceWithBackup(string tempPath, string targetPath)
+        {
+            var directory = Path.GetDirectoryName(targetPath) ?? string.Empty;
+            var backupPath = Path.Combine(
+                directory,
+                $".{Path.GetFileName(targetPath)}.{Guid.NewGuid():N}.bak");
+
+            bool completed = false;
+
+            try
+            {
+                try
+                {
+                    File.Replace(tempPath, targetPath, backupPath, ignoreMetadataErrors: true);
+                }
+                catch (Exception ex) when (ex is IOException or PlatformNotSupportedException or UnauthorizedAccessException)
+                {
+                    // Some file systems do not support Replace. Keep a copy of the original
+                    // before the fallback move so a failure cannot silently lose it.
+                    Logger.Log($"Atomic audio replace unavailable, using copy fallback: {ex.Message}");
+                    File.Copy(targetPath, backupPath, overwrite: true);
+                    File.Move(tempPath, targetPath, overwrite: true);
+                }
+
+                completed = true;
+            }
+            finally
+            {
+                if (completed && File.Exists(backupPath))
+                {
+                    try { File.Delete(backupPath); } catch { /* best effort */ }
+                }
+            }
         }
 
         private static ISampleProvider CreateTrimmedProvider(string sourcePath, double start, double end, out AudioFileReader reader)

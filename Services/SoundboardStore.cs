@@ -153,7 +153,18 @@ namespace BliBloup.Services
                 return null;
             }
 
-            var boards = new ObservableCollection<Soundboard>(file.Soundboards.Select(ToModel));
+            var boards = new ObservableCollection<Soundboard>();
+
+            foreach (var boardDto in file.Soundboards)
+            {
+                if (boardDto is null)
+                {
+                    continue;
+                }
+
+                boards.Add(ToModel(boardDto));
+            }
+
             return new LibraryLoadResult(boards, LibraryLoadNote.None);
         }
 
@@ -343,6 +354,16 @@ namespace BliBloup.Services
         {
             foreach (var board in boards)
             {
+                if (board is null)
+                {
+                    continue;
+                }
+
+                if (board.Sounds is null)
+                {
+                    board.Sounds = new ObservableCollection<SoundItem>();
+                }
+
                 if (string.IsNullOrWhiteSpace(board.Name))
                 {
                     board.Name = "Soundboard";
@@ -350,6 +371,11 @@ namespace BliBloup.Services
 
                 foreach (var sound in board.Sounds)
                 {
+                    if (sound is null)
+                    {
+                        continue;
+                    }
+
                     if (string.IsNullOrWhiteSpace(sound.Name))
                     {
                         sound.Name = Path.GetFileNameWithoutExtension(sound.Path ?? string.Empty);

@@ -279,6 +279,15 @@ namespace BliBloup.Views
 
             try
             {
+                var board = ViewModel.SelectedSoundboard;
+                var selectedSound = ViewModel.SelectedSound;
+
+                if (board is null)
+                {
+                    UpdateStatus("Select a soundboard first.", true);
+                    return;
+                }
+
                 FlushTrimCommit();
                 UpdateStatus("Saving trimmed copy...");
 
@@ -287,6 +296,13 @@ namespace BliBloup.Views
                     ViewModel.TrimStartSeconds,
                     EffectiveTrimEnd(),
                     overwrite: false);
+
+                if (!ReferenceEquals(ViewModel.SelectedSoundboard, board) ||
+                    !ReferenceEquals(ViewModel.SelectedSound, selectedSound))
+                {
+                    UpdateStatus("Trimmed copy saved, but the selection changed; it was not added to the soundboard.");
+                    return;
+                }
 
                 var copy = new SoundItem
                 {
@@ -307,7 +323,7 @@ namespace BliBloup.Views
                 copy.PropertyChanged += SoundItem_VolumeChanged;
                 AttachSoundItem(copy);
 
-                ViewModel.SelectedSoundboard?.Sounds.Add(copy);
+                board.Sounds.Add(copy);
                 SaveSoundLibrary();
                 LoadAndRegisterHotkeys(announce: false);
 
@@ -335,6 +351,9 @@ namespace BliBloup.Views
 
             try
             {
+                var board = ViewModel.SelectedSoundboard;
+                var selectedSound = ViewModel.SelectedSound;
+
                 FlushTrimCommit();
 
                 var box = MessageBoxManager.GetMessageBoxStandard(
@@ -367,7 +386,14 @@ namespace BliBloup.Views
                 PcmAudioCache.Instance.Unload(sound.Path);
                 _ = PcmAudioCache.Instance.PreloadAsync(new[] { sound.Path });
                 SaveSoundLibrary();
-                await LoadTrimInfoAsync(sound);
+
+                // The file is already replaced; only refresh the visible editor if the user
+                // is still looking at the same board and sound.
+                if (ReferenceEquals(ViewModel.SelectedSoundboard, board) &&
+                    ReferenceEquals(ViewModel.SelectedSound, selectedSound))
+                {
+                    await LoadTrimInfoAsync(sound);
+                }
 
                 UpdateStatus($"Original overwritten: {result.Path}");
             }
