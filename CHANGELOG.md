@@ -2,6 +2,34 @@
 
 Notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses semantic versioning.
 
+## [1.1.1] - 2026-11-12
+
+Patch release with the final interface adjustments and the consolidated stability/security pass
+from the full audit.
+
+### Added
+
+- Voice Changer microphone volume: a persistent 0-100% output volume with a percentage slider in the Voice Changer tab. Reset Voice restores it to 100%.
+
+### Changed
+
+- Sound Library tiles are more compact: 136x118 tiles, tighter margins/padding, smaller icon and action buttons, and a selection frame that follows the content more closely.
+- The default main-window size is now 1293 x 857.
+- The Sound Library toolbar uses uniform spacing, displays "Remove Selected" in full, disables it when no sound is selected, and uses a proper centered stop icon for Stop All.
+- Reset Voice and Remove Selected now use the same dark red as Delete and Stop.
+
+### Fixed
+
+- Audio-thread stalls on empty/corrupt looped sources and multichannel downmix buffer overflows.
+- Pitch/EQ update races between the UI and audio threads; effect parameters are snapshotted per buffer.
+- Stopped speaker outputs are invalidated and recreated on the next sound; voice monitoring and duplicate clip routing on the same output device were corrected.
+- JSON libraries with null boards or null `Sounds` collections are now loaded without discarding valid content.
+- Trim overwrites are atomic with a temporary backup, and async trim saves no longer update the wrong board/sound.
+- Voice changer settings failures no longer crash the application; pending voice and trim settings are flushed on close.
+- VB-Cable installation detects success correctly and runs without blocking the UI.
+- Deleting/removing the selected sound clears the right-hand panel; file pickers, dialogs and delete actions are protected against cancellation/storage errors.
+- TTS uses `ArgumentList` to prevent argument injection, initializes off the UI thread, reads both process pipes concurrently and applies a 60-second timeout.
+
 ## [1.1.0] - 2026-11-12
 
 Second public release, focused on real-time voice processing, a more consistent interface and a

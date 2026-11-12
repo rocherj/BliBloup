@@ -6,7 +6,7 @@
 
 BliBloup is a soundboard for Windows. It plays audio clips through a virtual microphone, so applications such as Discord, a game or a voice chat receive the sound as microphone input. The application is written in C# with .NET 8, Avalonia and NAudio.
 
-Current release: **1.1.0**. See [CHANGELOG.md](CHANGELOG.md) for the full release notes.
+Current release: **1.1.1**. See [CHANGELOG.md](CHANGELOG.md) for the full release notes.
 
 ## Requirements
 
@@ -38,7 +38,7 @@ Sounds are added from the Sounds tab. A sound can be trimmed, given its own thum
 
 **Playback and editing.** Playback uses a mixer so several sounds can play simultaneously, with per-sound volume, bass, treble and pitch controls and a limiter on both the speaker and virtual microphone outputs. Each sound also has a Mute the preview option that keeps it in the virtual microphone mix while silencing it on the local speakers or headphones. Per-sound effects include soft-clipping distortion, an echo with adjustable delay and feedback, a light reverb and a ring-modulator robot voice; all of them are smoothed and bypassed when set to zero. The trim editor shows the waveform and allows an audible preview. The waveform is interactive: the blue handles set the start and end of the selection, dragging across it selects a new range, and a click places the playhead. During playback a white playhead follows the actual audio position in real time, stays inside the selected range and returns to the start of the selection when loop mode wraps. The result can be saved as a copy or used to overwrite the original file.
 
-**Voice Changer.** The microphone can be processed in real time with tone EQ, pitch shifting, soft-clipping distortion, echo, reverb and a robot ring modulator. Ten presets are provided (Chipmunk, Demon, Robot, Phone/Radio, Cave, Alien/Insect, Monster/Ogre, Megaphone, Ghost/Spirit and Underwater), and monitoring on the local speakers/headphones is optional to avoid feedback. The processed voice goes to the virtual microphone; soundboard clips bypass the voice changer.
+**Voice Changer.** The microphone can be processed in real time with tone EQ, pitch shifting, soft-clipping distortion, echo, reverb and a robot ring modulator. Ten presets are provided (Chipmunk, Demon, Robot, Phone/Radio, Cave, Alien/Insect, Monster/Ogre, Megaphone, Ghost/Spirit and Underwater), the processed output has its own 0-100% volume slider, and monitoring on the local speakers/headphones is optional to avoid feedback. The processed voice goes to the virtual microphone; soundboard clips bypass the voice changer.
 
 **Interface.** The dark interface uses a single accent colour across the sidebar, selection frames, sliders and primary actions. Sliders have a modern double-circle thumb, the panel sections use rounded cards, expanders have discreet dark headers, and the Per-clip hotkey list has a fixed header with a modern arrow-free scrollbar.
 
