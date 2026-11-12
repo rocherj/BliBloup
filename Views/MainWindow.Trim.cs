@@ -219,9 +219,11 @@ namespace BliBloup.Views
 
             FlushTrimCommit();
 
-            // Isolate the preview so the selection can be judged on its own.
+            // Isolate the preview so the selection can be judged on its own. This preview is
+            // local-only: the virtual microphone path is deliberately not attached, so Discord or
+            // OBS do not hear the trim tests.
             StopAudioProcessing(updateStatus: false);
-            StartAudioProcessing(sound);
+            StartAudioProcessing(sound, previewOnly: true);
         }
 
         private async void SaveTrimCopy_Click(object? sender, RoutedEventArgs e)
@@ -251,7 +253,13 @@ namespace BliBloup.Views
                     Bass = sound.Bass,
                     Treble = sound.Treble,
                     Pitch = sound.Pitch,
-                    IconPath = sound.IconPath
+                    IconPath = sound.IconPath,
+                    MutePreview = sound.MutePreview,
+                    Distortion = sound.Distortion,
+                    EchoDelayMs = sound.EchoDelayMs,
+                    EchoFeedback = sound.EchoFeedback,
+                    ReverbMix = sound.ReverbMix,
+                    Robotize = sound.Robotize
                 };
                 copy.PropertyChanged += SoundItem_VolumeChanged;
                 AttachSoundItem(copy);

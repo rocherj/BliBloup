@@ -278,7 +278,12 @@ namespace BliBloup.Services
             Hotkey = sound.Hotkey,
             TrimStart = sound.TrimStart,
             TrimEnd = sound.TrimEnd,
-            MutePreview = sound.MutePreview
+            MutePreview = sound.MutePreview,
+            Distortion = sound.Distortion,
+            EchoDelayMs = sound.EchoDelayMs,
+            EchoFeedback = sound.EchoFeedback,
+            ReverbMix = sound.ReverbMix,
+            Robotize = sound.Robotize
         };
 
         private static Soundboard ToModel(LibraryFileDto dto)
@@ -317,7 +322,12 @@ namespace BliBloup.Services
                 Hotkey = dto.Hotkey ?? string.Empty,
                 TrimStart = Math.Max(0, dto.TrimStart),
                 TrimEnd = Math.Max(0, dto.TrimEnd),
-                MutePreview = dto.MutePreview
+                MutePreview = dto.MutePreview,
+                Distortion = Math.Clamp(dto.Distortion, 0, 100),
+                EchoDelayMs = Math.Clamp(dto.EchoDelayMs, 0, 500),
+                EchoFeedback = Math.Clamp(dto.EchoFeedback, 0, 90),
+                ReverbMix = Math.Clamp(dto.ReverbMix, 0, 100),
+                Robotize = dto.Robotize
             };
 
             if (item.TrimEnd > 0 && item.TrimEnd <= item.TrimStart)
@@ -469,6 +479,16 @@ namespace BliBloup.Services
             public double TrimEnd { get; set; }
 
             public bool MutePreview { get; set; }
+
+            public double Distortion { get; set; }
+
+            public double EchoDelayMs { get; set; }
+
+            public double EchoFeedback { get; set; }
+
+            public double ReverbMix { get; set; }
+
+            public bool Robotize { get; set; }
         }
     }
 }

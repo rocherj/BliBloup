@@ -165,6 +165,90 @@ namespace BliBloup.Models
             }
         }
 
+        private double _distortion;
+
+        /// <summary>Soft-clipping amount, 0 (bypassed) to 100.</summary>
+        public double Distortion
+        {
+            get => _distortion;
+            set
+            {
+                var normalized = Math.Clamp(value, 0, 100);
+                if (Math.Abs(_distortion - normalized) > 0.0001)
+                {
+                    _distortion = normalized;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _echoDelayMs;
+
+        /// <summary>Echo delay in milliseconds, 0 (bypassed) to 500.</summary>
+        public double EchoDelayMs
+        {
+            get => _echoDelayMs;
+            set
+            {
+                var normalized = Math.Clamp(value, 0, 500);
+                if (Math.Abs(_echoDelayMs - normalized) > 0.0001)
+                {
+                    _echoDelayMs = normalized;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _echoFeedback;
+
+        /// <summary>Echo feedback in percent, 0 (no repeats) to 90.</summary>
+        public double EchoFeedback
+        {
+            get => _echoFeedback;
+            set
+            {
+                var normalized = Math.Clamp(value, 0, 90);
+                if (Math.Abs(_echoFeedback - normalized) > 0.0001)
+                {
+                    _echoFeedback = normalized;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private double _reverbMix;
+
+        /// <summary>Reverb dry/wet mix, 0 (bypassed) to 100.</summary>
+        public double ReverbMix
+        {
+            get => _reverbMix;
+            set
+            {
+                var normalized = Math.Clamp(value, 0, 100);
+                if (Math.Abs(_reverbMix - normalized) > 0.0001)
+                {
+                    _reverbMix = normalized;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private bool _robotize;
+
+        /// <summary>Enables the ring-modulator robot voice effect.</summary>
+        public bool Robotize
+        {
+            get => _robotize;
+            set
+            {
+                if (_robotize != value)
+                {
+                    _robotize = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

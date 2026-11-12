@@ -80,7 +80,7 @@ namespace BliBloup.Services
         public bool IsSpeakerOutputAvailable => _speakerOutput != null;
 
         /// <summary>Starts a clip without stopping anything already playing.</summary>
-        public bool PlaySound(SoundItem sound)
+        public bool PlaySound(SoundItem sound, bool speakerOnly = false)
         {
             LastError = null;
 
@@ -105,7 +105,8 @@ namespace BliBloup.Services
                 virtualStream = OpenTrimmedStream(sound);
                 speakerStream = OpenTrimmedStream(sound);
 
-                return StartVoice(sound, sound.Name, virtualStream, speakerStream, null);
+                return StartVoice(sound, sound.Name, virtualStream, speakerStream, null,
+                    includeVirtual: !speakerOnly);
             }
             catch (Exception ex)
             {
@@ -293,9 +294,10 @@ namespace BliBloup.Services
             }
         }
 
-        private bool StartVoice(SoundItem settings, string label, WaveStream virtualStream, WaveStream speakerStream, float? volumeOverride)
+        private bool StartVoice(SoundItem settings, string label, WaveStream virtualStream, WaveStream speakerStream,
+            float? volumeOverride, bool includeVirtual = true, bool includeSpeaker = true)
         {
-            var speakerReady = EnsureSpeakerOutput();
+            var speakerReady = includeSpeaker && EnsureSpeakerOutput();
 
             var volume = volumeOverride ?? (float)Math.Clamp(settings.Volume / 100.0, 0, 2);
             var duration = GetDuration(virtualStream);
@@ -314,6 +316,7 @@ namespace BliBloup.Services
                 var virtualChain = BuildChain(virtualStream, settings, volume);
                 voice.VirtualEq = virtualChain.Eq;
                 voice.VirtualPitch = virtualChain.Pitch;
+                voice.VirtualFx = virtualChain.Fx;
                 voice.VirtualVolume = virtualChain.Volume;
 
                 if (speakerReady)
@@ -324,11 +327,12 @@ namespace BliBloup.Services
                     var speakerChain = BuildChain(speakerStream, settings, speakerVolume);
                     voice.SpeakerEq = speakerChain.Eq;
                     voice.SpeakerPitch = speakerChain.Pitch;
+                    voice.SpeakerFx = speakerChain.Fx;
                     voice.SpeakerVolume = speakerChain.Volume;
                 }
 
                 // The speaker path is attached first: it is the reference end detector.
-                if (speakerReady && _speakerMixer != null)
+                if (includeSpeaker && speakerReady && _speakerMixer != null)
                 {
                     voice.SpeakerInput = voice.SpeakerVolume;
                     _speakerMixer.AddMixerInput(voice.SpeakerInput);
@@ -340,8 +344,19 @@ namespace BliBloup.Services
                     voice.SpeakerStream = null;
                 }
 
-                voice.VirtualInput = voice.VirtualVolume;
-                voice.VirtualAttached = _deviceManager.TryAddMixerInput(voice.VirtualInput);
+                if (includeVirtual)
+                {
+                    voice.VirtualInput = voice.VirtualVolume;
+                    voice.VirtualAttached = _deviceManager.TryAddMixerInput(voice.VirtualInput);
+                }
+                else
+                {
+                    // Local-only preview: never feed the virtual microphone mixer.
+                    virtualStream.Dispose();
+                    voice.VirtualStream = null;
+                    voice.VirtualInput = null;
+                    voice.VirtualAttached = false;
+                }
 
                 if (!voice.SpeakerAttached && !voice.VirtualAttached)
                 {
@@ -454,6 +469,8 @@ namespace BliBloup.Services
 
             public PitchShifter Pitch { get; init; } = null!;
 
+            public SoundEffectsSampleProvider Fx { get; init; } = null!;
+
             public VolumeSampleProvider Volume { get; init; } = null!;
         }
 
@@ -465,12 +482,14 @@ namespace BliBloup.Services
             var eq = new EqualizerSampleProvider(converted, sound);
             var pitch = new PitchShifter(eq);
             pitch.SetPitch((float)sound.Pitch);
-            var volumeProvider = new VolumeSampleProvider(pitch) { Volume = volume };
+            var fx = new SoundEffectsSampleProvider(pitch, sound);
+            var volumeProvider = new VolumeSampleProvider(fx) { Volume = volume };
 
             return new PlaybackChain
             {
                 Eq = eq,
                 Pitch = pitch,
+                Fx = fx,
                 Volume = volumeProvider
             };
         }
@@ -675,7 +694,7 @@ namespace BliBloup.Services
 
             public double Duration { get; init; }
 
-            public WaveStream? VirtualStream { get; init; }
+            public WaveStream? VirtualStream { get; set; }
 
             public WaveStream? SpeakerStream { get; set; }
 
@@ -683,11 +702,15 @@ namespace BliBloup.Services
 
             public PitchShifter VirtualPitch { get; set; } = null!;
 
+            public SoundEffectsSampleProvider VirtualFx { get; set; } = null!;
+
             public VolumeSampleProvider VirtualVolume { get; set; } = null!;
 
             public EqualizerSampleProvider SpeakerEq { get; set; } = null!;
 
             public PitchShifter SpeakerPitch { get; set; } = null!;
+
+            public SoundEffectsSampleProvider SpeakerFx { get; set; } = null!;
 
             public VolumeSampleProvider SpeakerVolume { get; set; } = null!;
 

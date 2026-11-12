@@ -125,7 +125,7 @@ namespace BliBloup.Views
         /// Starts playback of <paramref name="sound"/>, or of the selected sound when omitted.
         /// Sounds already playing are kept: the engine mixes every clip.
         /// </summary>
-        private void StartAudioProcessing(SoundItem? sound = null)
+        private void StartAudioProcessing(SoundItem? sound = null, bool previewOnly = false)
         {
             var target = sound ?? ViewModel.SelectedSound;
 
@@ -148,7 +148,7 @@ namespace BliBloup.Views
                     _playbackEngine.ResumeAll();
                 }
 
-                if (!_playbackEngine.PlaySound(target))
+                if (!_playbackEngine.PlaySound(target, speakerOnly: previewOnly))
                 {
                     UpdateStatus($"❌ {_playbackEngine.LastError ?? $"Could not play \"{target.Name}\"."}", true);
                     return;
@@ -156,9 +156,11 @@ namespace BliBloup.Views
 
                 _currentPlaybackState = PlaybackState.Playing;
                 var active = _playbackEngine.ActiveVoiceCount;
-                UpdateStatus(active > 1
-                    ? $"🎵 Playing {target.Name} (+{active - 1} also playing)"
-                    : $"🎵 Playing {target.Name}");
+                UpdateStatus(previewOnly
+                    ? $"🎧 Previewing {target.Name} (speakers only, virtual microphone muted)"
+                    : active > 1
+                        ? $"🎵 Playing {target.Name} (+{active - 1} also playing)"
+                        : $"🎵 Playing {target.Name}");
             }
             catch (Exception ex)
             {

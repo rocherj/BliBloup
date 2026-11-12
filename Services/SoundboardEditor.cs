@@ -60,6 +60,11 @@ namespace BliBloup.Services
                 TrimStart = source.TrimStart,
                 TrimEnd = source.TrimEnd,
                 MutePreview = source.MutePreview,
+                Distortion = source.Distortion,
+                EchoDelayMs = source.EchoDelayMs,
+                EchoFeedback = source.EchoFeedback,
+                ReverbMix = source.ReverbMix,
+                Robotize = source.Robotize,
                 Hotkey = string.Empty
             };
         }
