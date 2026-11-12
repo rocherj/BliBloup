@@ -200,19 +200,14 @@ public class ESpeakGenerator
         int pitchValue = (int)(pitch * 50);
 
         string tempPath = Path.GetTempFileName() + ".wav";
-        
-        text = text.Replace("\"", "\\\"");
 
-        string args = $"--path=\"{_extractionDir}\" -v {voice} -p {pitchValue} -s {speedValue} -w \"{tempPath}\" \"{text}\"";
-
-        Logger.Log($"Running eSpeak with args: {args}");
+        Logger.Log($"Running eSpeak (voice={voice}, speed={speedValue}, pitch={pitchValue}, textLength={text.Length})");
 
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = _espeakPath,
-                Arguments = args,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -220,6 +215,19 @@ public class ESpeakGenerator
                 WorkingDirectory = Path.GetDirectoryName(_espeakPath) // Set working directory to eSpeak location
             }
         };
+
+        // ArgumentList escapes each argument independently; concatenating the user text into
+        // Arguments allowed quotes/backslashes to alter the eSpeak command line.
+        process.StartInfo.ArgumentList.Add($"--path={_extractionDir}");
+        process.StartInfo.ArgumentList.Add("-v");
+        process.StartInfo.ArgumentList.Add(voice);
+        process.StartInfo.ArgumentList.Add("-p");
+        process.StartInfo.ArgumentList.Add(pitchValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        process.StartInfo.ArgumentList.Add("-s");
+        process.StartInfo.ArgumentList.Add(speedValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        process.StartInfo.ArgumentList.Add("-w");
+        process.StartInfo.ArgumentList.Add(tempPath);
+        process.StartInfo.ArgumentList.Add(text);
 
         try
         {
