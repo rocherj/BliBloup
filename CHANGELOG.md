@@ -2,6 +2,43 @@
 
 Notable changes to this project are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/) and the project uses semantic versioning.
 
+## [1.1.0] - 2026-11-12
+
+Second public release, focused on real-time voice processing, a more consistent interface and a
+large stability/security pass over the audio pipeline, persistence and TTS.
+
+### Added
+
+- Voice Changer page with real-time microphone EQ, pitch, distortion, echo, reverb and robot effects, local headphone monitoring and ten presets (Chipmunk, Demon, Robot, Phone/Radio, Cave, Alien/Insect, Monster/Ogre, Megaphone, Ghost/Spirit, Underwater).
+- Live white playhead in the trim waveform, synchronized with playback and honoring the trim selection and loop mode.
+- Modern donut slider thumbs with accent hover/pressed states, rounded expander headers with restored dark styling, harmonized buttons, rounded sidebar/soundboard selection, unified presets panel and a modern arrow-free scrollbar.
+- Default window size updated to 1505 × 842.
+
+### Changed
+
+- Voice presets are grouped in a single wrapping **Presets** section.
+- The right-hand sound panel now follows the same accent color, spacing and control styling as the left sidebar.
+- Per-clip hotkey settings have a fixed header and an independently scrolling list.
+
+### Fixed
+
+- Audio hangs on empty/corrupt looped sources and buffer overflow when downmixing 5.1/7.1 files.
+- Race conditions between the UI and audio threads when resetting the pitch shifter or replacing EQ filters; effect parameters are snapshotted per buffer.
+- Stopped speaker outputs are invalidated and recreated on the next sound instead of silently swallowing playback.
+- Voice monitoring with normal default speakers and duplicate clip routing on the same output device.
+- JSON library loading now tolerates null `Sounds` collections and null board entries instead of discarding the whole library.
+- Trim overwrite uses an atomic replace with a temporary backup; async trim saves no longer update the wrong board/sound if the selection changed.
+- Voice changer settings saves are protected against disk-full/locked-file failures, and pending voice/trim settings are flushed when the window closes.
+- VB-Cable installation detects success correctly and no longer freezes the UI while waiting for the installer.
+- Deleting or removing the selected sound now clears the right-hand sound panel.
+- File pickers, dialogs and delete actions can no longer crash the application when a dialog is cancelled or the storage provider fails.
+- TTS input is passed to eSpeak via `ArgumentList` instead of a concatenated command line; eSpeak initialization runs off the UI thread, its output pipes are read concurrently and a 60-second timeout prevents deadlocks.
+- Scrollbar thumbs and list focus visuals behave correctly, including the Per-clip hotkeys scrollbar.
+
+### Security
+
+- Removed command-line argument injection through the TTS text field.
+
 ## [1.0.0] - 2026-11-11
 
 First public release of BliBloup, based on BoomBx 0.1.6.
