@@ -43,6 +43,19 @@ public class PitchShifter : ISampleProvider
         _target = Math.Clamp(factor, 0.5f, 2f);
     }
 
+    /// <summary>
+    /// Hard reset: jump back to 1.0x, drop the shifter and its internal buffers and read the
+    /// source directly from the next sample onwards. Used by the Pitch Reset button.
+    /// </summary>
+    public void Reset()
+    {
+        _target = 1f;
+        _current = 1f;
+        _bypassing = true;
+        _fadeRemaining = 0;
+        _shifter = null;
+    }
+
     public int Read(float[] buffer, int offset, int count)
     {
         if (count <= 0)

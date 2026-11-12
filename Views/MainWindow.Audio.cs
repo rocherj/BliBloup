@@ -277,6 +277,19 @@ namespace BliBloup.Views
             }
         }
 
+        private void ResetPitch_Click(object? sender, RoutedEventArgs e)
+        {
+            if (ViewModel.SelectedSound is not { } sound)
+            {
+                return;
+            }
+
+            sound.Pitch = 1.0;
+            _playbackEngine?.ResetPitch(sound);
+            SaveSoundLibrary();
+            UpdateStatus($"Pitch of \"{sound.Name}\" reset to 1.0x.");
+        }
+
         private void MutePreviewChanged(object? sender, RoutedEventArgs e)
         {
             if (ViewModel.SelectedSound is not { } sound)

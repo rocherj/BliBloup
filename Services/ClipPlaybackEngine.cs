@@ -261,12 +261,55 @@ namespace BliBloup.Services
                     voice.SpeakerVolume.Volume = sound.MutePreview ? 0f : volume;
                     voice.VirtualEq.UpdateFilters(sound);
                     voice.SpeakerEq.UpdateFilters(sound);
-                    voice.VirtualPitch.SetPitch((float)sound.Pitch);
-                    voice.SpeakerPitch.SetPitch((float)sound.Pitch);
+                    if (Math.Abs(sound.Pitch - 1.0) < 0.0001)
+                    {
+                        // Reaching 1.0 from any other value must discard the shifter buffers.
+                        voice.VirtualPitch.Reset();
+                        voice.SpeakerPitch.Reset();
+                    }
+                    else
+                    {
+                        voice.VirtualPitch.SetPitch((float)sound.Pitch);
+                        voice.SpeakerPitch.SetPitch((float)sound.Pitch);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Logger.Log($"Failed to update live voice settings: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>Immediately restores normal pitch and drops the shifter state for this sound.</summary>
+        public void ResetPitch(SoundItem sound)
+        {
+            if (sound is null)
+            {
+                return;
+            }
+
+            List<PlaybackVoice> snapshot;
+
+            lock (_sync)
+            {
+                snapshot = new List<PlaybackVoice>(_voices);
+            }
+
+            foreach (var voice in snapshot)
+            {
+                if (!ReferenceEquals(voice.Sound, sound))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    voice.VirtualPitch.Reset();
+                    voice.SpeakerPitch.Reset();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Failed to reset live pitch: {ex.Message}");
                 }
             }
         }
