@@ -135,16 +135,16 @@
 
         <Style Selector="ScrollBar">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Width" Value="8"/>
-            <Setter Property="Height" Value="8"/>
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
         </Style>
 
         <Style Selector="ScrollBar:vertical">
-            <Setter Property="Width" Value="8"/>
+            <Setter Property="Width" Value="12"/>
         </Style>
 
         <Style Selector="ScrollBar:horizontal">
-            <Setter Property="Height" Value="8"/>
+            <Setter Property="Height" Value="12"/>
         </Style>
 
         <!-- No arrow buttons: just a track and a draggable thumb. -->
@@ -167,8 +167,11 @@
 
         <Style Selector="ScrollBar Thumb">
             <Setter Property="Background" Value="#4A4A4A"/>
-            <Setter Property="CornerRadius" Value="4"/>
-            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="MinWidth" Value="10"/>
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
 
         <Style Selector="ScrollBar Thumb:pointerover">
