@@ -54,7 +54,7 @@
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="{Binding #SoundsNav.IsChecked, Converter={StaticResource BoolToGridLengthConverter}}"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="360"/>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Background="#252525" Margin="0,0,1,0">
@@ -554,7 +554,8 @@
                     </Border>
 
                     <!-- Scrollable settings -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,10,12,28">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                      AllowAutoHide="True" Padding="16,10,16,28">
                         <StackPanel Spacing="10">
                             <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
                                        TextWrapping="Wrap" MinHeight="16"/>
@@ -579,7 +580,8 @@
 
                             <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
-                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="16,4" Width="256" IsExpanded="False" HorizontalAlignment="Left"
+                                              HorizontalContentAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Tone (EQ)" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
@@ -603,7 +605,8 @@
                             </Border>
                             </Expander>
 
-                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="16,4" Width="256" IsExpanded="False" HorizontalAlignment="Left"
+                                              HorizontalContentAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Pitch &amp; Modulation" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
@@ -628,7 +631,8 @@
                             </Border>
                             </Expander>
 
-                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="16,4" Width="256" IsExpanded="False" HorizontalAlignment="Left"
+                                              HorizontalContentAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Distortion" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
@@ -647,7 +651,8 @@
                             </Border>
                             </Expander>
 
-                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="16,4" Width="256" IsExpanded="False" HorizontalAlignment="Left"
+                                              HorizontalContentAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Space &amp; FX" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
@@ -716,7 +721,8 @@
 
                             <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
-                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="16,4" Width="256" IsExpanded="False" HorizontalAlignment="Left"
+                                              HorizontalContentAlignment="Stretch">
                                 <Expander.Header>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A8A8A8" FontSize="11" FontWeight="Bold"/>
