@@ -905,7 +905,7 @@
                                         FontSize="15" Height="42" Background="#007ACC" Foreground="White"
                                         Click="PlayPauseHandler" Margin="0,0,6,0"/>
                                 <Button Grid.Column="1" x:Name="StopButton" Content="■ Stop"
-                                        FontSize="15" Width="100" Height="42" Background="#404040" Foreground="White"
+                                        FontSize="15" Width="100" Height="42" Background="#8B2E2E" Foreground="White"
                                         Click="StopHandler"/>
                             </Grid>
 
