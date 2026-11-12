@@ -25,6 +25,39 @@
         <conv:UriToImageSourceConverter x:Key="UriConverter"/>
         <conv:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter"/>
 
+        <ControlTheme x:Key="SoundboardItemTheme" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="Margin" Value="3,2"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalContentAlignment="Stretch"
+                                          VerticalContentAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:selected">
+                <Setter Property="Background" Value="#2D2D2D"/>
+                <Setter Property="BorderBrush" Value="#007ACC"/>
+            </Style>
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="#2A2A2A"/>
+            </Style>
+            <Style Selector="^:focus /template/ ContentPresenter">
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+        </ControlTheme>
+
         <ControlTheme x:Key="SoundTileItemTheme" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="0"/>
@@ -108,6 +141,7 @@
                         <ListBox ItemsSource="{Binding Soundboards}"
                                  SelectionChanged="SoundboardList_SelectionChanged"
                                  SelectedItem="{Binding SelectedSoundboard, Mode=TwoWay}"
+                                 ItemContainerTheme="{StaticResource SoundboardItemTheme}"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  Background="Transparent"
                                  BorderThickness="0">

@@ -5,12 +5,12 @@
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
-        <SolidColorBrush x:Key="ExpanderHeaderBackground">#2D2D2D</SolidColorBrush>
-        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver">#353535</SolidColorBrush>
-        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed">#2A2A2A</SolidColorBrush>
-        <SolidColorBrush x:Key="ExpanderHeaderBorderBrush">#3A3A3A</SolidColorBrush>
-        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver">#4A4A4A</SolidColorBrush>
-        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed">#4A4A4A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBackground">#070707</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPointerOver">#111111</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBackgroundPressed">#050505</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrush">#1A1A1A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPointerOver">#2A2A2A</SolidColorBrush>
+        <SolidColorBrush x:Key="ExpanderHeaderBorderBrushPressed">#2A2A2A</SolidColorBrush>
     </Application.Resources>
 
     <Application.DataTemplates>
@@ -28,9 +28,11 @@
 
         <Style Selector="RadioButton.SidebarButton">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Margin" Value="0 5"/>
-            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="8,4"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Foreground" Value="#A0A0A0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -38,9 +40,9 @@
                 <ControlTemplate>
                     <Border Name="border"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="4"
-                            BorderThickness="1 1 0 1"
-                            BorderBrush="Transparent">
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}">
                         <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}"
                                         Content="{TemplateBinding Content}"
                                         Margin="{TemplateBinding Padding}"
@@ -53,7 +55,7 @@
 
         <Style Selector="RadioButton.SidebarButton:checked /template/ Border#border">
             <Setter Property="BorderBrush" Value="#007ACC"/>
-            <Setter Property="Background" Value="#007ACC20"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
         </Style>
 
         <Style Selector="RadioButton.SidebarButton:checked">
@@ -61,7 +63,8 @@
         </Style>
 
         <Style Selector="RadioButton.SidebarButton:pointerover /template/ Border#border">
-            <Setter Property="Background" Value="#007ACC10"/>
+            <Setter Property="Background" Value="#2A2A2A"/>
+            <Setter Property="BorderBrush" Value="#3A3A3A"/>
         </Style>
 
         <!-- ComboBox Styles -->
@@ -287,12 +290,12 @@
         </Style>
 
         <Style Selector="Expander /template/ ToggleButton#ExpanderHeader">
-            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Background" Value="#070707"/>
             <Setter Property="CornerRadius" Value="6"/>
         </Style>
 
         <Style Selector="Expander:pointerover /template/ ToggleButton#ExpanderHeader">
-            <Setter Property="Background" Value="#353535"/>
+            <Setter Property="Background" Value="#111111"/>
         </Style>
 
         <!-- Sound tile selection: a complete rounded frame around the tile content. -->
