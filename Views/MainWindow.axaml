@@ -579,11 +579,12 @@
 
                             <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
-                            <Expander Margin="4,2,4,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Tone (EQ)" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Minimum="-20" Maximum="20"
@@ -599,13 +600,15 @@
                                                    Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
                                     </Grid>
                                 </StackPanel>
+                            </Border>
                             </Expander>
 
-                            <Expander Margin="4,2,4,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Pitch &amp; Modulation" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="62,*,Auto,46" VerticalAlignment="Center">
                                         <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Minimum="0.5" Maximum="2.0"
@@ -622,13 +625,15 @@
                                     <TextBlock Text="Pitch is bypassed at 1.0x; changes are smoothed."
                                                Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
                                 </StackPanel>
+                            </Border>
                             </Expander>
 
-                            <Expander Margin="4,2,4,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Distortion" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Amount" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Minimum="0" Maximum="100"
@@ -639,13 +644,15 @@
                                     <TextBlock Text="Soft clipping (tanh). 0% bypasses the effect."
                                                Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
                                 </StackPanel>
+                            </Border>
                             </Expander>
 
-                            <Expander Margin="4,2,4,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
                                 <Expander.Header>
                                     <TextBlock Text="Space &amp; FX" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
                                 </Expander.Header>
-                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <StackPanel Spacing="6">
                                     <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
                                         <TextBlock Text="Echo" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
                                         <Slider Grid.Column="1" Minimum="0" Maximum="500"
@@ -670,6 +677,7 @@
                                     <TextBlock Text="0 ms or 0% feedback bypasses the echo; 0% reverb is bypassed."
                                                Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
                                 </StackPanel>
+                            </Border>
                             </Expander>
 
                             <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
@@ -708,14 +716,15 @@
 
                             <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
 
-                            <Expander Margin="4,2,4,2" IsExpanded="False" HorizontalAlignment="Stretch">
+                            <Expander Margin="8,2,8,2" IsExpanded="False" HorizontalAlignment="Stretch">
                                 <Expander.Header>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <TextBlock Grid.Column="0" Text="TRIM" Foreground="#A8A8A8" FontSize="11" FontWeight="Bold"/>
                                         <TextBlock Grid.Column="1" Text="{Binding ClipDurationText}" Foreground="#8A8A8A" FontSize="10"/>
                                     </Grid>
                                 </Expander.Header>
-                                <StackPanel Spacing="6" Margin="0,6,0,0">
+                                <Border Background="#202020" CornerRadius="0,0,6,6" Padding="8,6,8,8">
+                                <StackPanel Spacing="6">
                                     <views:TrimWaveformView Height="66"
                                                         Peaks="{Binding ClipPeaks}"
                                                         Duration="{Binding ClipDurationSeconds}"
@@ -747,6 +756,7 @@
                                     <Button Content="Reset trim" FontSize="11" Background="Transparent"
                                             HorizontalAlignment="Left" Padding="0" Click="ResetTrim_Click"/>
                                 </StackPanel>
+                            </Border>
                             </Expander>
 
                             <!-- Breathing room so the last controls stay above the fixed transport footer. -->
