@@ -5,6 +5,7 @@ public class DownmixToStereoSampleProvider : ISampleProvider
 {
     private readonly ISampleProvider _source;
     private readonly int _sourceChannels;
+    private float[] _sourceBuffer = Array.Empty<float>();
 
     public DownmixToStereoSampleProvider(ISampleProvider source)
     {
@@ -19,16 +20,34 @@ public class DownmixToStereoSampleProvider : ISampleProvider
 
     public int Read(float[] buffer, int offset, int count)
     {
-        int samplesRead = _source.Read(buffer, offset, count * _sourceChannels / 2);
+        int outputFrames = count / 2;
+
+        if (outputFrames <= 0)
+        {
+            return 0;
+        }
+
+        int requestedSourceSamples = outputFrames * _sourceChannels;
+
+        // The source has more channels than the stereo destination, so it must not be read
+        // directly into the smaller output buffer.
+        if (_sourceBuffer.Length < requestedSourceSamples)
+        {
+            _sourceBuffer = new float[requestedSourceSamples];
+        }
+
+        int samplesRead = _source.Read(_sourceBuffer, 0, requestedSourceSamples);
         int numFrames = samplesRead / _sourceChannels;
 
         for (int i = 0; i < numFrames; i++)
         {
             float left = 0;
             float right = 0;
+            int sourceOffset = i * _sourceChannels;
+
             for (int ch = 0; ch < _sourceChannels; ch++)
             {
-                float sample = buffer[offset + i * _sourceChannels + ch];
+                float sample = _sourceBuffer[sourceOffset + ch];
                 if (ch == 0) left = sample;        // First channel to left
                 else if (ch == 1) right = sample;  // Second channel to right
                 else
@@ -38,9 +57,11 @@ public class DownmixToStereoSampleProvider : ISampleProvider
                     right += sample * 0.5f;
                 }
             }
+
             buffer[offset + i * 2] = left;      // Left channel
             buffer[offset + i * 2 + 1] = right; // Right channel
         }
+
         return numFrames * 2;
     }
 }

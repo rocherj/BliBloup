@@ -106,6 +106,7 @@ public class TrimmedLoopStream : WaveStream
         }
 
         int totalRead = 0;
+        int stalledWraps = 0;
 
         while (totalRead < count)
         {
@@ -119,6 +120,14 @@ public class TrimmedLoopStream : WaveStream
 
                 _position = 0;
                 _source.Position = _segmentStart;
+                stalledWraps++;
+
+                // A source that keeps returning no data after a rewind must not spin forever.
+                if (stalledWraps >= 2)
+                {
+                    break;
+                }
+
                 continue;
             }
 
@@ -134,9 +143,17 @@ public class TrimmedLoopStream : WaveStream
 
                 _position = 0;
                 _source.Position = _segmentStart;
+                stalledWraps++;
+
+                if (stalledWraps >= 2)
+                {
+                    break;
+                }
+
                 continue;
             }
 
+            stalledWraps = 0;
             _position += read;
             totalRead += read;
         }
