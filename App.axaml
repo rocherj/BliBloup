@@ -173,19 +173,53 @@
             <Setter Property="Height" Value="35"/>
         </Style>
 
-        <Style Selector="Slider:thumb">
-            <Setter Property="Background" Value="#007ACC"/>
-            <Setter Property="Width" Value="10"/>
-            <Setter Property="Height" Value="10"/>
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#FFFFFF"/>
+        <Style Selector="Slider /template/ Thumb">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <!-- BorderBrush is the outer ring, Background the inner circle. -->
+            <Setter Property="BorderBrush" Value="#666666"/>
+            <Setter Property="Background" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <ControlTemplate>
-                    <Ellipse Fill="{TemplateBinding Background}"
-                        Stroke="{TemplateBinding BorderBrush}"
-                        StrokeThickness="{TemplateBinding BorderThickness}"
-                        Width="{TemplateBinding Width}"
-                        Height="{TemplateBinding Height}"/>
+                    <Grid Width="20" Height="20">
+                        <Ellipse Fill="#666666"
+                                 Width="18" Height="18"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Ellipse Fill="#CCCCCC"
+                                 Width="10" Height="10"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="Slider:pointerover /template/ Thumb">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Width="20" Height="20">
+                        <Ellipse Fill="#4FC1FF"
+                                 Width="18" Height="18"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Ellipse Fill="#FFFFFF"
+                                 Width="10" Height="10"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="Slider:pressed /template/ Thumb">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Width="20" Height="20">
+                        <Ellipse Fill="#4FC1FF"
+                                 Width="18" Height="18"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Ellipse Fill="#999999"
+                                 Width="10" Height="10"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
                 </ControlTemplate>
             </Setter>
         </Style>
