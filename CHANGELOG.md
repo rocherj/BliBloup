@@ -23,12 +23,17 @@ First public release of BliBloup, based on BoomBx 0.1.6.
 - Keyboard focus indicators and improved contrast in the dark theme.
 - Sounds are decoded once into an in-memory PCM cache when the library loads or a file is imported; triggering a sound reads the decoded buffer instead of reopening the file, with LRU eviction and invalidation when a sound is removed or a file changes.
 - Per-sound Mute the preview option: the clip keeps playing in the virtual microphone mix but is silenced on the local speakers/headphones. The setting is stored with the sound and applied to voices that are already playing.
+- Pitch shifter bypass at exactly 1.0x and smoothed pitch changes, fixing the metallic tail that used to remain after returning to normal pitch.
+- Per-sound effects: soft-clipping distortion, a circular echo/delay with feedback, a light three-comb reverb and a ring-modulator robot voice. Parameters are ramped to avoid clicks and each effect is fully bypassed when set to zero.
+- Trim Preview selection now plays only on the local speakers/headphones without feeding the virtual microphone.
 - Microphone latency settings: WASAPI shared capture with a configurable 10-150 ms buffer (40 ms default), an exclusive mode option that falls back to shared when the driver rejects it, and MMCSS "Pro Audio" thread priority for the capture thread.
 - Trim editor reworked around an interactive waveform control: draggable start and end handles, drag-to-select, click-to-place playhead and a 3 px threshold between a click and a drag. The previous start/end sliders were removed.
 
 ### Changed
 
 - Sound panel layout reworked so the trim editor and the Play/Stop transport remain visible while the settings scroll.
+- Sound settings are grouped into collapsible Tone, Pitch & Modulation, Distortion and Space & FX sections; Volume, Loop and Mute stay at the top and Play/Stop/Save remain in the fixed footer.
+- Selected sound tiles use a rounded accent frame around the whole tile instead of top and bottom selection lines.
 - The title in the sound panel is now an editable field, which made the separate Rename button unnecessary.
 - Empty states added for an empty soundboard and for no selection in the sound panel.
 - Application logo, default thumbnail, name and data folder updated to BliBloup.
