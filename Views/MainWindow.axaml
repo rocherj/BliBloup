@@ -193,13 +193,22 @@
                         <StackPanel Spacing="20">
                             <TextBlock Text="Sound Library" FontSize="22" FontWeight="Bold"
                                     Foreground="#E0E0E0" HorizontalAlignment="Center"/>
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <Button Content="Add Sound" Click="AddToLibrary" 
-                                        Width="120" Background="#007ACC"/>
-                                <Button Content="Remove Selected" Click="RemoveFromLibrary" 
-                                        Width="120" Background="#c20000"/>
-                                <Button Content="■ Stop All" Click="StopHandler"
-                                        Width="120" Background="#404040"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
+                                <Button Content="Add Sound" Click="AddToLibrary"
+                                        MinWidth="110" Padding="10,8" Background="#007ACC"/>
+                                <Button Content="Remove Selected" Click="RemoveFromLibrary"
+                                        IsEnabled="{Binding HasSelectedSound}"
+                                        MinWidth="110" Padding="10,8" Background="#c20000"/>
+                                <Button Click="StopHandler"
+                                        MinWidth="110" Padding="10,8" Background="#404040">
+                                    <StackPanel Orientation="Horizontal" Spacing="7"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border Width="10" Height="10" Background="White"
+                                                CornerRadius="2" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Stop All" Foreground="White"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
 
                             <Grid MinHeight="200">
