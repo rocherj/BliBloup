@@ -556,6 +556,9 @@
                     <!-- Scrollable settings -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,10,12,28">
                         <StackPanel Spacing="10">
+                            <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
+                                       TextWrapping="Wrap" MinHeight="16"/>
+
                             <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
                                 <TextBlock Text="Volume" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
                                 <Slider Grid.Column="1" Minimum="0" Maximum="100"
@@ -768,8 +771,6 @@
                                     HorizontalAlignment="Stretch" Click="SaveChangesClicked"
                                     Background="#007ACC" Foreground="White"/>
 
-                            <TextBlock x:Name="StatMessage" Foreground="#B8B8B8" FontSize="12"
-                                       TextWrapping="Wrap" MinHeight="16"/>
                         </StackPanel>
                     </Border>
                 </Grid>
