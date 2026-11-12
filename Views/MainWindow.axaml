@@ -16,8 +16,8 @@
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
         CanResize="True"
-        Width="1200"
-        Height="800"
+        Width="1472"
+        Height="803"
         MinWidth="980"
         MinHeight="620">
     
@@ -329,9 +329,130 @@
 
                     <Border Background="#2D2D2D" CornerRadius="8" Padding="25"
                             IsVisible="{Binding #VoiceChangerNav.IsChecked}">
-                        <TextBlock Text="AI Voice Changer (Coming Soon)" 
-                                Foreground="#B8B8B8" FontSize="16"
-                                HorizontalAlignment="Center"/>
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="Voice Changer" FontSize="22" FontWeight="Bold"
+                                    Foreground="#E0E0E0" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Real-time microphone effects. The processed voice goes to the virtual microphone; the soundboard is not affected. Enable monitoring to hear it locally as well."
+                                    Foreground="#A8A8A8" FontSize="12" TextWrapping="Wrap"
+                                    TextAlignment="Center"/>
+
+                            <Border Background="#333333" CornerRadius="6" Padding="12">
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="PRESETS" Foreground="#A8A8A8" FontSize="10" FontWeight="Bold"/>
+                                    <WrapPanel Orientation="Horizontal">
+                                        <Button Content="Chipmunk" Click="ChipmunkPreset_Click" Width="112" Margin="0,0,8,8"/>
+                                        <Button Content="Demon" Click="DemonPreset_Click" Width="112" Margin="0,0,8,8"/>
+                                        <Button Content="Robot" Click="RobotPreset_Click" Width="112" Margin="0,0,8,8"/>
+                                        <Button Content="Phone / Radio" Click="PhonePreset_Click" Width="136" Margin="0,0,8,8"/>
+                                        <Button Content="Cave" Click="CavePreset_Click" Width="112" Margin="0,0,8,8"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <CheckBox Content="Monitor processed voice in headphones"
+                                        IsChecked="{Binding VoiceChanger.Monitor, Mode=TwoWay}"
+                                        Click="VoiceMonitorChanged"
+                                        Foreground="#E0E0E0" VerticalAlignment="Center"
+                                        ToolTip.Tip="Also play the modified microphone on the default speakers. Disabled by default to avoid feedback."/>
+                                <Button Grid.Column="1" Content="Reset Voice" Click="ResetVoice_Click"
+                                        Background="#404040" Margin="12,0,0,0"/>
+                            </Grid>
+                            <TextBlock Text="Monitoring is off by default: it can create feedback if the speakers are close to the microphone."
+                                    Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+
+                            <Border Height="1" Background="#3A3A3A" Margin="0,2"/>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4">
+                                <Expander.Header>
+                                    <TextBlock Text="Tone (EQ)" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="8,6,8,8">
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Bass" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                                Value="{Binding VoiceChanger.Bass, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.Bass, StringFormat='{}{0:F0} dB'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Treble" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="-20" Maximum="20"
+                                                Value="{Binding VoiceChanger.Treble, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.Treble, StringFormat='{}{0:F0} dB'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4">
+                                <Expander.Header>
+                                    <TextBlock Text="Pitch &amp; Modulation" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="8,6,8,8">
+                                    <Grid ColumnDefinitions="62,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Pitch" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0.5" Maximum="2.0"
+                                                Value="{Binding VoiceChanger.Pitch, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.Pitch, StringFormat='{}{0:F1}x'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <CheckBox Content="Robotize (ring modulator)"
+                                            IsChecked="{Binding VoiceChanger.Robotize, Mode=TwoWay}"
+                                            Foreground="#E0E0E0"/>
+                                    <TextBlock Text="Pitch is bypassed at 1.0x; changes are smoothed."
+                                            Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4">
+                                <Expander.Header>
+                                    <TextBlock Text="Distortion" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="8,6,8,8">
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Amount" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                                Value="{Binding VoiceChanger.Distortion, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.Distortion, StringFormat='{}{0:F0}%'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <TextBlock Text="Soft clipping (tanh). 0% bypasses the effect."
+                                            Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+
+                            <Expander IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4">
+                                <Expander.Header>
+                                    <TextBlock Text="Space &amp; FX" Foreground="#B8B8B8" FontSize="12" FontWeight="Bold"/>
+                                </Expander.Header>
+                                <StackPanel Spacing="6" Margin="8,6,8,8">
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Echo" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="500"
+                                                Value="{Binding VoiceChanger.EchoDelayMs, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.EchoDelayMs, StringFormat='{}{0:F0} ms'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Feedback" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="90"
+                                                Value="{Binding VoiceChanger.EchoFeedback, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.EchoFeedback, StringFormat='{}{0:F0}%'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <Grid ColumnDefinitions="70,*,46" VerticalAlignment="Center">
+                                        <TextBlock Text="Reverb" Foreground="#B8B8B8" FontSize="12" VerticalAlignment="Center"/>
+                                        <Slider Grid.Column="1" Minimum="0" Maximum="100"
+                                                Value="{Binding VoiceChanger.ReverbMix, Mode=TwoWay}" Foreground="#007ACC"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding VoiceChanger.ReverbMix, StringFormat='{}{0:F0}%'}"
+                                                Foreground="#A8A8A8" FontSize="11" VerticalAlignment="Center" TextAlignment="Right"/>
+                                    </Grid>
+                                    <TextBlock Text="0 ms or 0% feedback bypasses the echo; 0% reverb is bypassed."
+                                            Foreground="#8A8A8A" FontSize="10" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
                     </Border>
 
                     <Border Background="#2D2D2D" CornerRadius="8" Padding="25,25,25,32"
