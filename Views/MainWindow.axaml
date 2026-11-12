@@ -346,6 +346,16 @@
                                         <Button Content="Phone / Radio" Click="PhonePreset_Click" Width="136" Margin="0,0,8,8"/>
                                         <Button Content="Cave" Click="CavePreset_Click" Width="112" Margin="0,0,8,8"/>
                                     </WrapPanel>
+
+                                    <TextBlock Text="MORE PRESETS" Foreground="#A8A8A8" FontSize="10"
+                                            FontWeight="Bold" Margin="0,4,0,0"/>
+                                    <WrapPanel Orientation="Horizontal">
+                                        <Button Content="Alien / Insect" Click="AlienPreset_Click" Width="132" Margin="0,0,8,8"/>
+                                        <Button Content="Monster / Ogre" Click="MonsterPreset_Click" Width="136" Margin="0,0,8,8"/>
+                                        <Button Content="Megaphone" Click="MegaphonePreset_Click" Width="120" Margin="0,0,8,8"/>
+                                        <Button Content="Ghost / Spirit" Click="GhostPreset_Click" Width="128" Margin="0,0,8,8"/>
+                                        <Button Content="Underwater" Click="UnderwaterPreset_Click" Width="120" Margin="0,0,8,8"/>
+                                    </WrapPanel>
                                 </StackPanel>
                             </Border>
 

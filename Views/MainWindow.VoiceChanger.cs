@@ -98,6 +98,71 @@ namespace BliBloup.Views
                 voice.Robotize = false;
             });
 
+        private void AlienPreset_Click(object? sender, RoutedEventArgs e) =>
+            ApplyVoicePreset("Alien / Insect", voice =>
+            {
+                voice.Pitch = 1.35;
+                voice.Bass = -8;
+                voice.Treble = 12;
+                voice.Distortion = 10;
+                voice.EchoDelayMs = 0;
+                voice.EchoFeedback = 0;
+                voice.ReverbMix = 15;
+                voice.Robotize = false;
+            });
+
+        private void MonsterPreset_Click(object? sender, RoutedEventArgs e) =>
+            ApplyVoicePreset("Monster / Ogre", voice =>
+            {
+                voice.Pitch = 0.6;
+                voice.Bass = 20;
+                voice.Treble = -10;
+                voice.Distortion = 25;
+                voice.EchoDelayMs = 0;
+                voice.EchoFeedback = 0;
+                voice.ReverbMix = 20;
+                voice.Robotize = false;
+            });
+
+        private void MegaphonePreset_Click(object? sender, RoutedEventArgs e) =>
+            ApplyVoicePreset("Megaphone", voice =>
+            {
+                voice.Pitch = 1.0;
+                voice.Bass = -15;
+                voice.Treble = 5;
+                voice.Distortion = 45;
+                voice.EchoDelayMs = 80;
+                voice.EchoFeedback = 15;
+                voice.ReverbMix = 0;
+                voice.Robotize = false;
+            });
+
+        private void GhostPreset_Click(object? sender, RoutedEventArgs e) =>
+            ApplyVoicePreset("Ghost / Spirit", voice =>
+            {
+                voice.Pitch = 1.15;
+                voice.Bass = 0;
+                voice.Treble = 8;
+                voice.Distortion = 0;
+                voice.EchoDelayMs = 300;
+                voice.EchoFeedback = 40;
+                voice.ReverbMix = 75;
+                voice.Robotize = false;
+            });
+
+        private void UnderwaterPreset_Click(object? sender, RoutedEventArgs e) =>
+            ApplyVoicePreset("Underwater", voice =>
+            {
+                voice.Pitch = 0.9;
+                voice.Bass = 15;
+                voice.Treble = -20;
+                voice.Distortion = 5;
+                voice.EchoDelayMs = 150;
+                voice.EchoFeedback = 35;
+                voice.ReverbMix = 30;
+                voice.Robotize = false;
+            });
+
         private void ResetVoice_Click(object? sender, RoutedEventArgs e)
         {
             _settings.VoiceChanger.Reset();
