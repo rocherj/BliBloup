@@ -42,6 +42,8 @@ First public release of BliBloup, based on BoomBx 0.1.6.
 ### Fixed
 
 - Global hotkey hook is detached and disposed on close instead of leaking.
+- Pitch Reset button: forces 1.0x and discards the pitch-shifter state, so the metallic tail cannot survive a return to normal pitch.
+- The right panel now scrolls all settings (including TRIM) below the fixed header; the compact accent frame around selected tiles and the responsive WrapPanel grid replace the previous clipped two-line selection.
 - Settings: the version line at the bottom of the page is no longer clipped by the window edge.
 - Startup is silent; the splash screen no longer plays the bundled sound.
 - Sound properties raise change notifications, so titles, hotkey badges and sliders refresh immediately.
