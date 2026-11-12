@@ -16,8 +16,8 @@
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
         CanResize="True"
-        Width="1505"
-        Height="842"
+        Width="1293"
+        Height="857"
         MinWidth="980"
         MinHeight="620">
     
