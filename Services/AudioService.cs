@@ -29,6 +29,7 @@ namespace BliBloup.Services
         private EqualizerSampleProvider? _micEq;
         private PitchShifter? _micPitch;
         private SoundEffectsSampleProvider? _micFx;
+        private VolumeSampleProvider? _micVolume;
         private TeeSampleProvider? _micTee;
         private IWavePlayer? _micMonitorOutput;
         private BufferedWaveProvider? _micMonitorBuffer;
@@ -176,7 +177,11 @@ namespace BliBloup.Services
                 _micPitch = new PitchShifter(_micEq);
                 _micPitch.SetPitch((float)_micSound.Pitch);
                 _micFx = new SoundEffectsSampleProvider(_micPitch, _micSound);
-                _micTee = new TeeSampleProvider(_micFx);
+                _micVolume = new VolumeSampleProvider(_micFx)
+                {
+                    Volume = (float)Math.Clamp(_settings.VoiceChanger.Volume / 100.0, 0, 1)
+                };
+                _micTee = new TeeSampleProvider(_micVolume);
 
                 if (_settings.VoiceChanger.Monitor)
                 {
@@ -229,6 +234,7 @@ namespace BliBloup.Services
             _micEq = null;
             _micPitch = null;
             _micFx = null;
+            _micVolume = null;
             _micTee = null;
             DisposeMicCapture();
 
@@ -327,6 +333,12 @@ namespace BliBloup.Services
             _micSound.EchoFeedback = voice.EchoFeedback;
             _micSound.ReverbMix = voice.ReverbMix;
             _micSound.Robotize = voice.Robotize;
+            _micSound.Volume = voice.Volume;
+
+            if (_micVolume is not null)
+            {
+                _micVolume.Volume = (float)Math.Clamp(voice.Volume / 100.0, 0, 1);
+            }
 
             _micEq?.UpdateFilters(_micSound);
 

@@ -18,6 +18,7 @@ public class VoiceChangerSettings : INotifyPropertyChanged
     private double _reverbMix;
     private bool _robotize;
     private bool _monitor;
+    private double _volume = 100;
 
     public double Bass
     {
@@ -74,6 +75,13 @@ public class VoiceChangerSettings : INotifyPropertyChanged
         set => Set(ref _monitor, value);
     }
 
+    /// <summary>Processed microphone output volume, in percent.</summary>
+    public double Volume
+    {
+        get => _volume;
+        set => Set(ref _volume, Math.Clamp(value, 0, 100));
+    }
+
     /// <summary>Neutral voice: no EQ, no effects, pitch at 1.0x. Monitoring is kept as it is.</summary>
     public void Reset()
     {
@@ -85,6 +93,7 @@ public class VoiceChangerSettings : INotifyPropertyChanged
         EchoFeedback = 0;
         ReverbMix = 0;
         Robotize = false;
+        Volume = 100;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
